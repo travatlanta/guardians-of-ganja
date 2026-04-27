@@ -1,0 +1,177 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — Guardians of Ganja</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/portal.css" />
+    <script src="assets/js/portal.js"></script>
+  </head>
+  <body>
+    <div class="login-page">
+      <div class="login-box">
+
+        <!-- Brand -->
+        <div class="login-brand">
+          <div class="login-brand-mark"></div>
+          <div class="login-brand-name">Guardians of Ganja</div>
+          <div class="login-brand-sub">Client Portal</div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="login-tabs" role="tablist">
+          <button class="login-tab-btn active" data-tab="signin" role="tab" aria-selected="true">Sign In</button>
+          <button class="login-tab-btn" data-tab="signup" role="tab" aria-selected="false">Create Account</button>
+        </div>
+
+        <!-- Sign In Form -->
+        <form class="login-form active" id="signin-form" data-panel="signin" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="signin-email">Email</label>
+            <input class="form-input" id="signin-email" type="email" placeholder="you@example.com" autocomplete="email" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signin-password">Password</label>
+            <input class="form-input" id="signin-password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+          </div>
+          <div class="login-link">
+            <a href="#" id="forgot-link">Forgot password?</a>
+          </div>
+          <p class="login-error" id="signin-error"></p>
+          <button type="submit" class="btn btn-primary" style="width:100%;">Sign In</button>
+        </form>
+
+        <!-- Create Account Form -->
+        <form class="login-form" id="signup-form" data-panel="signup" novalidate>
+          <div class="login-form-row">
+            <div class="form-group">
+              <label class="form-label" for="signup-fname">First Name</label>
+              <input class="form-input" id="signup-fname" type="text" placeholder="Jane" autocomplete="given-name" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="signup-lname">Last Name</label>
+              <input class="form-input" id="signup-lname" type="text" placeholder="Doe" autocomplete="family-name" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-company">Business / Company</label>
+            <input class="form-input" id="signup-company" type="text" placeholder="Green Leaf Dispensary" autocomplete="organization" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-phone">Phone</label>
+            <input class="form-input" id="signup-phone" type="tel" placeholder="(555) 000-0000" autocomplete="tel" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-email">Email</label>
+            <input class="form-input" id="signup-email" type="email" placeholder="you@example.com" autocomplete="email" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-password">Password</label>
+            <input class="form-input" id="signup-password" type="password" placeholder="Min. 8 characters" autocomplete="new-password" required minlength="8" />
+          </div>
+          <p class="login-error" id="signup-error"></p>
+          <button type="submit" class="btn btn-primary" style="width:100%;">Create Account</button>
+        </form>
+
+        <!-- Reset Password Form (hidden until "Forgot password" clicked) -->
+        <form class="login-form" id="reset-form" data-panel="reset" novalidate>
+          <p style="font-size:0.85rem;color:var(--muted);margin:0;">Enter your email and we'll send you a reset link.</p>
+          <div class="form-group">
+            <label class="form-label" for="reset-email">Email</label>
+            <input class="form-input" id="reset-email" type="email" placeholder="you@example.com" autocomplete="email" required />
+          </div>
+          <p class="login-error" id="reset-error"></p>
+          <p class="login-error" id="reset-success" style="color:var(--brand);"></p>
+          <button type="submit" class="btn btn-primary" style="width:100%;">Send Reset Link</button>
+          <div class="login-link" style="text-align:center;">
+            <a href="#" id="back-to-signin">← Back to Sign In</a>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+    <script>
+    (function () {
+      // Redirect if already logged in
+      Portal.auth.getSession() && (function () {
+        var u = Portal.auth.getCurrentUser();
+        window.location.href = u && u.role === "admin" ? "admin.html" : "dashboard.html";
+      })();
+
+      // Tab switching
+      document.querySelectorAll(".login-tab-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          document.querySelectorAll(".login-tab-btn").forEach(function (b) {
+            b.classList.remove("active"); b.setAttribute("aria-selected", "false");
+          });
+          btn.classList.add("active"); btn.setAttribute("aria-selected", "true");
+          showPanel(btn.dataset.tab);
+        });
+      });
+
+      function showPanel(name) {
+        document.querySelectorAll(".login-form").forEach(function (f) {
+          f.classList.toggle("active", f.dataset.panel === name);
+        });
+      }
+
+      document.getElementById("forgot-link").addEventListener("click", function (e) {
+        e.preventDefault();
+        document.querySelectorAll(".login-tab-btn").forEach(function (b) { b.classList.remove("active"); });
+        showPanel("reset");
+      });
+      document.getElementById("back-to-signin").addEventListener("click", function (e) {
+        e.preventDefault();
+        document.querySelector("[data-tab=\"signin\"]").click();
+      });
+
+      function showError(id, msg) { var el = document.getElementById(id); el.textContent = msg; el.classList.add("visible"); }
+      function clearError(id)     { var el = document.getElementById(id); el.textContent = ""; el.classList.remove("visible"); }
+
+      // ── Sign In ──────────────────────────────────────────
+      document.getElementById("signin-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        clearError("signin-error");
+        var email    = document.getElementById("signin-email").value.trim();
+        var password = document.getElementById("signin-password").value;
+        if (!email || !password) return showError("signin-error", "Please fill in all fields.");
+        var result = Portal.auth.signIn(email, password);
+        if (result.error) return showError("signin-error", result.error.message);
+        window.location.href = result.data.user.role === "admin" ? "admin.html" : "dashboard.html";
+      });
+
+      // ── Create Account ───────────────────────────────────
+      document.getElementById("signup-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        clearError("signup-error");
+        var fname    = document.getElementById("signup-fname").value.trim();
+        var lname    = document.getElementById("signup-lname").value.trim();
+        var company  = document.getElementById("signup-company").value.trim();
+        var phone    = document.getElementById("signup-phone").value.trim();
+        var email    = document.getElementById("signup-email").value.trim();
+        var password = document.getElementById("signup-password").value;
+        if (!fname || !lname || !email || !password) return showError("signup-error", "Please fill in all required fields.");
+        if (password.length < 6) return showError("signup-error", "Password must be at least 6 characters.");
+        var result = Portal.auth.signUp(email, password, { full_name: fname + " " + lname, company: company, phone: phone });
+        if (result.error) return showError("signup-error", result.error.message);
+        window.location.href = result.data.user.role === "admin" ? "admin.html" : "dashboard.html";
+      });
+
+      // ── Password Reset (local mode) ──────────────────────
+      document.getElementById("reset-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        clearError("reset-error");
+        var email = document.getElementById("reset-email").value.trim();
+        if (!email) return showError("reset-error", "Please enter your email.");
+        var suc = document.getElementById("reset-success");
+        suc.textContent = "Password reset is managed by your administrator. Please contact support directly.";
+        suc.classList.add("visible");
+      });
+    })();
+    </script>
+
+  </body>
+</html>

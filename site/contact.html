@@ -14,6 +14,110 @@
     <meta property="og:url" content="https://www.guardiansofganja.com/contact" />
     <link rel="canonical" href="https://www.guardiansofganja.com/contact" />
     <link rel="stylesheet" href="assets/css/main.css" />
+    <style>
+      .contact-hero {
+        position: relative;
+        min-height: 380px;
+        display: flex;
+        align-items: flex-end;
+        overflow: hidden;
+        border-bottom: 1px solid rgba(47,176,115,0.18);
+        background: url('assets/img/home-hero.jpg') center center / cover no-repeat;
+      }
+      .contact-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to right, rgba(4,12,8,0.92) 25%, rgba(4,12,8,0.55) 100%),
+                    linear-gradient(to top, rgba(4,12,8,0.88) 0%, transparent 55%);
+      }
+      .contact-hero-content {
+        position: relative;
+        z-index: 2;
+        padding: 4rem 0 3.5rem;
+      }
+      .contact-hero-content h1 {
+        font-size: clamp(2.4rem, 5vw, 4rem);
+        letter-spacing: -0.04em;
+        white-space: nowrap;
+        margin: 0.5rem 0 0.9rem;
+        color: #fff;
+      }
+      .contact-hero-content .lead {
+        font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+        font-weight: 400;
+        color: #a4c8b0;
+        max-width: 42rem;
+        line-height: 1.65;
+      }
+      .contact-body {
+        display: grid;
+        grid-template-columns: 1fr 1.4fr;
+        gap: 2.8rem;
+        padding: 3.5rem 0 4rem;
+        align-items: start;
+      }
+      .contact-info-col { display: flex; flex-direction: column; gap: 1.2rem; }
+      .contact-info-intro { color: #8ab89a; font-size: 0.95rem; line-height: 1.7; margin: 0 0 0.6rem; }
+      .contact-card {
+        display: flex; align-items: flex-start; gap: 1rem;
+        background: linear-gradient(155deg, #0e1e16, #0b1810);
+        border: 1px solid rgba(47,176,115,0.2); border-radius: 14px;
+        padding: 1.1rem 1.25rem;
+        transition: border-color 200ms, box-shadow 200ms;
+      }
+      .contact-card:hover { border-color: rgba(47,176,115,0.5); box-shadow: 0 6px 24px rgba(30,255,120,0.07); }
+      .contact-card-icon {
+        flex-shrink: 0; width: 40px; height: 40px; border-radius: 10px;
+        background: linear-gradient(135deg, rgba(47,176,115,0.18), rgba(47,176,115,0.06));
+        border: 1px solid rgba(47,176,115,0.3);
+        display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+      }
+      .contact-card-text { min-width: 0; }
+      .contact-card-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--brand); margin-bottom: 0.25rem; }
+      .contact-card-value { font-size: 0.95rem; font-weight: 600; color: #d4f0e0; word-break: break-all; }
+      .contact-card-value a { color: inherit; text-decoration: none; }
+      .contact-card-value a:hover { color: var(--brand); }
+      .contact-hours {
+        background: linear-gradient(155deg, #0e1e16, #0b1810);
+        border: 1px solid rgba(47,176,115,0.2); border-radius: 14px; padding: 1.1rem 1.25rem;
+      }
+      .contact-hours-title { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--brand); margin-bottom: 0.6rem; }
+      .contact-hours-row { display: flex; justify-content: space-between; font-size: 0.875rem; color: #8ab89a; padding: 0.22rem 0; border-bottom: 1px solid rgba(47,176,115,0.08); }
+      .contact-hours-row:last-child { border-bottom: none; }
+      .contact-hours-row span:last-child { color: #c5ffe2; font-weight: 600; }
+      .contact-form-card {
+        background: linear-gradient(160deg, #0d1c15, #0a1710);
+        border: 1px solid rgba(47,176,115,0.22); border-radius: 20px;
+        padding: 2rem 2.2rem; box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+      }
+      .contact-form-title { font-family: "Sora","Segoe UI",sans-serif; font-size: 1.15rem; font-weight: 700; color: #e8faf0; margin: 0 0 0.35rem; }
+      .contact-form-subtitle { font-size: 0.85rem; color: #5e8a6e; margin: 0 0 1.6rem; }
+      .contact-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+      .contact-form-group { display: flex; flex-direction: column; margin-bottom: 1rem; }
+      .contact-form-group label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #6fa883; margin-bottom: 0.4rem; }
+      .contact-form-group input,
+      .contact-form-group select,
+      .contact-form-group textarea {
+        background: #071510; border: 1px solid rgba(47,176,115,0.2); border-radius: 10px;
+        color: #d4f0e0; font: inherit; font-size: 0.92rem; padding: 0.65rem 0.85rem;
+        width: 100%; box-sizing: border-box; transition: border-color 180ms, box-shadow 180ms; margin: 0;
+      }
+      .contact-form-group input::placeholder, .contact-form-group textarea::placeholder { color: #2e5240; }
+      .contact-form-group input:focus, .contact-form-group select:focus, .contact-form-group textarea:focus {
+        outline: none; border-color: rgba(47,176,115,0.6); box-shadow: 0 0 0 3px rgba(47,176,115,0.1);
+      }
+      .contact-form-group textarea { min-height: 110px; resize: vertical; }
+      .contact-form-group select option { background: #071510; }
+      .contact-submit-row { display: flex; align-items: center; gap: 1rem; margin-top: 0.4rem; flex-wrap: wrap; }
+      .contact-submit-row .btn { flex-shrink: 0; }
+      .contact-submit-note { font-size: 0.78rem; color: #3d6650; line-height: 1.5; }
+      @media (max-width: 820px) {
+        .contact-body { grid-template-columns: 1fr; gap: 2rem; }
+        .contact-form-row { grid-template-columns: 1fr; }
+        .contact-hero-content h1 { white-space: normal; }
+      }
+    </style>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to main content</a>
@@ -29,68 +133,132 @@
           <a href="services.html" data-nav-link>Services</a>
           <a href="contact.html" data-nav-link>Contact</a>
           <a href="gallery.html" data-nav-link>Gallery</a>
+          <a href="login.html" id="nav-auth-link" data-nav-auth>Login</a>
         </nav>
       </div>
     </header>
 
-    <main id="main" class="section">
-      <div class="container split">
-        <section class="reveal">
-          <p class="kicker">Contact</p>
-          <h1>Contact Us</h1>
-          <p class="lead">If you are interested in a quote, or have any questions, please provide your information and we will contact you soon.</p>
-          <div class="hero-media" style="margin-bottom: 1rem;">
-            <img src="assets/img/contact-hero.jpg" alt="Cannabis insurance contact consultation visual" />
-          </div>
-          <div class="card">
-            <h2>We look forward to connecting with you</h2>
-            <ul>
-              <li>Email: Dalton@aschemanagency.com</li>
-              <li>Phone: (406) 503-2895</li>
-              <li>Business segment and quote details</li>
-            </ul>
-          </div>
-        </section>
+    <!-- Hero -->
+    <div class="contact-hero">
+      <div class="container contact-hero-content">
+        <p class="kicker reveal">Get In Touch</p>
+        <h1 class="reveal">Request a Quote</h1>
+        <p class="lead reveal">Coverage built for cannabis operators. Tell us about your operation and we'll put together a focused insurance solution — fast.</p>
+      </div>
+    </div>
 
-        <section class="form-wrap reveal" aria-label="Quote request form">
+    <main id="main">
+      <div class="container contact-body">
+
+        <!-- Left: info -->
+        <aside class="contact-info-col reveal">
+          <p class="contact-info-intro">We specialize in cannabis insurance across every segment of the industry. Reach out directly or fill in the form and we'll get back to you promptly.</p>
+
+          <div class="contact-card">
+            <div class="contact-card-icon">✉</div>
+            <div class="contact-card-text">
+              <div class="contact-card-label">Email Us</div>
+              <div class="contact-card-value"><a href="mailto:Dalton@aschemanagency.com">Dalton@aschemanagency.com</a></div>
+            </div>
+          </div>
+
+          <div class="contact-card">
+            <div class="contact-card-icon">📞</div>
+            <div class="contact-card-text">
+              <div class="contact-card-label">Call Us</div>
+              <div class="contact-card-value"><a href="tel:+14065032895">(406) 503-2895</a></div>
+            </div>
+          </div>
+
+          <div class="contact-card">
+            <div class="contact-card-icon">📍</div>
+            <div class="contact-card-text">
+              <div class="contact-card-label">Service Area</div>
+              <div class="contact-card-value">Licensed across all legal cannabis states</div>
+            </div>
+          </div>
+
+          <div class="contact-hours">
+            <div class="contact-hours-title">Business Hours</div>
+            <div class="contact-hours-row"><span>Monday – Friday</span><span>9 AM – 5 PM MT</span></div>
+            <div class="contact-hours-row"><span>Saturday</span><span>By appointment</span></div>
+            <div class="contact-hours-row"><span>Sunday</span><span>Closed</span></div>
+          </div>
+        </aside>
+
+        <!-- Right: form -->
+        <section class="contact-form-card reveal" aria-label="Quote request form">
+          <div class="contact-form-title">Start Your Quote</div>
+          <div class="contact-form-subtitle">We typically respond within one business day.</div>
           <form data-contact-form novalidate>
-            <label for="name">Full Name</label>
-            <input id="name" name="name" type="text" autocomplete="name" required />
+            <div class="contact-form-row">
+              <div class="contact-form-group">
+                <label for="name">Full Name *</label>
+                <input id="name" name="name" type="text" autocomplete="name" placeholder="Jane Smith" required />
+              </div>
+              <div class="contact-form-group">
+                <label for="phone">Phone</label>
+                <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="(406) 555-0100" />
+              </div>
+            </div>
 
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" autocomplete="email" required />
+            <div class="contact-form-group">
+              <label for="email">Email Address *</label>
+              <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required />
+            </div>
 
-            <label for="phone">Phone</label>
-            <input id="phone" name="phone" type="tel" autocomplete="tel" />
+            <div class="contact-form-group">
+              <label for="segment">Business Segment</label>
+              <select id="segment" name="segment">
+                <option value="">Select your operation type</option>
+                <option value="dispensary">Dispensary / Retailer</option>
+                <option value="cultivator">Cultivator / Grower</option>
+                <option value="manufacturer">Manufacturer / Processor</option>
+                <option value="delivery">Delivery Service</option>
+                <option value="testing">Testing Lab</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
 
-            <label for="segment">Business Segment</label>
-            <select id="segment" name="segment">
-              <option value="">Select one</option>
-              <option value="dispensary">Dispensary</option>
-              <option value="cultivator">Cultivator</option>
-              <option value="manufacturer">Manufacturer</option>
-            </select>
+            <div class="contact-form-group">
+              <label for="message">Tell us about your coverage needs *</label>
+              <textarea id="message" name="message" placeholder="Include your state, operation size, current coverage if any, and specific concerns…" required></textarea>
+            </div>
 
-            <label for="message">Message</label>
-            <textarea id="message" name="message" required></textarea>
-
+            <!-- Honeypot -->
             <div class="hidden" aria-hidden="true">
               <label for="company_website">Company Website</label>
               <input id="company_website" name="company_website" type="text" tabindex="-1" autocomplete="off" />
             </div>
 
-            <p class="error hidden" data-form-error role="alert"></p>
-            <p class="small hidden" data-form-ok role="status"></p>
-            <button class="btn btn-primary" type="submit">Submit Quote Request</button>
+            <p class="error hidden" data-form-error role="alert" style="color:#ff8a80;font-size:0.85rem;margin-bottom:0.8rem;"></p>
+            <p class="small hidden" data-form-ok role="status" style="color:var(--brand);font-size:0.875rem;margin-bottom:0.8rem;"></p>
+
+            <div class="contact-submit-row">
+              <button class="btn btn-primary" type="submit">Submit Quote Request →</button>
+              <span class="contact-submit-note">No spam. Your info is only used to contact you about coverage.</span>
+            </div>
           </form>
         </section>
+
       </div>
     </main>
 
     <footer class="site-footer">
       <div class="container footer-grid">
-        <p>© 2026 Guardians of Ganja</p>
-        <p><a href="privacy.html">Privacy</a> | <a href="terms.html">Terms</a></p>
+        <div class="footer-col footer-col--left">
+          <p class="footer-eyebrow">Explore</p>
+          <p class="footer-links"><a href="index.html">Home</a><span>/</span><a href="services.html">Services</a><span>/</span><a href="contact.html">Contact</a><span>/</span><a href="gallery.html">Gallery</a></p>
+        </div>
+        <div class="footer-col footer-col--center">
+          <p class="footer-brand">Guardians of Ganja</p>
+          <p class="footer-mini">Specialty Cannabis Insurance</p>
+          <p class="footer-mini">© 2026 All rights reserved.</p>
+        </div>
+        <div class="footer-col footer-col--right">
+          <p class="footer-eyebrow">Legal</p>
+          <p class="footer-links"><a href="privacy.html">Privacy</a><span>/</span><a href="terms.html">Terms</a></p>
+        </div>
       </div>
     </footer>
 

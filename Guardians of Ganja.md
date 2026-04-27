@@ -241,3 +241,73 @@ Every new rebuild project markdown must include:
 6. Acceptance checklist.
 
 If required data is missing, add explicit TODO lines instead of removing sections.
+
+---
+
+## 15. Implementation Status — Last Updated April 23, 2026
+
+### Live Site
+- **URL:** https://guardians-of-ganja.vercel.app
+- **Vercel Project:** guardians-of-ganja (`prj_nZP6pfS4wBRMsMhSubpydNHY9ple`)
+- **Stack:** Pure static HTML + vanilla JS + CSS — no build step, no npm, no framework
+- **Hosting:** Vercel (static), deployed via `npx vercel --prod`
+
+### Pages Completed
+| Page | Status | Notes |
+|---|---|---|
+| index.html | ✅ Live | Hero, services marquee, coverage showcase, stats, logo wall |
+| services.html | ✅ Live | Scroll-snapping marquee with detail panel, fractional accumulator scroll fix |
+| contact.html | ✅ Live | Redesigned — full-width hero (home-hero.jpg), info cards, styled form |
+| gallery.html | ✅ Live | |
+| privacy.html | ✅ Live | |
+| terms.html | ✅ Live | |
+| login.html | ✅ Live | Sign In / Create Account / Forgot Password — localStorage auth |
+| dashboard.html | ✅ Live | Client portal — Inbox + Documents tabs |
+| admin.html | ✅ Live | Admin panel — Inbox / Users / Clients / Email Automations tabs |
+
+### Client Portal & Admin Panel
+- **Auth:** 100% localStorage-based — no Supabase, no external services, works immediately
+- **Session key:** `gog_session` → `{ user_id, expires_at }` (7-day expiry)
+- **Data keys:** `gog_users`, `gog_threads`, `gog_messages`, `gog_documents`, `gog_email_templates`
+- **Password hash:** Custom sync djb2-style hash with salt `:gog2026:` (prototype — not cryptographic)
+
+### Admin Credentials (Auto-seeded on every page load)
+| Name | Email | Password | Role |
+|---|---|---|---|
+| Trav McMichael | trav.mcmichael@gmail.com | 86238623 | admin |
+| Mike | mike@lucentengine.ai | 12341234 | admin |
+
+### Portal Features
+- **Login page:** Sign in, create account, forgot password (local mode)
+- **Dashboard (clients):** Inbox with thread view + reply, Documents tab with download
+- **Admin panel:**
+  - Inbox — all client threads, reply as admin
+  - Users — full user list, promote/demote admin role
+  - Clients — expandable client cards, document upload (FileReader → base64, 4MB limit)
+  - Email Automations — 5 trigger template editors stored in `gog_email_templates` localStorage
+- **Nav dropdown:** When logged in, "Login" pill becomes "My Account ▾" dropdown showing role badge, Admin Panel link (admins only), Client Portal link, and Sign Out
+- **seed.html:** Dev-only seeder page — creates test user `jane@test.com / test1234` with 3 documents and a pre-populated inbox thread
+
+### Key Technical Decisions
+- Dropped Supabase entirely after setup friction — full localStorage backend
+- `portal.js` is a single self-contained IIFE exposing `window.Portal` with `auth`, `db`, `requireAuth`, `signOut`, `formatDate`, `formatDateTime`, `initials`, `escHtml`
+- `requireAuth(role)` is synchronous — redirects to login or appropriate dashboard if role mismatch
+- Admin emails are seeded via `ensureAdmin()` which runs on every `requireAuth()` call and every page load
+- `dashboard.html` uses `requireAuth()` with no role arg — accessible to both admins and customers
+
+### Open Items / Next Steps
+- [ ] Wire contact form to real email delivery (Resend / Formspree / Netlify Forms)
+- [ ] Replace localStorage with a real backend (Supabase / Neon + API routes) before production client onboarding
+- [ ] Password reset flow — currently shows "contact your administrator" message
+- [ ] File upload size limit (currently 4MB base64 cap) — consider Cloudinary or S3 for real docs
+- [ ] Remove or password-protect seed.html before production handoff
+- [ ] Add email notification triggers when admin sends message or uploads document
+- [ ] Neon database provisioning (deferred — using localStorage in current phase)
+- [ ] GitHub repository setup and transfer to client
+- [ ] Domain DNS cutover to guardiansofganja.com
+## Engine8 Tracking Bootstrap
+
+- [ ] Install the Engine8 VS Code extension (`engine8.engine8-time-tracker`).
+- [ ] Run `Engine8: Set API Token` and use the token in `.env.sync`.
+- [ ] Open this project folder in VS Code to start auto-detected tracking.
+- [ ] Confirm the first time entry appears in Engine8 Project Activity.

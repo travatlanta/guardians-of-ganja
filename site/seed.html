@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seed Test Data — GoG Dev</title>
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/portal.css" />
+    <script src="assets/js/portal.js"></script>
+    <style>
+      body { background: #071a10; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; font-family: system-ui, sans-serif; }
+      .seed-box { background: #0d1f17; border: 1px solid #1e3d2a; border-radius: 18px; padding: 2.5rem 2.8rem; max-width: 480px; width: 100%; }
+      h2 { color: #1eff8e; margin: 0 0 0.4rem; font-size: 1.3rem; }
+      p  { color: #8ab89a; font-size: 0.875rem; margin: 0 0 1.4rem; }
+      .creds { background: #0a1710; border: 1px solid #1e3d2a; border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 1.6rem; }
+      .creds div { display: flex; justify-content: space-between; padding: 0.28rem 0; font-size: 0.85rem; }
+      .creds .label { color: #5a8a6a; }
+      .creds .val   { color: #c5ffe2; font-weight: 700; }
+      .status { font-size: 0.8rem; color: #5a8a6a; margin-bottom: 1.4rem; min-height: 1.2rem; }
+      .status.ok  { color: #1eff8e; }
+      .status.err { color: #ff8a80; }
+      .btn-go { display: block; width: 100%; padding: 0.8rem; background: #1eff8e; color: #062113; font-weight: 700; border: none; border-radius: 999px; cursor: pointer; font-size: 1rem; text-decoration: none; text-align: center; transition: background 150ms; }
+      .btn-go:hover { background: #25c778; }
+      .btn-reset { display: block; width: 100%; padding: 0.5rem; background: transparent; color: #5a8a6a; font-size: 0.8rem; border: none; cursor: pointer; margin-top: 0.8rem; text-decoration: underline; }
+    </style>
+  </head>
+  <body>
+    <div class="seed-box">
+      <h2>🌿 Test Data Seeder</h2>
+      <p>Seeds a test client account with documents and messages into localStorage.</p>
+
+      <div class="creds">
+        <div><span class="label">Email</span><span class="val">jane@test.com</span></div>
+        <div><span class="label">Password</span><span class="val">test1234</span></div>
+        <div><span class="label">Name</span><span class="val">Jane Grower</span></div>
+        <div><span class="label">Company</span><span class="val">Green Leaf Farms</span></div>
+      </div>
+
+      <div class="status" id="status">Seeding…</div>
+
+      <a href="login.html" class="btn-go" id="go-btn" style="pointer-events:none;opacity:0.4;">Go to Login</a>
+      <button class="btn-reset" id="reset-btn">⚠ Wipe ALL portal data and re-seed</button>
+    </div>
+
+    <script>
+    (function () {
+      var FAKE_PDF = "data:application/pdf;base64,JVBERi0xLjAKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA0MDAgMzAwXSA+PgplbmRvYmoKeHJlZgowIDQKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAp0cmFpbGVyCjw8IC9TaXplIDQgL1Jvb3QgMSAwIFIgPj4Kc3RhcnR4cmVmCjE5MAolJUVPRgo=";
+
+      function nowIso() { return new Date().toISOString(); }
+      function ago(days) { return new Date(Date.now() - days * 86400000).toISOString(); }
+      function uuid() { return "test-" + Math.random().toString(36).slice(2, 10); }
+
+      var statusEl = document.getElementById("status");
+      var goBtn    = document.getElementById("go-btn");
+
+      function seed() {
+        statusEl.textContent = "Seeding…";
+        statusEl.className = "status";
+
+        // 1. Create test customer via Portal.auth.signUp
+        var result = Portal.auth.signUp("jane@test.com", "test1234", {
+          full_name: "Jane Grower",
+          company:   "Green Leaf Farms",
+          phone:     "555-420-0001"
+        });
+
+        var userId;
+        if (result.error) {
+          // Already exists — find their ID
+          var users = JSON.parse(localStorage.getItem("gog_users") || "[]");
+          var existing = users.find(function (u) { return u.email.toLowerCase() === "jane@test.com"; });
+          if (!existing) { statusEl.textContent = "Error: " + result.error.message; statusEl.className = "status err"; return; }
+          userId = existing.id;
+        } else {
+          userId = result.data.user.id;
+        }
+
+        // Sign back out so we don't land on dashboard as Jane
+        localStorage.removeItem("gog_session");
+
+        // 2. Seed documents
+        var docs = JSON.parse(localStorage.getItem("gog_documents") || "[]");
+        var adminUsers = JSON.parse(localStorage.getItem("gog_users") || "[]");
+        var adminUser  = adminUsers.find(function (u) { return u.role === "admin"; });
+        var adminId    = adminUser ? adminUser.id : "admin";
+
+        var testDocs = [
+          { id: uuid(), client_id: userId, type: "policy",  filename: "Policy_Cannabis_2026.pdf",        data_url: FAKE_PDF, notes: "Annual renewal — effective Jan 1 2026",  uploaded_by: adminId, created_at: ago(10) },
+          { id: uuid(), client_id: userId, type: "quote",   filename: "Quote_Product_Liability.pdf",     data_url: FAKE_PDF, notes: "Product liability — $2M limit",           uploaded_by: adminId, created_at: ago(5)  },
+          { id: uuid(), client_id: userId, type: "other",   filename: "Welcome_Packet_GoG.pdf",          data_url: FAKE_PDF, notes: "Onboarding guide and portal overview",    uploaded_by: adminId, created_at: ago(15) }
+        ];
+        testDocs.forEach(function (d) {
+          if (!docs.some(function (x) { return x.filename === d.filename && x.client_id === userId; })) {
+            docs.push(d);
+          }
+        });
+        localStorage.setItem("gog_documents", JSON.stringify(docs));
+
+        // 3. Seed thread + messages
+        var threads  = JSON.parse(localStorage.getItem("gog_threads")  || "[]");
+        var messages = JSON.parse(localStorage.getItem("gog_messages") || "[]");
+
+        var existingThread = threads.find(function (t) { return t.customer_id === userId && t.subject === "Welcome to Guardians of Ganja!"; });
+        if (!existingThread) {
+          var threadId = uuid();
+          threads.push({ id: threadId, customer_id: userId, subject: "Welcome to Guardians of Ganja!", created_at: ago(12), last_message_at: ago(2) });
+          messages.push({ id: uuid(), thread_id: threadId, sender_id: adminId, content: "Hi Jane! Welcome to the Guardians of Ganja client portal. Your annual cannabis policy has been uploaded — you can view and download it from the Documents tab. Let us know if you have any questions!", read: true,  created_at: ago(12) });
+          messages.push({ id: uuid(), thread_id: threadId, sender_id: userId,  content: "Thank you! I see the policy document. Quick question — does this cover delivery operations too?", read: true,  created_at: ago(8)  });
+          messages.push({ id: uuid(), thread_id: threadId, sender_id: adminId, content: "Great question. Yes, delivery is covered under Section 4B of your policy up to $500K per incident. I've also uploaded a product liability quote for your review.", read: false, created_at: ago(2)  });
+          localStorage.setItem("gog_threads",  JSON.stringify(threads));
+          localStorage.setItem("gog_messages", JSON.stringify(messages));
+        }
+
+        statusEl.textContent = "✓ Test data seeded successfully!";
+        statusEl.className   = "status ok";
+        goBtn.style.pointerEvents = "";
+        goBtn.style.opacity = "1";
+      }
+
+      document.getElementById("reset-btn").addEventListener("click", function () {
+        if (!confirm("This will delete ALL portal users, documents, threads and messages. Continue?")) return;
+        ["gog_users","gog_session","gog_documents","gog_threads","gog_messages","gog_email_templates"].forEach(function (k) { localStorage.removeItem(k); });
+        statusEl.textContent = "Wiped. Re-seeding…";
+        statusEl.className   = "status";
+        goBtn.style.pointerEvents = "none";
+        goBtn.style.opacity = "0.4";
+        setTimeout(seed, 200);
+      });
+
+      seed();
+    })();
+    </script>
+  </body>
+</html>

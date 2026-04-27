@@ -29,28 +29,165 @@
           <a href="services.html" data-nav-link>Services</a>
           <a href="contact.html" data-nav-link>Contact</a>
           <a href="gallery.html" data-nav-link>Gallery</a>
+          <a href="login.html" id="nav-auth-link" data-nav-auth>Login</a>
         </nav>
       </div>
     </header>
 
-    <main id="main" class="section">
-      <div class="container">
+    <section class="services-hero" aria-label="Services hero">
+      <video class="services-hero-video" autoplay muted loop playsinline preload="metadata" poster="assets/img/services-hero.jpg" aria-hidden="true">
+        <source src="assets/video/services-hero-bg.mp4" type="video/mp4" />
+      </video>
+      <div class="services-hero-overlay" aria-hidden="true"></div>
+      <div class="container services-hero-content">
         <p class="kicker reveal">Services Overview</p>
         <h1 class="reveal">Coverage Options</h1>
         <p class="lead reveal">Policy options and limits designed around real cannabis business exposure.</p>
+      </div>
+    </section>
 
-        <div class="hero-media reveal" style="margin-bottom: 1rem;">
-          <img src="assets/img/services-hero.jpg" alt="Cannabis service and operations setting" />
+    <main id="main" class="section">
+      <div class="container">
+
+        <!-- Hidden service data panels -->
+        <div id="svc-data-liability" class="svc-data" hidden>
+          <p class="svc-detail-title">Liability</p>
+          <ul class="svc-list small">
+            <li>Limits up to $6m/$6m</li>
+            <li>General Liability</li>
+            <li>Professional Liability</li>
+            <li>Products Liability</li>
+            <li>Mono-line or Package</li>
+            <li>Assault and Battery</li>
+            <li>Lessor's Risk</li>
+            <li>Additional Insureds</li>
+            <li>Events</li>
+          </ul>
+        </div>
+        <div id="svc-data-property" class="svc-data" hidden>
+          <p class="svc-detail-title">Property</p>
+          <ul class="svc-list small">
+            <li>Building Coverage</li>
+            <li>Standard ISO Forms</li>
+            <li>Business Personal Property</li>
+            <li>Equipment Breakdown</li>
+            <li>Business Income &amp; Extra Expense</li>
+            <li>Builder's Risk</li>
+            <li>Lessor's Risk</li>
+            <li>Excess Property</li>
+            <li>Sewer &amp; Drain Lighting</li>
+            <li>Additional Insureds</li>
+          </ul>
+        </div>
+        <div id="svc-data-auto" class="svc-data" hidden>
+          <p class="svc-detail-title">Commercial Auto</p>
+          <ul class="svc-list small">
+            <li>Hired / Non-Hired Autos</li>
+            <li>Single Vehicle Fleet Policies</li>
+            <li>Home Delivery</li>
+            <li>MVD Fillings</li>
+            <li>Additional Insureds</li>
+            <li>Cargo</li>
+          </ul>
+        </div>
+        <div id="svc-data-products" class="svc-data" hidden>
+          <p class="svc-detail-title">Products &amp; Completed Ops</p>
+          <ul class="svc-list small">
+            <li>Limits up to $5m/$5m</li>
+            <li>Standard ISO Forms</li>
+            <li>Can be included in General Liability</li>
+            <li>$250,000 Product Withdrawal</li>
+            <li>Pesticide &amp; Fertilizer built in</li>
+            <li>Additional Insureds</li>
+          </ul>
+        </div>
+        <div id="svc-data-workcomp" class="svc-data" hidden>
+          <p class="svc-detail-title">Work Comp</p>
+          <ul class="svc-list small">
+            <li>National Program</li>
+            <li>Standard Reporting</li>
+            <li>Employee Practices</li>
+            <li>Employee Benefits</li>
+            <li>Multi State Offerings</li>
+          </ul>
+        </div>
+        <div id="svc-data-crop" class="svc-data" hidden>
+          <p class="svc-detail-title">Crop</p>
+          <ul class="svc-list small">
+            <li>Standard ISO Forms</li>
+            <li>Pesticide &amp; Fertilizer built in</li>
+            <li>Seedlings, Vegetative, Harvest</li>
+            <li>Indoor &amp; Outdoor</li>
+            <li>Goods in Process &#8212; Drying &amp; Curing Stage</li>
+            <li>Finished Stock &#8212; Packaged Ready for Sale</li>
+            <li>Stated value</li>
+            <li>Additional Insureds</li>
+          </ul>
         </div>
 
-        <section class="service-list section" aria-label="Coverage categories">
-          <article class="service-item reveal" id="liability"><h2>Liability</h2><ul class="detail-list small"><li>Limits up to $6m/$6m</li><li>General Liability</li><li>Professional Liability</li><li>Products Liability</li><li>Assault and Battery</li></ul></article>
-          <article class="service-item reveal" id="products"><h2>Products &amp; Completed Operations</h2><ul class="detail-list small"><li>Limits up to $5m/$5m</li><li>Standard ISO Forms</li><li>Can be included in General Liability</li><li>Product Withdrawal</li><li>Pesticide and Fertilizer built in</li></ul></article>
-          <article class="service-item reveal" id="property"><h2>Property</h2><ul class="detail-list small"><li>Building Coverage</li><li>Business Personal Property</li><li>Equipment Breakdown</li><li>Business Income and Extra Expense</li><li>Additional Insureds</li></ul></article>
-          <article class="service-item reveal" id="work-comp"><h2>Work Comp</h2><ul class="detail-list small"><li>National Program</li><li>Standard Reporting</li><li>Employee Practices</li><li>Employee Benefits</li><li>Multi State Offerings</li></ul></article>
-          <article class="service-item reveal" id="commercial-auto"><h2>Commercial Auto</h2><ul class="detail-list small"><li>Hired/Non-Hired Autos</li><li>Single Vehicle Fleet Policies</li><li>Home Delivery</li><li>MVD Fillings</li><li>Cargo</li></ul></article>
-          <article class="service-item reveal" id="crop"><h2>Crop</h2><ul class="detail-list small"><li>Standard ISO Forms</li><li>Seedlings, Vegetative, Harvest</li><li>Indoor and Outdoor</li><li>Goods in Process</li><li>Finished Stock</li></ul></article>
-        </section>
+        <div class="svc-stage" id="svc-stage">
+          <div class="svc-marquee-outer">
+            <button class="svc-arrow svc-arrow--prev" id="svc-arrow-prev" type="button" aria-label="Previous service">&#8249;</button>
+            <div class="svc-marquee-wrap" id="svc-marquee-wrap">
+            <div class="svc-marquee-track" id="svc-marquee-track">
+              <!-- Set 1 -->
+              <button class="svc-card" type="button" data-svc-card data-target="svc-data-liability">
+                <figure class="svc-card-media"><img src="assets/img/curated/unsplash-image-otvu7zmteic-fb859f8d27.jpg" alt="Liability coverage" /></figure>
+                <div class="svc-card-foot"><span class="svc-card-title">Liability</span><span class="svc-card-label">Details</span></div>
+              </button>
+              <button class="svc-card" type="button" data-svc-card data-target="svc-data-property">
+                <figure class="svc-card-media"><img src="assets/img/curated/unsplash-image-5-rwuakfife-1533b96d2f.jpg" alt="Property coverage" /></figure>
+                <div class="svc-card-foot"><span class="svc-card-title">Property</span><span class="svc-card-label">Details</span></div>
+              </button>
+              <button class="svc-card" type="button" data-svc-card data-target="svc-data-auto">
+                <figure class="svc-card-media"><img src="assets/img/curated/unsplash-image-b6fns2kofsk-d28ecd271e.jpg" alt="Commercial auto coverage" /></figure>
+                <div class="svc-card-foot"><span class="svc-card-title">Commercial Auto</span><span class="svc-card-label">Details</span></div>
+              </button>
+              <button class="svc-card" type="button" data-svc-card data-target="svc-data-products">
+                <figure class="svc-card-media"><img src="assets/img/curated/unsplash-image-ichacuw8bci-432ea58b3d.jpg" alt="Products and completed operations coverage" /></figure>
+                <div class="svc-card-foot"><span class="svc-card-title">Products &amp; Completed Ops</span><span class="svc-card-label">Details</span></div>
+              </button>
+              <button class="svc-card" type="button" data-svc-card data-target="svc-data-workcomp">
+                <figure class="svc-card-media"><img src="assets/img/curated/unsplash-image-fioihwb71-k-9d44d9400a.jpg" alt="Work comp coverage" /></figure>
+                <div class="svc-card-foot"><span class="svc-card-title">Work Comp</span><span class="svc-card-label">Details</span></div>
+              </button>
+              <button class="svc-card" type="button" data-svc-card data-target="svc-data-crop">
+                <figure class="svc-card-media"><img src="assets/img/curated/unsplash-image-lvld6z5ovy8-f7535e9434.jpg" alt="Crop coverage" /></figure>
+                <div class="svc-card-foot"><span class="svc-card-title">Crop</span><span class="svc-card-label">Details</span></div>
+              </button>
+              <!-- Set 2 — duplicate for infinite loop -->
+              <button class="svc-card" type="button" aria-hidden="true" tabindex="-1" data-svc-card data-target="svc-data-liability">
+                <figure class="svc-card-media"><img src="assets/img/curated/unsplash-image-otvu7zmteic-fb859f8d27.jpg" alt="" /></figure>
+                <div class="svc-card-foot"><span class="svc-card-title">Liability</span><span class="svc-card-label">Details</span></div>
+              </button>
+              <button class="svc-card" type="button" aria-hidden="true" tabindex="-1" data-svc-card data-target="svc-data-property">
+                <figure class="svc-card-media"><img src="assets/img/curated/unsplash-image-5-rwuakfife-1533b96d2f.jpg" alt="" /></figure>
+                <div class="svc-card-foot"><span class="svc-card-title">Property</span><span class="svc-card-label">Details</span></div>
+              </button>
+              <button class="svc-card" type="button" aria-hidden="true" tabindex="-1" data-svc-card data-target="svc-data-auto">
+                <figure class="svc-card-media"><img src="assets/img/curated/unsplash-image-b6fns2kofsk-d28ecd271e.jpg" alt="" /></figure>
+                <div class="svc-card-foot"><span class="svc-card-title">Commercial Auto</span><span class="svc-card-label">Details</span></div>
+              </button>
+              <button class="svc-card" type="button" aria-hidden="true" tabindex="-1" data-svc-card data-target="svc-data-products">
+                <figure class="svc-card-media"><img src="assets/img/curated/unsplash-image-ichacuw8bci-432ea58b3d.jpg" alt="" /></figure>
+                <div class="svc-card-foot"><span class="svc-card-title">Products &amp; Completed Ops</span><span class="svc-card-label">Details</span></div>
+              </button>
+              <button class="svc-card" type="button" aria-hidden="true" tabindex="-1" data-svc-card data-target="svc-data-workcomp">
+                <figure class="svc-card-media"><img src="assets/img/curated/unsplash-image-fioihwb71-k-9d44d9400a.jpg" alt="" /></figure>
+                <div class="svc-card-foot"><span class="svc-card-title">Work Comp</span><span class="svc-card-label">Details</span></div>
+              </button>
+              <button class="svc-card" type="button" aria-hidden="true" tabindex="-1" data-svc-card data-target="svc-data-crop">
+                <figure class="svc-card-media"><img src="assets/img/curated/unsplash-image-lvld6z5ovy8-f7535e9434.jpg" alt="" /></figure>
+                <div class="svc-card-foot"><span class="svc-card-title">Crop</span><span class="svc-card-label">Details</span></div>
+              </button>
+            </div>
+            </div>
+            <button class="svc-arrow svc-arrow--next" id="svc-arrow-next" type="button" aria-label="Next service">&#8250;</button>
+          </div>
+          <aside class="svc-detail-panel" id="svc-detail-panel" aria-label="Service details">
+            <div class="svc-detail-inner" id="svc-detail-inner"></div>
+          </aside>
+        </div>
 
         <section class="cta-band reveal" aria-label="Quote CTA">
           <div>
@@ -65,8 +202,19 @@
 
     <footer class="site-footer">
       <div class="container footer-grid">
-        <p>© 2026 Guardians of Ganja</p>
-        <p><a href="privacy.html">Privacy</a> | <a href="terms.html">Terms</a></p>
+        <div class="footer-col footer-col--left">
+          <p class="footer-eyebrow">Explore</p>
+          <p class="footer-links"><a href="index.html">Home</a><span>/</span><a href="services.html">Services</a><span>/</span><a href="contact.html">Contact</a><span>/</span><a href="gallery.html">Gallery</a></p>
+        </div>
+        <div class="footer-col footer-col--center">
+          <p class="footer-brand">Guardians of Ganja</p>
+          <p class="footer-mini">Specialty Cannabis Insurance</p>
+          <p class="footer-mini">© 2026 All rights reserved.</p>
+        </div>
+        <div class="footer-col footer-col--right">
+          <p class="footer-eyebrow">Legal</p>
+          <p class="footer-links"><a href="privacy.html">Privacy</a><span>/</span><a href="terms.html">Terms</a></p>
+        </div>
       </div>
     </footer>
 

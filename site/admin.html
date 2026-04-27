@@ -1,0 +1,420 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin — Guardians of Ganja</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/portal.css" />
+    <script src="assets/js/portal.js"></script>
+  </head>
+  <body class="portal-body">
+
+    <!-- Header -->
+    <header class="portal-header">
+      <a href="index.html" class="brand">
+        <span class="brand-mark"></span>
+        <span>Guardians of Ganja</span>
+      </a>
+      <div class="portal-header-right">
+        <span class="badge badge-admin">Admin</span>
+        <span class="portal-user-label" id="portal-user-label">Loading…</span>
+        <button class="portal-signout-btn" id="signout-btn">Sign Out</button>
+      </div>
+    </header>
+
+    <div class="portal-main">
+      <!-- Sidebar -->
+      <aside class="portal-sidebar" aria-label="Admin navigation">
+        <span class="sidebar-label">Admin</span>
+        <button class="sidebar-btn active" data-tab="inbox" aria-current="page">
+          <span class="btn-icon">✉</span>
+          <span>Inbox</span>
+        </button>
+        <button class="sidebar-btn" data-tab="users">
+          <span class="btn-icon">👤</span>
+          <span>Users</span>
+        </button>
+        <button class="sidebar-btn" data-tab="clients">
+          <span class="btn-icon">🗂</span>
+          <span>Clients</span>
+        </button>
+        <button class="sidebar-btn" data-tab="email">
+          <span class="btn-icon">⚙</span>
+          <span>Email</span>
+        </button>
+      </aside>
+
+      <!-- Content -->
+      <main class="portal-content" id="main">
+
+        <!-- ── Inbox Tab ─────────────────────────────────── -->
+        <section class="portal-tab-panel active" id="tab-inbox" aria-label="Inbox">
+          <h1 class="portal-tab-title">Inbox</h1>
+          <div class="inbox-layout" style="flex:1;min-height:460px;">
+            <div class="inbox-thread-list">
+              <div class="inbox-thread-list-header">
+                <span class="inbox-thread-list-title">All Conversations</span>
+              </div>
+              <div id="admin-thread-list-body">
+                <div class="portal-loading" style="padding:2rem;"><span class="spinner"></span></div>
+              </div>
+            </div>
+            <div class="inbox-view" id="admin-inbox-view">
+              <div class="inbox-empty" id="admin-inbox-empty">
+                <span class="inbox-empty-icon">✉</span>
+                <span>Select a conversation to read and reply.</span>
+              </div>
+              <div id="admin-thread-view" style="display:none;flex-direction:column;flex:1;">
+                <div class="inbox-view-header">
+                  <div>
+                    <div class="inbox-view-subject" id="admin-view-subject">—</div>
+                    <div style="font-size:0.75rem;color:var(--muted);margin-top:0.15rem;" id="admin-view-client">—</div>
+                  </div>
+                </div>
+                <div class="inbox-messages" id="admin-inbox-messages"></div>
+                <div class="inbox-reply">
+                  <textarea id="admin-reply-text" placeholder="Write a reply…" rows="3"></textarea>
+                  <button class="btn-sm btn-sm-primary" id="admin-send-reply" style="flex-shrink:0;align-self:flex-end;">Send</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Users Tab ─────────────────────────────────── -->
+        <section class="portal-tab-panel" id="tab-users" aria-label="Users">
+          <h1 class="portal-tab-title">Users</h1>
+          <div class="users-table-wrap">
+            <table class="users-table" id="users-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Company</th>
+                  <th>Role</th>
+                  <th>Joined</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body">
+                <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);">
+                  <span class="spinner" style="display:inline-block;"></span>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ── Clients Tab ────────────────────────────────── -->
+        <section class="portal-tab-panel" id="tab-clients" aria-label="Clients">
+          <h1 class="portal-tab-title">Clients</h1>
+          <div class="client-grid" id="client-grid-body">
+            <div class="portal-loading"><span class="spinner"></span> Loading…</div>
+          </div>
+        </section>
+
+        <!-- ── Email Automations Tab ──────────────────────── -->
+        <section class="portal-tab-panel" id="tab-email" aria-label="Email Automations">
+          <h1 class="portal-tab-title">Email Automations</h1>
+          <p style="font-size:0.875rem;color:var(--muted);margin:0 0 0.6rem;">
+            Customize the automated emails sent to clients. Toggle to enable or disable. Click Edit to modify the subject and body. Use <code style="color:var(--accent);background:rgba(214,162,75,0.1);border-radius:3px;padding:0 3px;">{{variable}}</code> placeholders.
+          </p>
+          <div class="email-template-list" id="email-template-list">
+            <div class="portal-loading"><span class="spinner"></span> Loading…</div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <script>
+    (function () {
+      var auth = Portal.requireAuth("admin");
+      if (!auth) return;
+      var adminProfile       = auth.profile;
+      var activeAdminThreadId = null;
+
+      document.getElementById("portal-user-label").textContent = adminProfile.full_name || adminProfile.email;
+      document.getElementById("signout-btn").addEventListener("click", Portal.signOut);
+
+      // ── Tab navigation ─────────────────────────────────
+      var tabBtns = document.querySelectorAll(".sidebar-btn[data-tab]");
+      tabBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          tabBtns.forEach(function (b) { b.classList.remove("active"); b.removeAttribute("aria-current"); });
+          btn.classList.add("active"); btn.setAttribute("aria-current", "page");
+          document.querySelectorAll(".portal-tab-panel").forEach(function (p) {
+            p.classList.toggle("active", p.id === "tab-" + btn.dataset.tab);
+          });
+          if (btn.dataset.tab === "users")   loadUsers();
+          if (btn.dataset.tab === "clients") loadClients();
+          if (btn.dataset.tab === "email")   loadEmailTemplates();
+        });
+      });
+
+      // ══════════════════════════════════════════════════
+      // INBOX
+      // ══════════════════════════════════════════════════
+      function loadAdminThreads() {
+        var threads = Portal.db.threads.getAll();
+        var body    = document.getElementById("admin-thread-list-body");
+        if (!threads.length) {
+          body.innerHTML = '<div class="inbox-empty" style="padding:1.5rem;font-size:0.82rem;color:var(--muted);">No conversations yet.</div>';
+          return;
+        }
+        body.innerHTML = threads.map(function (t) {
+          return '<div class="thread-item' + (t.id === activeAdminThreadId ? " active" : "") + '" data-thread-id="' + Portal.escHtml(t.id) + '" data-subject="' + Portal.escHtml(t.subject) + '" data-client="' + Portal.escHtml(t.customer_name) + '">' +
+            '<div class="thread-item-subject">' + Portal.escHtml(t.subject) + '</div>' +
+            '<div class="thread-item-meta">' + Portal.escHtml(t.customer_name) + ' · ' + Portal.formatDateTime(t.last_message_at) + '</div>' +
+            '</div>';
+        }).join("");
+        body.querySelectorAll(".thread-item").forEach(function (item) {
+          item.addEventListener("click", function () {
+            body.querySelectorAll(".thread-item").forEach(function (i) { i.classList.remove("active"); });
+            item.classList.add("active");
+            openAdminThread(item.dataset.threadId, item.dataset.subject, item.dataset.client);
+          });
+        });
+      }
+
+      function openAdminThread(threadId, subject, clientName) {
+        activeAdminThreadId = threadId;
+        document.getElementById("admin-inbox-empty").style.display = "none";
+        var view = document.getElementById("admin-thread-view");
+        view.style.display = "flex";
+        document.getElementById("admin-view-subject").textContent = subject;
+        document.getElementById("admin-view-client").textContent  = "Client: " + clientName;
+        Portal.db.messages.markRead(threadId, adminProfile.id);
+        var messages  = Portal.db.messages.getByThread(threadId);
+        var container = document.getElementById("admin-inbox-messages");
+        if (!messages.length) {
+          container.innerHTML = '<div class="inbox-empty"><span>No messages yet.</span></div>';
+          return;
+        }
+        container.innerHTML = messages.map(function (m) {
+          var isAdmin = m.sender_role === "admin";
+          return '<div>' +
+            '<div class="msg-bubble ' + (isAdmin ? "from-admin" : "from-customer") + '">' + Portal.escHtml(m.content) + '</div>' +
+            '<div class="msg-bubble-meta" style="text-align:' + (isAdmin ? "left" : "right") + '">' + Portal.escHtml(m.sender_name) + ' · ' + Portal.formatDateTime(m.created_at) + '</div>' +
+            '</div>';
+        }).join("");
+        container.scrollTop = container.scrollHeight;
+      }
+
+      document.getElementById("admin-send-reply").addEventListener("click", function () {
+        var text = document.getElementById("admin-reply-text").value.trim();
+        if (!text || !activeAdminThreadId) return;
+        Portal.db.messages.create(activeAdminThreadId, adminProfile.id, text);
+        document.getElementById("admin-reply-text").value = "";
+        var subj   = document.getElementById("admin-view-subject").textContent;
+        var client = document.getElementById("admin-view-client").textContent.replace("Client: ", "");
+        openAdminThread(activeAdminThreadId, subj, client);
+        loadAdminThreads();
+      });
+
+      // ══════════════════════════════════════════════════
+      // USERS
+      // ══════════════════════════════════════════════════
+      function loadUsers() {
+        var users = Portal.db.users.getAll().sort(function (a, b) { return b.created_at > a.created_at ? 1 : -1; });
+        var tbody = document.getElementById("users-table-body");
+        if (!users.length) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);">No users yet.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = users.map(function (u) {
+          var isAdmin = u.role === "admin";
+          return '<tr>' +
+            '<td>' + Portal.escHtml(u.full_name || "—") + '</td>' +
+            '<td>' + Portal.escHtml(u.email) + '</td>' +
+            '<td>' + Portal.escHtml(u.company || "—") + '</td>' +
+            '<td><span class="badge ' + (isAdmin ? "badge-admin" : "badge-muted") + '">' + Portal.escHtml(u.role) + '</span></td>' +
+            '<td>' + Portal.formatDate(u.created_at) + '</td>' +
+            '<td>' + (u.id !== adminProfile.id
+              ? '<button class="btn-sm btn-sm-secondary" onclick="toggleRole(\'' + Portal.escHtml(u.id) + '\',\'' + Portal.escHtml(u.role) + '\',this)">' + (isAdmin ? "Demote" : "Make Admin") + '</button>'
+              : '<span style="font-size:0.75rem;color:var(--muted);">You</span>') + '</td>' +
+            '</tr>';
+        }).join("");
+      }
+
+      window.toggleRole = function (userId, currentRole, btn) {
+        var newRole = currentRole === "admin" ? "customer" : "admin";
+        Portal.db.users.update(userId, { role: newRole });
+        loadUsers();
+      };
+
+      // ══════════════════════════════════════════════════
+      // CLIENTS
+      // ══════════════════════════════════════════════════
+      function loadClients() {
+        var clients = Portal.db.users.getAll()
+          .filter(function (u) { return u.role === "customer"; })
+          .sort(function (a, b) { return (a.full_name || a.email) > (b.full_name || b.email) ? 1 : -1; });
+        var grid = document.getElementById("client-grid-body");
+        if (!clients.length) {
+          grid.innerHTML = '<div class="inbox-empty"><span class="inbox-empty-icon">👤</span><span>No clients yet.</span></div>';
+          return;
+        }
+        grid.innerHTML = clients.map(function (c) {
+          var ini = Portal.initials(c.full_name || c.email);
+          return '<div class="client-card" id="client-' + Portal.escHtml(c.id) + '">' +
+            '<div class="client-card-header" onclick="toggleClient(\'' + Portal.escHtml(c.id) + '\')">' +
+              '<div class="client-avatar">' + ini + '</div>' +
+              '<div><div class="client-card-name">' + Portal.escHtml(c.full_name || "—") + '</div>' +
+              '<div class="client-card-company">' + Portal.escHtml(c.company || "—") + '</div></div>' +
+              '<span class="client-card-expand-icon">▾</span>' +
+            '</div>' +
+            '<div class="client-card-body">' +
+              '<div class="client-info-row"><span class="client-info-label">Email</span><span class="client-info-value">' + Portal.escHtml(c.email) + '</span></div>' +
+              '<div class="client-info-row"><span class="client-info-label">Phone</span><span class="client-info-value">' + Portal.escHtml(c.phone || "—") + '</span></div>' +
+              '<div class="client-info-row"><span class="client-info-label">Joined</span><span class="client-info-value">' + Portal.formatDate(c.created_at) + '</span></div>' +
+              '<div class="client-docs-section"><div class="client-docs-title">Documents</div>' +
+                '<div id="client-docs-' + Portal.escHtml(c.id) + '"></div>' +
+              '</div>' +
+              '<div class="client-upload-form">' +
+                '<div class="client-upload-form-title">Upload Document</div>' +
+                '<div class="form-group"><label class="form-label">File</label><input type="file" class="form-input" id="upload-file-' + Portal.escHtml(c.id) + '" style="padding:0.45rem;" /></div>' +
+                '<div class="form-group"><label class="form-label">Type</label>' +
+                  '<select class="form-select" id="upload-type-' + Portal.escHtml(c.id) + '">' +
+                    '<option value="policy">Policy</option><option value="quote">Quote</option><option value="other">Other</option>' +
+                  '</select></div>' +
+                '<div class="form-group"><label class="form-label">Notes (optional)</label><input type="text" class="form-input" id="upload-notes-' + Portal.escHtml(c.id) + '" placeholder="e.g. Renewal 2026" /></div>' +
+                '<p class="portal-error-msg" id="upload-err-' + Portal.escHtml(c.id) + '" style="display:none;"></p>' +
+                '<button class="btn-sm btn-sm-primary" onclick="uploadDoc(\'' + Portal.escHtml(c.id) + '\',this)">Upload</button>' +
+              '</div>' +
+            '</div>' +
+            '</div>';
+        }).join("");
+      }
+
+      window.toggleClient = function (clientId) {
+        var card = document.getElementById("client-" + clientId);
+        if (!card) return;
+        var wasOpen = card.classList.contains("is-open");
+        card.classList.toggle("is-open");
+        if (!wasOpen) renderClientDocs(clientId);
+      };
+
+      function renderClientDocs(clientId) {
+        var container = document.getElementById("client-docs-" + clientId);
+        if (!container) return;
+        var docs = Portal.db.documents.getByClient(clientId);
+        if (!docs.length) {
+          container.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;padding:0.3rem 0;">No documents yet.</div>';
+          return;
+        }
+        container.innerHTML = docs.map(function (d) {
+          return '<div class="client-doc-item">' +
+            '<span class="client-doc-name">' + Portal.escHtml(d.filename) + '</span>' +
+            '<span class="badge ' + (d.type === "policy" ? "badge-green" : d.type === "quote" ? "badge-gold" : "badge-muted") + '">' + Portal.escHtml(d.type) + '</span>' +
+            '<button class="btn-sm btn-sm-secondary" style="font-size:0.72rem;" onclick="Portal.db.documents.download(\'' + Portal.escHtml(d.id) + '\')">↓</button>' +
+            '</div>';
+        }).join("");
+      }
+
+      window.uploadDoc = function (clientId, btn) {
+        var fileInput  = document.getElementById("upload-file-"  + clientId);
+        var typeSelect = document.getElementById("upload-type-"  + clientId);
+        var notesInput = document.getElementById("upload-notes-" + clientId);
+        var errEl      = document.getElementById("upload-err-"   + clientId);
+        errEl.style.display = "none";
+        var file = fileInput.files && fileInput.files[0];
+        if (!file) { errEl.textContent = "Please select a file."; errEl.style.display = "block"; return; }
+        if (file.size > 4 * 1024 * 1024) { errEl.textContent = "File too large. Max 4 MB."; errEl.style.display = "block"; return; }
+        btn.disabled = true; btn.textContent = "Uploading…";
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          Portal.db.documents.create(clientId, typeSelect.value, file.name, e.target.result, notesInput.value.trim(), adminProfile.id);
+          btn.disabled = false; btn.textContent = "Uploaded ✓";
+          fileInput.value = ""; notesInput.value = "";
+          renderClientDocs(clientId);
+          setTimeout(function () { btn.textContent = "Upload"; }, 2000);
+        };
+        reader.onerror = function () { btn.disabled = false; btn.textContent = "Upload"; errEl.textContent = "File read failed."; errEl.style.display = "block"; };
+        reader.readAsDataURL(file);
+      };
+
+      // ══════════════════════════════════════════════════
+      // EMAIL AUTOMATIONS (stored locally)
+      // ══════════════════════════════════════════════════
+      var TEMPLATE_META = {
+        signup_confirmation:       { label: "Signup Confirmation",         desc: "Sent when a new account is created.",               vars: "{{full_name}}" },
+        new_document:              { label: "New Document Uploaded",        desc: "Sent when a document is uploaded for a client.",    vars: "{{full_name}}, {{document_type}}, {{filename}}, {{notes}}" },
+        new_quote:                 { label: "New Quote Available",          desc: "Sent when a quote document is uploaded.",           vars: "{{full_name}}" },
+        new_message_from_admin:    { label: "New Message (Admin → Client)", desc: "Sent to client when admin replies.",                vars: "{{full_name}}, {{subject}}" },
+        new_message_from_customer: { label: "New Message (Client → Admin)", desc: "Sent to admin when client sends a message.",        vars: "{{full_name}}, {{email}}, {{subject}}, {{message_preview}}" }
+      };
+
+      var DEFAULT_TEMPLATES = [
+        { id: "tpl-signup",   trigger_type: "signup_confirmation",       active: true, subject: "Welcome to Guardians of Ganja — You're in.", body_html: "<h2>Welcome, {{full_name}}!</h2>\n<p>Your account is ready. Log in to your client portal to view quotes, policies, and send messages.</p>" },
+        { id: "tpl-doc",      trigger_type: "new_document",              active: true, subject: "New document available in your portal",       body_html: "<h2>Hi {{full_name}},</h2>\n<p>A new <strong>{{document_type}}</strong> document has been uploaded: <em>{{filename}}</em>.</p>" },
+        { id: "tpl-quote",    trigger_type: "new_quote",                 active: true, subject: "Your insurance quote is ready",               body_html: "<h2>Hi {{full_name}},</h2>\n<p>Your insurance quote is ready for review in your portal.</p>" },
+        { id: "tpl-admin-msg",trigger_type: "new_message_from_admin",    active: true, subject: "New message from Guardians of Ganja",         body_html: "<h2>Hi {{full_name}},</h2>\n<p>You have a new message regarding: <strong>{{subject}}</strong>.</p>" },
+        { id: "tpl-cust-msg", trigger_type: "new_message_from_customer", active: true, subject: "New client message: {{subject}}",             body_html: "<h2>New message from {{full_name}}</h2>\n<p>{{full_name}} ({{email}}) sent a message: {{subject}}</p>" }
+      ];
+
+      function getTemplates() {
+        try { return JSON.parse(localStorage.getItem("gog_email_templates") || "null") || DEFAULT_TEMPLATES; }
+        catch (e) { return DEFAULT_TEMPLATES; }
+      }
+      function saveTemplates(tpls) { localStorage.setItem("gog_email_templates", JSON.stringify(tpls)); }
+
+      function loadEmailTemplates() {
+        var templates = getTemplates();
+        var list = document.getElementById("email-template-list");
+        list.innerHTML = templates.map(function (t) {
+          var meta = TEMPLATE_META[t.trigger_type] || { label: t.trigger_type, desc: "", vars: "" };
+          return '<div class="email-template-row" id="tmpl-row-' + t.id + '">' +
+            '<div class="email-template-header">' +
+              '<div class="email-template-trigger-name">' + Portal.escHtml(meta.label) +
+                '<span class="email-template-desc">' + Portal.escHtml(meta.desc) + '</span>' +
+              '</div>' +
+              '<div class="email-template-actions">' +
+                '<label class="toggle-switch"><input type="checkbox" ' + (t.active ? "checked" : "") + ' onchange="toggleTemplate(\'' + t.id + '\',this)" /><span class="toggle-track"></span></label>' +
+                '<button class="btn-sm btn-sm-secondary" onclick="openTemplateEditor(\'' + t.id + '\')">Edit</button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="email-template-edit-form" id="tmpl-form-' + t.id + '">' +
+              '<div class="template-vars-hint">Available variables: ' + meta.vars.split(",").map(function (v) { return '<code>' + v.trim() + '</code>'; }).join(" ") + '</div>' +
+              '<div class="form-group"><label class="form-label">Subject</label><input type="text" class="form-input" id="tmpl-subject-' + t.id + '" value="' + Portal.escHtml(t.subject) + '" /></div>' +
+              '<div class="form-group"><label class="form-label">Body (HTML)</label><textarea class="form-textarea" id="tmpl-body-' + t.id + '" rows="8">' + Portal.escHtml(t.body_html) + '</textarea></div>' +
+              '<p class="portal-error-msg" id="tmpl-err-' + t.id + '" style="display:none;"></p>' +
+              '<div style="display:flex;gap:0.6rem;justify-content:flex-end;">' +
+                '<button class="btn-sm btn-sm-secondary" onclick="closeTemplateEditor(\'' + t.id + '\')">Cancel</button>' +
+                '<button class="btn-sm btn-sm-primary" onclick="saveTemplate(\'' + t.id + '\',this)">Save</button>' +
+              '</div>' +
+            '</div>' +
+            '</div>';
+        }).join("");
+      }
+
+      window.openTemplateEditor  = function (id) { document.getElementById("tmpl-form-" + id).classList.add("open"); };
+      window.closeTemplateEditor = function (id) { document.getElementById("tmpl-form-" + id).classList.remove("open"); };
+
+      window.toggleTemplate = function (id, checkbox) {
+        var tpls = getTemplates();
+        var t = tpls.find(function (x) { return x.id === id; });
+        if (t) { t.active = checkbox.checked; saveTemplates(tpls); }
+      };
+
+      window.saveTemplate = function (id, btn) {
+        var subject  = document.getElementById("tmpl-subject-" + id).value.trim();
+        var bodyHtml = document.getElementById("tmpl-body-"    + id).value;
+        var errEl    = document.getElementById("tmpl-err-"     + id);
+        errEl.style.display = "none";
+        if (!subject) { errEl.textContent = "Subject is required."; errEl.style.display = "block"; return; }
+        var tpls = getTemplates();
+        var t = tpls.find(function (x) { return x.id === id; });
+        if (t) { t.subject = subject; t.body_html = bodyHtml; saveTemplates(tpls); }
+        btn.textContent = "Saved ✓";
+        setTimeout(function () { btn.textContent = "Save"; closeTemplateEditor(id); }, 1200);
+      };
+
+      // ── Init ───────────────────────────────────────────
+      loadAdminThreads();
+    })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,244 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Portal — Guardians of Ganja</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/portal.css" />
+    <script src="assets/js/portal.js"></script>
+  </head>
+  <body class="portal-body">
+
+    <!-- Header -->
+    <header class="portal-header">
+      <a href="index.html" class="brand">
+        <span class="brand-mark"></span>
+        <span>Guardians of Ganja</span>
+      </a>
+      <div class="portal-header-right">
+        <span class="portal-user-label" id="portal-user-label">Loading…</span>
+        <button class="portal-signout-btn" id="signout-btn">Sign Out</button>
+      </div>
+    </header>
+
+    <div class="portal-main">
+      <!-- Sidebar -->
+      <aside class="portal-sidebar" aria-label="Dashboard navigation">
+        <span class="sidebar-label">My Portal</span>
+        <button class="sidebar-btn active" data-tab="inbox" aria-current="page">
+          <span class="btn-icon">✉</span>
+          <span>Inbox</span>
+        </button>
+        <button class="sidebar-btn" data-tab="documents">
+          <span class="btn-icon">📄</span>
+          <span>Documents</span>
+        </button>
+      </aside>
+
+      <!-- Content -->
+      <main class="portal-content" id="main">
+
+        <!-- ── Inbox Tab ─────────────────────────────────── -->
+        <section class="portal-tab-panel active" id="tab-inbox" aria-label="Inbox">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;">
+            <h1 class="portal-tab-title">Inbox</h1>
+            <button class="btn-sm btn-sm-primary" id="new-thread-btn">+ New Message</button>
+          </div>
+
+          <div class="inbox-layout" style="flex:1;min-height:420px;">
+            <!-- Thread list -->
+            <div class="inbox-thread-list">
+              <div class="inbox-thread-list-header">
+                <span class="inbox-thread-list-title">Conversations</span>
+              </div>
+              <div id="thread-list-body">
+                <div class="portal-loading" style="padding:2rem;">
+                  <span class="spinner"></span> Loading…
+                </div>
+              </div>
+            </div>
+
+            <!-- Thread view -->
+            <div class="inbox-view" id="inbox-view">
+              <div class="inbox-empty" id="inbox-empty-state">
+                <span class="inbox-empty-icon">✉</span>
+                <span>Select a conversation or start a new one.</span>
+              </div>
+
+              <div id="inbox-thread-view" style="display:none;flex-direction:column;flex:1;">
+                <div class="inbox-view-header">
+                  <span class="inbox-view-subject" id="view-subject">—</span>
+                </div>
+                <div class="inbox-messages" id="inbox-messages"></div>
+                <div class="inbox-reply">
+                  <textarea id="reply-text" placeholder="Write a reply…" rows="3"></textarea>
+                  <button class="btn-sm btn-sm-primary" id="send-reply-btn" style="flex-shrink:0;align-self:flex-end;">Send</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Documents Tab ─────────────────────────────── -->
+        <section class="portal-tab-panel" id="tab-documents" aria-label="Documents">
+          <h1 class="portal-tab-title">Documents</h1>
+          <div id="doc-grid-body" class="doc-grid">
+            <div class="portal-loading"><span class="spinner"></span> Loading…</div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- New Thread Modal -->
+    <div class="modal-overlay" id="new-thread-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-box">
+        <h2 class="modal-title" id="modal-title">New Message</h2>
+        <div class="form-group">
+          <label class="form-label" for="new-thread-subject">Subject</label>
+          <input class="form-input" id="new-thread-subject" type="text" placeholder="e.g. Question about my policy" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-thread-body">Message</label>
+          <textarea class="form-textarea" id="new-thread-body" placeholder="How can we help you?" rows="4"></textarea>
+        </div>
+        <p class="portal-error-msg" id="new-thread-error" style="display:none;"></p>
+        <div class="modal-footer">
+          <button class="btn-sm btn-sm-secondary" id="new-thread-cancel">Cancel</button>
+          <button class="btn-sm btn-sm-primary" id="new-thread-submit">Send Message</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    (function () {
+      var auth = Portal.requireAuth();
+      if (!auth) return;
+      var profile      = auth.profile;
+      var activeThreadId = null;
+
+      document.getElementById("portal-user-label").textContent = profile.full_name || profile.email;
+      document.getElementById("signout-btn").addEventListener("click", Portal.signOut);
+
+      // ── Tab navigation ─────────────────────────────────
+      var tabs = document.querySelectorAll(".sidebar-btn[data-tab]");
+      tabs.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          tabs.forEach(function (b) { b.classList.remove("active"); b.removeAttribute("aria-current"); });
+          btn.classList.add("active"); btn.setAttribute("aria-current", "page");
+          document.querySelectorAll(".portal-tab-panel").forEach(function (p) {
+            p.classList.toggle("active", p.id === "tab-" + btn.dataset.tab);
+          });
+          if (btn.dataset.tab === "documents") loadDocuments();
+        });
+      });
+
+      // ── Inbox ──────────────────────────────────────────
+      function loadThreads() {
+        var threads = Portal.db.threads.getByCustomer(profile.id);
+        var body    = document.getElementById("thread-list-body");
+        if (!threads.length) {
+          body.innerHTML = '<div class="inbox-empty" style="padding:1.5rem;text-align:center;font-size:0.82rem;color:var(--muted);">No conversations yet.</div>';
+          return;
+        }
+        body.innerHTML = threads.map(function (t) {
+          return '<div class="thread-item' + (t.id === activeThreadId ? " active" : "") + '" data-thread-id="' + Portal.escHtml(t.id) + '" data-subject="' + Portal.escHtml(t.subject) + '">' +
+            '<div class="thread-item-subject">' + Portal.escHtml(t.subject) + '</div>' +
+            '<div class="thread-item-meta">' + Portal.formatDateTime(t.last_message_at) + '</div>' +
+            '</div>';
+        }).join("");
+        body.querySelectorAll(".thread-item").forEach(function (item) {
+          item.addEventListener("click", function () {
+            body.querySelectorAll(".thread-item").forEach(function (i) { i.classList.remove("active"); });
+            item.classList.add("active");
+            openThread(item.dataset.threadId, item.dataset.subject);
+          });
+        });
+      }
+
+      function openThread(threadId, subject) {
+        activeThreadId = threadId;
+        document.getElementById("inbox-empty-state").style.display = "none";
+        var view = document.getElementById("inbox-thread-view");
+        view.style.display = "flex";
+        document.getElementById("view-subject").textContent = subject;
+        Portal.db.messages.markRead(threadId, profile.id);
+        var messages  = Portal.db.messages.getByThread(threadId);
+        var container = document.getElementById("inbox-messages");
+        if (!messages.length) {
+          container.innerHTML = '<div class="inbox-empty"><span>No messages yet.</span></div>';
+          return;
+        }
+        container.innerHTML = messages.map(function (m) {
+          var fromMe = m.sender_id === profile.id;
+          return '<div>' +
+            '<div class="msg-bubble ' + (fromMe ? "from-customer" : "from-admin") + '">' + Portal.escHtml(m.content) + '</div>' +
+            '<div class="msg-bubble-meta" style="text-align:' + (fromMe ? "right" : "left") + '">' + Portal.formatDateTime(m.created_at) + '</div>' +
+            '</div>';
+        }).join("");
+        container.scrollTop = container.scrollHeight;
+      }
+
+      document.getElementById("send-reply-btn").addEventListener("click", function () {
+        var text = document.getElementById("reply-text").value.trim();
+        if (!text || !activeThreadId) return;
+        Portal.db.messages.create(activeThreadId, profile.id, text);
+        document.getElementById("reply-text").value = "";
+        openThread(activeThreadId, document.getElementById("view-subject").textContent);
+        loadThreads();
+      });
+
+      // ── New Thread Modal ────────────────────────────────
+      document.getElementById("new-thread-btn").addEventListener("click", function () {
+        document.getElementById("new-thread-modal").classList.add("open");
+      });
+      document.getElementById("new-thread-cancel").addEventListener("click", function () {
+        document.getElementById("new-thread-modal").classList.remove("open");
+      });
+      document.getElementById("new-thread-modal").addEventListener("click", function (e) {
+        if (e.target === this) this.classList.remove("open");
+      });
+      document.getElementById("new-thread-submit").addEventListener("click", function () {
+        var subject = document.getElementById("new-thread-subject").value.trim();
+        var body    = document.getElementById("new-thread-body").value.trim();
+        var errEl   = document.getElementById("new-thread-error");
+        if (!subject || !body) { errEl.textContent = "Please fill in both fields."; errEl.style.display = "block"; return; }
+        errEl.style.display = "none";
+        var thread = Portal.db.threads.create(profile.id, subject);
+        Portal.db.messages.create(thread.id, profile.id, body);
+        document.getElementById("new-thread-subject").value = "";
+        document.getElementById("new-thread-body").value = "";
+        document.getElementById("new-thread-modal").classList.remove("open");
+        loadThreads();
+        openThread(thread.id, subject);
+      });
+
+      // ── Documents ──────────────────────────────────────
+      function loadDocuments() {
+        var grid = document.getElementById("doc-grid-body");
+        var docs = Portal.db.documents.getByClient(profile.id);
+        if (!docs.length) {
+          grid.innerHTML = '<div class="inbox-empty" style="padding:2rem;"><span class="inbox-empty-icon">📄</span><span>No documents yet. Your agent will upload quotes and policies here.</span></div>';
+          return;
+        }
+        grid.innerHTML = docs.map(function (doc) {
+          var icon       = doc.type === "policy" ? "📋" : doc.type === "quote" ? "💼" : "📄";
+          var badgeClass = doc.type === "policy" ? "badge-green" : doc.type === "quote" ? "badge-gold" : "badge-muted";
+          return '<div class="doc-card">' +
+            '<div class="doc-card-icon">' + icon + '</div>' +
+            '<div class="doc-card-filename">' + Portal.escHtml(doc.filename) + '</div>' +
+            '<div class="doc-card-meta"><span class="badge ' + badgeClass + '">' + Portal.escHtml(doc.type) + '</span> &nbsp;' + Portal.formatDate(doc.created_at) + '</div>' +
+            (doc.notes ? '<div class="doc-card-notes">' + Portal.escHtml(doc.notes) + '</div>' : '') +
+            '<div class="doc-card-actions"><button class="btn-sm btn-sm-primary" onclick="Portal.db.documents.download(\'' + Portal.escHtml(doc.id) + '\')">Download</button></div>' +
+            '</div>';
+        }).join("");
+      }
+
+      // ── Init ───────────────────────────────────────────
+      loadThreads();
+    })();
+    </script>
+  </body>
+</html>
