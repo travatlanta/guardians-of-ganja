@@ -44,6 +44,10 @@
           <span class="btn-icon">⚙</span>
           <span>Email</span>
         </button>
+        <button class="sidebar-btn" data-tab="analytics">
+          <span class="btn-icon">📊</span>
+          <span>Analytics</span>
+        </button>
       </aside>
 
       <!-- Content -->
@@ -126,6 +130,224 @@
           </div>
         </section>
 
+        <!-- ── Analytics Tab ─────────────────────────────── -->
+        <section class="portal-tab-panel" id="tab-analytics" aria-label="Analytics">
+
+          <!-- Header + range toggles -->
+          <div class="an-header">
+            <div>
+              <h1 class="portal-tab-title" style="margin-bottom:0.15rem;">Analytics</h1>
+              <p class="an-header-note">Local data dashboard &mdash; Google Analytics integration ready when official domain is connected.</p>
+            </div>
+            <div class="an-range-btns" id="an-range-btns">
+              <button class="an-range-btn active" data-range="30">30D</button>
+              <button class="an-range-btn" data-range="90">90D</button>
+              <button class="an-range-btn" data-range="365">1Y</button>
+            </div>
+          </div>
+
+          <!-- KPI row -->
+          <div class="an-kpi-row" id="an-kpi-row">
+            <div class="an-loading"><span class="spinner"></span> Loading charts&hellip;</div>
+          </div>
+
+          <!-- Row 1: Growth line + User roles donut -->
+          <div class="an-chart-row">
+            <div class="an-chart-card an-chart-wide">
+              <div class="an-chart-label">Growth Over Time</div>
+              <div class="an-chart-sub">Cumulative users, conversations &amp; messages</div>
+              <div class="an-canvas-wrap" style="height:220px;"><canvas id="an-growth-chart"></canvas></div>
+            </div>
+            <div class="an-chart-card an-chart-narrow">
+              <div class="an-chart-label">User Breakdown</div>
+              <div class="an-chart-sub">Role distribution</div>
+              <div class="an-canvas-wrap" style="height:160px;"><canvas id="an-roles-chart"></canvas></div>
+              <div id="an-roles-legend" class="an-donut-legend"></div>
+            </div>
+          </div>
+
+          <!-- Row 2: Daily activity bar + Doc types donut -->
+          <div class="an-chart-row">
+            <div class="an-chart-card an-chart-wide">
+              <div class="an-chart-label">Daily Activity</div>
+              <div class="an-chart-sub">Signups, messages &amp; document uploads — last 30 days</div>
+              <div class="an-canvas-wrap" style="height:210px;"><canvas id="an-daily-chart"></canvas></div>
+            </div>
+            <div class="an-chart-card an-chart-narrow">
+              <div class="an-chart-label">Document Types</div>
+              <div class="an-chart-sub">Portfolio breakdown</div>
+              <div class="an-canvas-wrap" style="height:160px;"><canvas id="an-doctypes-chart"></canvas></div>
+              <div id="an-doctypes-legend" class="an-donut-legend"></div>
+            </div>
+          </div>
+
+          <!-- Row 3: Top clients + Day-of-week heatmap -->
+          <div class="an-chart-row">
+            <div class="an-chart-card an-chart-half">
+              <div class="an-chart-label">Most Active Clients</div>
+              <div class="an-chart-sub">By total messages sent</div>
+              <div class="an-canvas-wrap" style="height:220px;"><canvas id="an-clients-chart"></canvas></div>
+            </div>
+            <div class="an-chart-card an-chart-half">
+              <div class="an-chart-label">Peak Activity</div>
+              <div class="an-chart-sub">Total events by day of week (all time)</div>
+              <div class="an-canvas-wrap" style="height:180px;"><canvas id="an-weekday-chart"></canvas></div>
+            </div>
+          </div>
+
+          <!-- Message volume full-width line chart -->
+          <div class="an-chart-card">
+            <div class="an-chart-label">Message Volume</div>
+            <div class="an-chart-sub">Messages sent per day over selected period</div>
+            <div class="an-canvas-wrap" style="height:120px;"><canvas id="an-messages-chart"></canvas></div>
+          </div>
+
+          <!-- Recent activity feed -->
+          <div class="an-chart-card">
+            <div class="an-chart-label">Recent Activity</div>
+            <table class="users-table" style="margin-top:0.7rem;">
+              <thead><tr><th>Time</th><th>Event</th><th>Detail</th></tr></thead>
+              <tbody id="analytics-activity-body"></tbody>
+            </table>
+          </div>
+
+          <!-- ══ Google Analytics 4 Section ══════════════════ -->
+          <div class="ga4-section-divider">
+            <span class="ga4-section-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:5px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Google Analytics 4
+            </span>
+            <div class="ga4-status-pill" id="ga4-status-pill">
+              <span class="ga4-dot"></span>
+              <span id="ga4-status-text">Sample Data &mdash; Awaiting Domain</span>
+            </div>
+          </div>
+
+          <!-- GA4 notice banner -->
+          <div class="ga4-banner">
+            <div class="ga4-banner-icon">📡</div>
+            <div>
+              <div class="ga4-banner-title">Google Analytics 4 &mdash; Preview Mode</div>
+              <div class="ga4-banner-body">The charts below show the full GA4 data layout with realistic sample data. Once your official domain is connected and GA4 Measurement ID is added to the site, all metrics below will populate with live data automatically — page views, sessions, bounce rate, traffic sources, devices, geography, and more.</div>
+            </div>
+          </div>
+
+          <!-- GA4 KPI row -->
+          <div class="an-kpi-row ga4-kpi-row">
+            <div class="an-kpi-card" style="--kc:#4ecdc4">
+              <div class="an-kpi-top"><span class="an-kpi-icon">👁</span><span class="ga4-sample-badge">SAMPLE</span></div>
+              <div class="an-kpi-val" id="ga4-pageviews">2,418</div>
+              <div class="an-kpi-lbl">Page Views</div>
+              <div class="an-kpi-sub">Last 30 days</div>
+            </div>
+            <div class="an-kpi-card" style="--kc:#2fb073">
+              <div class="an-kpi-top"><span class="an-kpi-icon">🔗</span><span class="ga4-sample-badge">SAMPLE</span></div>
+              <div class="an-kpi-val" id="ga4-sessions">1,834</div>
+              <div class="an-kpi-lbl">Sessions</div>
+              <div class="an-kpi-sub">Last 30 days</div>
+            </div>
+            <div class="an-kpi-card" style="--kc:#d6a24b">
+              <div class="an-kpi-top"><span class="an-kpi-icon">⏱</span><span class="ga4-sample-badge">SAMPLE</span></div>
+              <div class="an-kpi-val" id="ga4-duration">3:24</div>
+              <div class="an-kpi-lbl">Avg. Session</div>
+              <div class="an-kpi-sub">Minutes on site</div>
+            </div>
+            <div class="an-kpi-card" style="--kc:#e8715a">
+              <div class="an-kpi-top"><span class="an-kpi-icon">↩</span><span class="ga4-sample-badge">SAMPLE</span></div>
+              <div class="an-kpi-val" id="ga4-bounce">42%</div>
+              <div class="an-kpi-lbl">Bounce Rate</div>
+              <div class="an-kpi-sub">Single-page exits</div>
+            </div>
+            <div class="an-kpi-card" style="--kc:#9b72cf">
+              <div class="an-kpi-top"><span class="an-kpi-icon">✨</span><span class="ga4-sample-badge">SAMPLE</span></div>
+              <div class="an-kpi-val" id="ga4-newusers">68%</div>
+              <div class="an-kpi-lbl">New Users</div>
+              <div class="an-kpi-sub">vs. returning</div>
+            </div>
+            <div class="an-kpi-card" style="--kc:#5ba4d4">
+              <div class="an-kpi-top"><span class="an-kpi-icon">📈</span><span class="ga4-sample-badge">SAMPLE</span></div>
+              <div class="an-kpi-val" id="ga4-pps">2.8</div>
+              <div class="an-kpi-lbl">Pages / Session</div>
+              <div class="an-kpi-sub">Depth of engagement</div>
+            </div>
+          </div>
+
+          <!-- GA4 Row 1: Page views line + Traffic sources donut -->
+          <div class="an-chart-row">
+            <div class="an-chart-card an-chart-wide">
+              <div class="ga4-card-head">
+                <div>
+                  <div class="an-chart-label">Page Views Over Time</div>
+                  <div class="an-chart-sub">Daily page views — last 30 days</div>
+                </div>
+                <span class="ga4-sample-badge">SAMPLE</span>
+              </div>
+              <div class="an-canvas-wrap" style="height:200px;"><canvas id="ga4-pageviews-chart"></canvas></div>
+            </div>
+            <div class="an-chart-card an-chart-narrow">
+              <div class="ga4-card-head">
+                <div>
+                  <div class="an-chart-label">Traffic Sources</div>
+                  <div class="an-chart-sub">Session origin breakdown</div>
+                </div>
+                <span class="ga4-sample-badge">SAMPLE</span>
+              </div>
+              <div class="an-canvas-wrap" style="height:160px;"><canvas id="ga4-sources-chart"></canvas></div>
+              <div id="ga4-sources-legend" class="an-donut-legend"></div>
+            </div>
+          </div>
+
+          <!-- GA4 Row 2: Top pages table + Device breakdown -->
+          <div class="an-chart-row">
+            <div class="an-chart-card an-chart-wide">
+              <div class="ga4-card-head">
+                <div>
+                  <div class="an-chart-label">Top Pages</div>
+                  <div class="an-chart-sub">Most viewed — last 30 days</div>
+                </div>
+                <span class="ga4-sample-badge">SAMPLE</span>
+              </div>
+              <table class="users-table" style="margin-top:0.6rem;" id="ga4-top-pages"></table>
+            </div>
+            <div class="an-chart-card an-chart-narrow">
+              <div class="ga4-card-head">
+                <div>
+                  <div class="an-chart-label">Device Types</div>
+                  <div class="an-chart-sub">Mobile, desktop, tablet</div>
+                </div>
+                <span class="ga4-sample-badge">SAMPLE</span>
+              </div>
+              <div class="an-canvas-wrap" style="height:160px;"><canvas id="ga4-devices-chart"></canvas></div>
+              <div id="ga4-devices-legend" class="an-donut-legend"></div>
+            </div>
+          </div>
+
+          <!-- GA4 Row 3: New vs returning + Geography bar -->
+          <div class="an-chart-row">
+            <div class="an-chart-card an-chart-half">
+              <div class="ga4-card-head">
+                <div>
+                  <div class="an-chart-label">New vs. Returning</div>
+                  <div class="an-chart-sub">Weekly trend — last 8 weeks</div>
+                </div>
+                <span class="ga4-sample-badge">SAMPLE</span>
+              </div>
+              <div class="an-canvas-wrap" style="height:200px;"><canvas id="ga4-nvr-chart"></canvas></div>
+            </div>
+            <div class="an-chart-card an-chart-half">
+              <div class="ga4-card-head">
+                <div>
+                  <div class="an-chart-label">Top Regions</div>
+                  <div class="an-chart-sub">Sessions by US state</div>
+                </div>
+                <span class="ga4-sample-badge">SAMPLE</span>
+              </div>
+              <div class="an-canvas-wrap" style="height:220px;"><canvas id="ga4-geo-chart"></canvas></div>
+            </div>
+          </div>
+
+        </section>
+
       </main>
     </div>
 
@@ -148,9 +370,10 @@
           document.querySelectorAll(".portal-tab-panel").forEach(function (p) {
             p.classList.toggle("active", p.id === "tab-" + btn.dataset.tab);
           });
-          if (btn.dataset.tab === "users")   loadUsers();
-          if (btn.dataset.tab === "clients") loadClients();
-          if (btn.dataset.tab === "email")   loadEmailTemplates();
+          if (btn.dataset.tab === "users")     loadUsers();
+          if (btn.dataset.tab === "clients")   loadClients();
+          if (btn.dataset.tab === "email")     loadEmailTemplates();
+          if (btn.dataset.tab === "analytics") loadAnalytics();
         });
       });
 
@@ -411,6 +634,559 @@
         btn.textContent = "Saved ✓";
         setTimeout(function () { btn.textContent = "Save"; closeTemplateEditor(id); }, 1200);
       };
+
+      // ══════════════════════════════════════════════════
+      // ANALYTICS
+      // ══════════════════════════════════════════════════
+      var _anActiveRange = 30;
+
+      function loadAnalytics() {
+        if (typeof Chart === "undefined") {
+          document.getElementById("an-kpi-row").innerHTML =
+            '<div class="an-loading"><span class="spinner"></span> Loading charts&hellip;</div>';
+          var s = document.createElement("script");
+          s.src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js";
+          s.onload = function () { renderAnalytics(); };
+          s.onerror = function () {
+            document.getElementById("an-kpi-row").innerHTML =
+              '<div class="an-loading" style="color:var(--muted);">Charts unavailable offline. Activity feed below.</div>';
+            renderActivityOnly();
+          };
+          document.head.appendChild(s);
+        } else {
+          renderAnalytics();
+        }
+      }
+
+      function renderActivityOnly() {
+        var users   = Portal.db.users.getAll();
+        var threads = Portal.db.threads.getAll();
+        var docs    = (function () { try { return JSON.parse(localStorage.getItem("gog_documents") || "[]"); } catch (e) { return []; } })();
+        var messages = [];
+        threads.forEach(function (t) { Portal.db.messages.getByThread(t.id).forEach(function (m) { messages.push(m); }); });
+        _renderActivityFeed(users, threads, docs, messages);
+      }
+
+      function renderAnalytics() {
+        // ── Data ───────────────────────────────────────────
+        var users    = Portal.db.users.getAll();
+        var threads  = Portal.db.threads.getAll();
+        var docs     = (function () { try { return JSON.parse(localStorage.getItem("gog_documents") || "[]"); } catch (e) { return []; } })();
+        var messages = [];
+        threads.forEach(function (t) { Portal.db.messages.getByThread(t.id).forEach(function (m) { messages.push(m); }); });
+
+        var customers = users.filter(function (u) { return u.role === "customer"; });
+        var admins    = users.filter(function (u) { return u.role === "admin"; });
+        var range     = _anActiveRange;
+        var now       = Date.now();
+        var dayMs     = 86400000;
+
+        // ── Helpers ────────────────────────────────────────
+        function tsOf(x) { return x && x.created_at ? new Date(x.created_at).getTime() : 0; }
+
+        function bucketByDay(items, days) {
+          var out = [];
+          for (var d = days - 1; d >= 0; d--) {
+            var ds = now - (d + 1) * dayMs;
+            var de = now - d * dayMs;
+            var lbl = new Date(ds + dayMs * 0.5).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+            var cnt = 0;
+            for (var i = 0; i < items.length; i++) {
+              var t = tsOf(items[i]);
+              if (t >= ds && t < de) cnt++;
+            }
+            out.push({ label: lbl, count: cnt });
+          }
+          return out;
+        }
+
+        function cumulative(buckets) {
+          var sum = 0;
+          return buckets.map(function (b) { sum += b.count; return sum; });
+        }
+
+        function countInWindow(items, start) {
+          var cnt = 0;
+          for (var i = 0; i < items.length; i++) { if (tsOf(items[i]) >= start) cnt++; }
+          return cnt;
+        }
+
+        // ── Destroy old charts ─────────────────────────────
+        window._anCharts = window._anCharts || {};
+        Object.keys(window._anCharts).forEach(function (k) {
+          try { window._anCharts[k].destroy(); } catch (e) {}
+        });
+        window._anCharts = {};
+
+        // ── Chart.js global defaults ───────────────────────
+        Chart.defaults.color = "#a4b8ad";
+        Chart.defaults.borderColor = "rgba(42,67,53,0.4)";
+        Chart.defaults.font.family = '"Sora","Segoe UI",sans-serif';
+        Chart.defaults.font.size = 11;
+
+        // ── Palette ────────────────────────────────────────
+        var G  = "#2fb073", A  = "#d6a24b", T  = "#4ecdc4",
+            CR = "#e8715a", P  = "#9b72cf", SK = "#5ba4d4";
+        var GF = "rgba(47,176,115,0.1)",  AF = "rgba(214,162,75,0.1)",
+            TF = "rgba(78,205,196,0.1)", CRF = "rgba(232,113,90,0.1)";
+
+        // ── Shared option builders ─────────────────────────
+        var ttip = {
+          backgroundColor: "#0d1a12", borderColor: "rgba(47,176,115,0.35)",
+          borderWidth: 1, titleColor: "#e8f1ea", bodyColor: "#a4b8ad",
+          padding: 10, cornerRadius: 8, usePointStyle: true
+        };
+        var gridColor = "rgba(42,67,53,0.4)";
+
+        function lineConf(datasets, labels, opts) {
+          return {
+            type: "line",
+            data: { labels: labels, datasets: datasets },
+            options: Object.assign({
+              responsive: true, maintainAspectRatio: false,
+              interaction: { mode: "index", intersect: false },
+              animation: { duration: 500 },
+              plugins: {
+                legend: { position: "top", align: "end", labels: { usePointStyle: true, pointStyleWidth: 8, boxHeight: 5, padding: 14 } },
+                tooltip: ttip
+              },
+              scales: {
+                x: { grid: { color: gridColor }, border: { display: false }, ticks: { maxTicksLimit: 10, maxRotation: 0 } },
+                y: { grid: { color: gridColor }, border: { display: false }, ticks: { maxTicksLimit: 6 }, beginAtZero: true }
+              }
+            }, opts || {})
+          };
+        }
+
+        function barConf(datasets, labels, opts) {
+          return {
+            type: "bar",
+            data: { labels: labels, datasets: datasets },
+            options: Object.assign({
+              responsive: true, maintainAspectRatio: false,
+              interaction: { mode: "index", intersect: false },
+              animation: { duration: 400 },
+              plugins: {
+                legend: { position: "top", align: "end", labels: { usePointStyle: true, pointStyleWidth: 8, boxHeight: 5, padding: 14 } },
+                tooltip: ttip
+              },
+              scales: {
+                x: { grid: { display: false }, border: { display: false }, ticks: { maxTicksLimit: 10, maxRotation: 0 } },
+                y: { grid: { color: gridColor }, border: { display: false }, ticks: { maxTicksLimit: 5 }, beginAtZero: true }
+              }
+            }, opts || {})
+          };
+        }
+
+        function donutConf(data, labels, colors) {
+          return {
+            type: "doughnut",
+            data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderColor: "#0a1510", borderWidth: 3, hoverOffset: 8 }] },
+            options: {
+              responsive: true, maintainAspectRatio: false, cutout: "74%",
+              animation: { duration: 600 },
+              plugins: { legend: { display: false }, tooltip: ttip }
+            }
+          };
+        }
+
+        // ── KPI Cards ──────────────────────────────────────
+        var periodStart = now - range * dayMs;
+        var prevStart   = now - range * 2 * dayMs;
+
+        function trend(items, start) {
+          var cur  = countInWindow(items, start);
+          var prev = countInWindow(items, prevStart) - cur;
+          if (prev === 0 && cur === 0) return { cur: cur, cls: "flat", arrow: "—", pct: "0%" };
+          if (prev === 0) return { cur: cur, cls: "up", arrow: "↑", pct: "new" };
+          var pct = Math.round(((cur - prev) / Math.max(prev, 1)) * 100);
+          return { cur: cur, cls: pct > 0 ? "up" : pct < 0 ? "down" : "flat", arrow: pct > 0 ? "↑" : pct < 0 ? "↓" : "—", pct: Math.abs(pct) + "%" };
+        }
+
+        var kpis = [
+          { label: "Total Users",   value: users.length,     t: trend(users,    periodStart), color: G,  icon: "👥" },
+          { label: "Clients",       value: customers.length, t: trend(customers,periodStart), color: A,  icon: "📂" },
+          { label: "Conversations", value: threads.length,   t: trend(threads,  periodStart), color: T,  icon: "✉" },
+          { label: "Messages",      value: messages.length,  t: trend(messages, periodStart), color: CR, icon: "💬" },
+          { label: "Documents",     value: docs.length,      t: trend(docs,     periodStart), color: P,  icon: "📄" },
+          { label: "Admins",        value: admins.length,    t: trend(admins,   periodStart), color: SK, icon: "🔑" }
+        ];
+
+        document.getElementById("an-kpi-row").innerHTML = kpis.map(function (k) {
+          return '<div class="an-kpi-card" style="--kc:' + k.color + '">' +
+            '<div class="an-kpi-top">' +
+              '<span class="an-kpi-icon">' + k.icon + '</span>' +
+              '<span class="an-kpi-trend an-kpi-' + k.t.cls + '">' + k.t.arrow + ' ' + k.t.pct + '</span>' +
+            '</div>' +
+            '<div class="an-kpi-val">' + k.value + '</div>' +
+            '<div class="an-kpi-lbl">' + Portal.escHtml(k.label) + '</div>' +
+            '<div class="an-kpi-sub">+' + k.t.cur + ' in ' + range + 'd</div>' +
+            '</div>';
+        }).join("");
+
+        // ── 1. Growth line chart ───────────────────────────
+        var uB = bucketByDay(users,    range);
+        var tB = bucketByDay(threads,  range);
+        var mB = bucketByDay(messages, range);
+        var growthLabels = uB.map(function (b) { return b.label; });
+        window._anCharts.growth = new Chart(
+          document.getElementById("an-growth-chart"),
+          lineConf([
+            { label: "Users",         data: cumulative(uB), borderColor: G,  backgroundColor: GF,  borderWidth: 2, pointRadius: 0, pointHoverRadius: 5, fill: true, tension: 0.45 },
+            { label: "Conversations", data: cumulative(tB), borderColor: T,  backgroundColor: TF,  borderWidth: 2, pointRadius: 0, pointHoverRadius: 5, fill: true, tension: 0.45 },
+            { label: "Messages",      data: cumulative(mB), borderColor: A,  backgroundColor: AF,  borderWidth: 2, pointRadius: 0, pointHoverRadius: 5, fill: true, tension: 0.45 }
+          ], growthLabels)
+        );
+
+        // ── 2. User roles donut ────────────────────────────
+        var rolesD = [customers.length, admins.length];
+        var rolesL = ["Clients", "Admins"];
+        var rolesC = [G, A];
+        window._anCharts.roles = new Chart(
+          document.getElementById("an-roles-chart"),
+          donutConf(rolesD, rolesL, rolesC)
+        );
+        document.getElementById("an-roles-legend").innerHTML = rolesL.map(function (l, i) {
+          return '<div class="an-leg-row"><span class="an-leg-dot" style="background:' + rolesC[i] + '"></span><span>' + l + '</span><span class="an-leg-n">' + rolesD[i] + '</span></div>';
+        }).join("");
+
+        // ── 3. Daily activity grouped bar ─────────────────
+        var duB = bucketByDay(users,    30);
+        var dmB = bucketByDay(messages, 30);
+        var ddB = bucketByDay(docs,     30);
+        var dailyLabels = duB.map(function (b, i) { return i % 5 === 0 ? b.label : ""; });
+        window._anCharts.daily = new Chart(
+          document.getElementById("an-daily-chart"),
+          barConf([
+            { label: "Signups",   data: duB.map(function (b) { return b.count; }), backgroundColor: G  + "bb", borderColor: G,  borderWidth: 1, borderRadius: 3 },
+            { label: "Messages",  data: dmB.map(function (b) { return b.count; }), backgroundColor: A  + "bb", borderColor: A,  borderWidth: 1, borderRadius: 3 },
+            { label: "Documents", data: ddB.map(function (b) { return b.count; }), backgroundColor: P  + "bb", borderColor: P,  borderWidth: 1, borderRadius: 3 }
+          ], dailyLabels)
+        );
+
+        // ── 4. Document types donut ────────────────────────
+        var typeMap = {};
+        docs.forEach(function (d) { typeMap[d.type || "other"] = (typeMap[d.type || "other"] || 0) + 1; });
+        var dtK = Object.keys(typeMap);
+        var dtD = dtK.map(function (k) { return typeMap[k]; });
+        var dtC = [A, G, T, CR, P, SK];
+        if (!dtK.length) { dtK = ["No docs"]; dtD = [1]; }
+        window._anCharts.dtypes = new Chart(
+          document.getElementById("an-doctypes-chart"),
+          donutConf(dtD, dtK, dtC.slice(0, dtK.length))
+        );
+        document.getElementById("an-doctypes-legend").innerHTML = dtK.map(function (l, i) {
+          return '<div class="an-leg-row"><span class="an-leg-dot" style="background:' + (dtC[i] || "#888") + '"></span>' +
+            '<span style="text-transform:capitalize;">' + Portal.escHtml(l) + '</span>' +
+            '<span class="an-leg-n">' + (dtD[i] || 0) + '</span></div>';
+        }).join("");
+
+        // ── 5. Most active clients horizontal bar ──────────
+        var clientMap = {};
+        messages.forEach(function (m) {
+          var th = null;
+          for (var i = 0; i < threads.length; i++) { if (threads[i].id === m.thread_id) { th = threads[i]; break; } }
+          if (!th) return;
+          var cl = null;
+          for (var j = 0; j < users.length; j++) { if (users[j].id === th.customer_id) { cl = users[j]; break; } }
+          if (!cl) return;
+          var nm = cl.full_name || cl.email;
+          clientMap[nm] = (clientMap[nm] || 0) + 1;
+        });
+        var clEntries = Object.keys(clientMap).map(function (k) { return { n: k, v: clientMap[k] }; });
+        clEntries.sort(function (a, b) { return b.v - a.v; });
+        clEntries = clEntries.slice(0, 8);
+        if (!clEntries.length) clEntries = [{ n: "No data yet", v: 0 }];
+        var barColors = [G, T, A, CR, P, SK, G, T];
+        window._anCharts.clients = new Chart(
+          document.getElementById("an-clients-chart"),
+          {
+            type: "bar",
+            data: {
+              labels: clEntries.map(function (e) { return e.n; }),
+              datasets: [{ label: "Messages", data: clEntries.map(function (e) { return e.v; }),
+                backgroundColor: barColors.slice(0, clEntries.length).map(function (c) { return c + "bb"; }),
+                borderColor: barColors.slice(0, clEntries.length), borderWidth: 1, borderRadius: 3 }]
+            },
+            options: {
+              indexAxis: "y", responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
+              plugins: { legend: { display: false }, tooltip: ttip },
+              scales: {
+                x: { grid: { color: gridColor }, border: { display: false }, ticks: { maxTicksLimit: 5 }, beginAtZero: true },
+                y: { grid: { display: false }, border: { display: false }, ticks: { color: "#a4b8ad" } }
+              }
+            }
+          }
+        );
+
+        // ── 6. Day-of-week heat bar ────────────────────────
+        var dowMap = [0, 0, 0, 0, 0, 0, 0];
+        [].concat(users, messages, docs).forEach(function (x) {
+          if (!x || !x.created_at) return;
+          dowMap[new Date(x.created_at).getDay()]++;
+        });
+        var dowMax = Math.max(1, Math.max.apply(null, dowMap));
+        window._anCharts.dow = new Chart(
+          document.getElementById("an-weekday-chart"),
+          {
+            type: "bar",
+            data: {
+              labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+              datasets: [{ label: "Events", data: dowMap,
+                backgroundColor: dowMap.map(function (v) {
+                  var a = (0.2 + (v / dowMax) * 0.78).toFixed(2);
+                  return "rgba(47,176,115," + a + ")";
+                }),
+                borderColor: G, borderWidth: 1, borderRadius: 5 }]
+            },
+            options: {
+              responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
+              plugins: { legend: { display: false }, tooltip: ttip },
+              scales: {
+                x: { grid: { display: false }, border: { display: false }, ticks: { color: "#a4b8ad" } },
+                y: { grid: { color: gridColor }, border: { display: false }, ticks: { maxTicksLimit: 4 }, beginAtZero: true }
+              }
+            }
+          }
+        );
+
+        // ── 7. Message volume full-width line ──────────────
+        var mvB = bucketByDay(messages, range);
+        var mvTick = Math.ceil(range / 10);
+        var mvLabels = mvB.map(function (b, i) { return i % mvTick === 0 ? b.label : ""; });
+        window._anCharts.msgvol = new Chart(
+          document.getElementById("an-messages-chart"),
+          lineConf([
+            { label: "Messages", data: mvB.map(function (b) { return b.count; }),
+              borderColor: A, backgroundColor: "rgba(214,162,75,0.07)",
+              borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 5, fill: true, tension: 0.4 }
+          ], mvLabels, {
+            plugins: {
+              legend: { display: false },
+              tooltip: ttip
+            }
+          })
+        );
+
+        // ── Range button wiring ────────────────────────────
+        document.querySelectorAll(".an-range-btn").forEach(function (btn) {
+          btn.onclick = function () {
+            document.querySelectorAll(".an-range-btn").forEach(function (b) { b.classList.remove("active"); });
+            this.classList.add("active");
+            _anActiveRange = parseInt(this.dataset.range, 10);
+            renderAnalytics();
+          };
+        });
+
+        // ── Activity feed ──────────────────────────────────
+        _renderActivityFeed(users, threads, docs, messages);
+
+        // ── GA4 section ─────────────────────────────────────
+        renderGA4Section();
+      }
+
+      function renderGA4Section() {
+        // Palette reuse
+        var G  = "#2fb073", A  = "#d6a24b", T  = "#4ecdc4",
+            CR = "#e8715a", P  = "#9b72cf", SK = "#5ba4d4";
+        var ttip = {
+          backgroundColor: "#0d1a12", borderColor: "rgba(47,176,115,0.35)",
+          borderWidth: 1, titleColor: "#e8f1ea", bodyColor: "#a4b8ad",
+          padding: 10, cornerRadius: 8, usePointStyle: true
+        };
+        var gridColor = "rgba(42,67,53,0.4)";
+
+        // Destroy any existing GA4 charts
+        window._ga4Charts = window._ga4Charts || {};
+        Object.keys(window._ga4Charts).forEach(function (k) {
+          try { window._ga4Charts[k].destroy(); } catch (e) {}
+        });
+        window._ga4Charts = {};
+
+        // ── Sample data helpers ──────────────────────────────
+        // Generates plausible-looking daily traffic for N days
+        function sampleDailyViews(days) {
+          var base = 70, trend = 1.4;
+          var out = [];
+          for (var i = 0; i < days; i++) {
+            var weekday = new Date(Date.now() - (days - 1 - i) * 86400000).getDay();
+            var isWeekend = weekday === 0 || weekday === 6;
+            var noise = Math.round((Math.random() - 0.4) * 30);
+            out.push(Math.max(8, Math.round(base + noise + i * trend * (isWeekend ? 0.5 : 1))));
+          }
+          return out;
+        }
+
+        var pvDays = 30;
+        var pvData = sampleDailyViews(pvDays);
+        var pvLabels = [];
+        for (var d = pvDays - 1; d >= 0; d--) {
+          var lbl = new Date(Date.now() - d * 86400000).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          pvLabels.push(pvDays - 1 - d < pvDays && (pvDays - 1 - d) % 5 === 0 ? lbl : "");
+        }
+
+        // 1. Page views line chart
+        window._ga4Charts.pv = new Chart(
+          document.getElementById("ga4-pageviews-chart"),
+          {
+            type: "line",
+            data: { labels: pvLabels, datasets: [{
+              label: "Page Views",
+              data: pvData,
+              borderColor: T, backgroundColor: "rgba(78,205,196,0.08)",
+              borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 5,
+              fill: true, tension: 0.4
+            }]},
+            options: {
+              responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
+              interaction: { mode: "index", intersect: false },
+              plugins: { legend: { display: false }, tooltip: ttip },
+              scales: {
+                x: { grid: { color: gridColor }, border: { display: false }, ticks: { maxTicksLimit: 8, maxRotation: 0 } },
+                y: { grid: { color: gridColor }, border: { display: false }, ticks: { maxTicksLimit: 5 }, beginAtZero: true }
+              }
+            }
+          }
+        );
+
+        // 2. Traffic sources donut
+        var srcD = [45, 28, 15, 9, 3];
+        var srcL = ["Organic Search", "Direct", "Referral", "Social", "Email"];
+        var srcC = [G, T, A, P, SK];
+        window._ga4Charts.src = new Chart(
+          document.getElementById("ga4-sources-chart"),
+          {
+            type: "doughnut",
+            data: { labels: srcL, datasets: [{ data: srcD, backgroundColor: srcC, borderColor: "#0a1510", borderWidth: 3, hoverOffset: 8 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: "72%", animation: { duration: 600 }, plugins: { legend: { display: false }, tooltip: ttip } }
+          }
+        );
+        document.getElementById("ga4-sources-legend").innerHTML = srcL.map(function (l, i) {
+          return '<div class="an-leg-row"><span class="an-leg-dot" style="background:' + srcC[i] + '"></span>' +
+            '<span>' + l + '</span><span class="an-leg-n">' + srcD[i] + '%</span></div>';
+        }).join("");
+
+        // 3. Top pages table
+        var pages = [
+          { path: "/",                     title: "Home",                   views: 842, avg: "2:58", bounce: "36%" },
+          { path: "/services",             title: "Services",               views: 541, avg: "4:12", bounce: "29%" },
+          { path: "/services/liability",   title: "Cannabis Liability",     views: 389, avg: "5:04", bounce: "22%" },
+          { path: "/contact",              title: "Contact",                views: 274, avg: "1:48", bounce: "51%" },
+          { path: "/services/property",    title: "Property Coverage",      views: 198, avg: "4:33", bounce: "25%" },
+          { path: "/services/commercial",  title: "Commercial Auto",        views: 143, avg: "3:21", bounce: "31%" },
+          { path: "/login",                title: "Client Login",           views: 118, avg: "0:54", bounce: "44%" },
+          { path: "/services/additional",  title: "Additional Lines",       views: 91,  avg: "3:05", bounce: "28%" }
+        ];
+        var maxPV = pages[0].views;
+        document.getElementById("ga4-top-pages").innerHTML =
+          '<thead><tr><th>Page</th><th>Views</th><th>Avg. Time</th><th>Bounce</th></tr></thead>' +
+          '<tbody>' + pages.map(function (p) {
+            var barW = Math.round((p.views / maxPV) * 100);
+            return '<tr>' +
+              '<td><div style="font-size:0.8rem;font-weight:600;">' + Portal.escHtml(p.title) + '</div>' +
+                '<div style="font-size:0.7rem;color:var(--muted);">' + Portal.escHtml(p.path) + '</div></td>' +
+              '<td><div style="display:flex;align-items:center;gap:0.5rem;">' +
+                '<div style="width:60px;height:5px;background:var(--line);border-radius:3px;overflow:hidden;">' +
+                  '<div style="width:' + barW + '%;height:100%;background:' + T + ';border-radius:3px;"></div></div>' +
+                '<span style="font-size:0.8rem;font-weight:600;">' + p.views + '</span></div></td>' +
+              '<td style="font-size:0.8rem;">' + Portal.escHtml(p.avg) + '</td>' +
+              '<td><span style="font-size:0.8rem;color:' + (parseInt(p.bounce) < 35 ? G : parseInt(p.bounce) > 45 ? CR : A) + ';">' + Portal.escHtml(p.bounce) + '</span></td>' +
+              '</tr>';
+          }).join("") + '</tbody>';
+
+        // 4. Device breakdown donut
+        var devD = [58, 36, 6];
+        var devL = ["Mobile", "Desktop", "Tablet"];
+        var devC = [G, A, T];
+        window._ga4Charts.dev = new Chart(
+          document.getElementById("ga4-devices-chart"),
+          {
+            type: "doughnut",
+            data: { labels: devL, datasets: [{ data: devD, backgroundColor: devC, borderColor: "#0a1510", borderWidth: 3, hoverOffset: 8 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: "72%", animation: { duration: 600 }, plugins: { legend: { display: false }, tooltip: ttip } }
+          }
+        );
+        document.getElementById("ga4-devices-legend").innerHTML = devL.map(function (l, i) {
+          return '<div class="an-leg-row"><span class="an-leg-dot" style="background:' + devC[i] + '"></span>' +
+            '<span>' + l + '</span><span class="an-leg-n">' + devD[i] + '%</span></div>';
+        }).join("");
+
+        // 5. New vs Returning stacked bar (weekly, 8 weeks)
+        var nvrWeeks = ["Wk1","Wk2","Wk3","Wk4","Wk5","Wk6","Wk7","Wk8"];
+        var nvrNew     = [112, 98, 124, 135, 108, 142, 156, 163];
+        var nvrReturn  = [ 42, 38,  51,  55,  48,  62,  68,  74];
+        window._ga4Charts.nvr = new Chart(
+          document.getElementById("ga4-nvr-chart"),
+          {
+            type: "bar",
+            data: { labels: nvrWeeks, datasets: [
+              { label: "New",       data: nvrNew,    backgroundColor: G  + "cc", borderColor: G,  borderWidth: 1, borderRadius: 3, stack: "s" },
+              { label: "Returning", data: nvrReturn, backgroundColor: A  + "cc", borderColor: A,  borderWidth: 1, borderRadius: 3, stack: "s" }
+            ]},
+            options: {
+              responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
+              interaction: { mode: "index", intersect: false },
+              plugins: { legend: { position: "top", align: "end", labels: { usePointStyle: true, pointStyleWidth: 8, boxHeight: 5, padding: 14 } }, tooltip: ttip },
+              scales: {
+                x: { grid: { display: false }, border: { display: false }, stacked: true },
+                y: { grid: { color: gridColor }, border: { display: false }, stacked: true, beginAtZero: true, ticks: { maxTicksLimit: 5 } }
+              }
+            }
+          }
+        );
+
+        // 6. Geographic horizontal bar
+        var geoStates = ["California", "Colorado", "Oregon", "Washington", "Nevada", "Arizona", "Illinois", "Texas"];
+        var geoVals   = [32, 24, 18, 12, 8, 5, 4, 3];
+        var geoMax    = geoVals[0];
+        var geoBarC   = geoVals.map(function (v) {
+          var a = (0.25 + (v / geoMax) * 0.75).toFixed(2);
+          return "rgba(47,176,115," + a + ")";
+        });
+        window._ga4Charts.geo = new Chart(
+          document.getElementById("ga4-geo-chart"),
+          {
+            type: "bar",
+            data: { labels: geoStates, datasets: [{ label: "Sessions %", data: geoVals, backgroundColor: geoBarC, borderColor: G, borderWidth: 1, borderRadius: 4 }] },
+            options: {
+              indexAxis: "y", responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
+              plugins: { legend: { display: false }, tooltip: ttip },
+              scales: {
+                x: { grid: { color: gridColor }, border: { display: false }, ticks: { callback: function (v) { return v + "%"; }, maxTicksLimit: 5 }, beginAtZero: true },
+                y: { grid: { display: false }, border: { display: false }, ticks: { color: "#a4b8ad" } }
+              }
+            }
+          }
+        );
+      }
+
+      function _renderActivityFeed(users, threads, docs, messages) {
+        var events = [];
+        users.forEach(function (u) {
+          events.push({ ts: u.created_at, type: "Signup",   detail: (u.full_name || u.email) + " joined" + (u.company ? " (" + u.company + ")" : "") });
+        });
+        messages.forEach(function (m) {
+          var preview = (m.content || "").slice(0, 64) + ((m.content || "").length > 64 ? "…" : "");
+          events.push({ ts: m.created_at, type: "Message",  detail: (m.sender_name || "Unknown") + ": " + preview });
+        });
+        docs.forEach(function (d) {
+          events.push({ ts: d.created_at || "", type: "Document", detail: d.filename + " (" + (d.type || "—") + ")" });
+        });
+        events.sort(function (a, b) { return new Date(b.ts).getTime() - new Date(a.ts).getTime(); });
+        var tbody = document.getElementById("analytics-activity-body");
+        if (!events.length) {
+          tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:1.4rem;">No activity yet.</td></tr>';
+        } else {
+          var typeColors = { Signup: "#2fb073", Message: "#d6a24b", Document: "#9b72cf" };
+          tbody.innerHTML = events.slice(0, 50).map(function (e) {
+            var col = typeColors[e.type] || "#a4b8ad";
+            return '<tr>' +
+              '<td style="white-space:nowrap;font-size:0.78rem;">' + Portal.formatDateTime(e.ts) + '</td>' +
+              '<td><span class="an-event-badge" style="--ec:' + col + '">' + Portal.escHtml(e.type) + '</span></td>' +
+              '<td style="font-size:0.82rem;">' + Portal.escHtml(e.detail) + '</td></tr>';
+          }).join("");
+        }
+      }
 
       // ── Init ───────────────────────────────────────────
       loadAdminThreads();

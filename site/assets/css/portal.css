@@ -1075,3 +1075,395 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ═══════════════════════════════════════════════════════
+   ANALYTICS DASHBOARD
+   ═══════════════════════════════════════════════════════ */
+
+/* Header row */
+.an-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 0.2rem;
+}
+
+.an-header-note {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Range toggle buttons */
+.an-range-btns {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.an-range-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 150ms, border-color 150ms, background 150ms;
+  letter-spacing: 0.03em;
+}
+
+.an-range-btn:hover {
+  color: var(--text);
+  border-color: var(--brand);
+}
+
+.an-range-btn.active {
+  background: rgba(47, 176, 115, 0.12);
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+/* Loading state */
+.an-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 0.8rem 0;
+}
+
+/* ── KPI Cards ─────────────────────────────────────────── */
+.an-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.85rem;
+}
+
+.an-kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--kc, var(--brand));
+  border-radius: 10px;
+  padding: 1rem 1.1rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 150ms, box-shadow 150ms;
+}
+
+.an-kpi-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top left, var(--kc, var(--brand)) 0%, transparent 70%);
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+.an-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.an-kpi-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+.an-kpi-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.an-kpi-trend {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+}
+
+.an-kpi-up   { color: var(--brand); background: rgba(47, 176, 115, 0.12); }
+.an-kpi-down { color: #e8715a;      background: rgba(232, 113, 90, 0.12); }
+.an-kpi-flat { color: var(--muted); background: rgba(164, 184, 173, 0.08); }
+
+.an-kpi-val {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--kc, var(--brand));
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.an-kpi-lbl {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-top: 0.1rem;
+}
+
+.an-kpi-sub {
+  font-size: 0.7rem;
+  color: var(--muted);
+  opacity: 0.65;
+  margin-top: 0.15rem;
+}
+
+/* ── Chart layout ─────────────────────────────────────── */
+.an-chart-row {
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.an-chart-wide   { flex: 2 1 320px; min-width: 0; }
+.an-chart-narrow { flex: 1 1 180px; min-width: 0; }
+.an-chart-half   { flex: 1 1 240px; min-width: 0; }
+
+.an-chart-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.an-chart-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text);
+}
+
+.an-chart-sub {
+  font-size: 0.73rem;
+  color: var(--muted);
+  margin-bottom: 0.9rem;
+  margin-top: 0.15rem;
+}
+
+.an-canvas-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.an-canvas-wrap canvas {
+  display: block;
+  width: 100% !important;
+}
+
+/* ── Donut legend ─────────────────────────────────────── */
+.an-donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.an-leg-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+.an-leg-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.an-leg-n {
+  margin-left: auto;
+  font-weight: 700;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* ── Activity feed event badges ───────────────────────── */
+.an-event-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ec, var(--muted));
+  background: color-mix(in srgb, var(--ec, var(--muted)) 14%, transparent);
+  border-radius: 4px;
+  padding: 0.1rem 0.45rem;
+  white-space: nowrap;
+}
+
+/* ── Google Analytics notice ──────────────────────────── */
+.an-ga-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background: rgba(47, 176, 115, 0.05);
+  border: 1px dashed rgba(47, 176, 115, 0.25);
+  border-radius: 10px;
+  padding: 0.9rem 1.1rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── GA4 Section divider ──────────────────────────────── */
+.ga4-section-divider {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.4rem;
+  margin-top: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.ga4-section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+/* Status pill */
+.ga4-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(214,162,75,0.08);
+  border: 1px solid rgba(214,162,75,0.28);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #d6a24b;
+  white-space: nowrap;
+}
+
+.ga4-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d6a24b;
+  animation: ga4-pulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes ga4-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+/* GA4 connected state */
+.ga4-status-pill.ga4-connected {
+  background: rgba(47,176,115,0.1);
+  border-color: rgba(47,176,115,0.35);
+  color: var(--brand);
+}
+.ga4-status-pill.ga4-connected .ga4-dot {
+  background: var(--brand);
+  animation: none;
+}
+
+/* GA4 banner */
+.ga4-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  background: rgba(214,162,75,0.05);
+  border: 1px dashed rgba(214,162,75,0.22);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+}
+
+.ga4-banner-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.ga4-banner-title {
+  font-size: 0.83rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+}
+
+.ga4-banner-body {
+  font-size: 0.77rem;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+/* Sample badge */
+.ga4-sample-badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: #d6a24b;
+  background: rgba(214,162,75,0.1);
+  border: 1px solid rgba(214,162,75,0.2);
+  border-radius: 4px;
+  padding: 0.1rem 0.42rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+/* GA4 card head (title + badge row) */
+.ga4-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0;
+}
+
+.ga4-kpi-row {
+  margin-top: 0.2rem;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 900px) {
+  .an-kpi-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .an-kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .an-chart-wide,
+  .an-chart-narrow,
+  .an-chart-half {
+    flex: 1 1 100%;
+  }
+  .an-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
