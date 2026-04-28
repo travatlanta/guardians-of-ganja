@@ -170,7 +170,8 @@
     }, { passive: true });
   }
 
-  // ── Scroll-pin: services section card reveal ──────────────
+  // ── Scroll-pin: services section card reveal (desktop only) ──
+  if (window.innerWidth >= 700) {
   (function () {
     var pinWrap = document.getElementById("services-pin-wrap");
     if (!pinWrap) return;
@@ -221,6 +222,7 @@
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
   })();
+  } // end scroll-pin desktop-only guard
 
   var filterButtons = document.querySelectorAll("[data-filter]");
   var galleryItems = document.querySelectorAll("[data-gallery-item]");
