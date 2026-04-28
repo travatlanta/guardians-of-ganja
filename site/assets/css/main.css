@@ -1905,11 +1905,13 @@ textarea {
 .footer-credit {
   border-top: 1px solid rgba(58, 84, 98, 0.2);
   margin-top: 1.2rem;
-  padding: 0.7rem 0 0.2rem;
+  padding: 0.65rem 0 0.3rem;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
+  text-align: center;
 }
 
 .footer-credit-text {
@@ -1917,22 +1919,20 @@ textarea {
   color: #4a6258;
   letter-spacing: 0.03em;
   font-weight: 400;
+  line-height: 1;
 }
 
 .footer-credit-logo {
-  height: 14px;
-  max-height: 14px;
+  height: 20px;
   width: auto;
-  max-width: 64px;
-  object-fit: contain;
-  opacity: 0.6;
+  opacity: 0.55;
   transition: opacity 180ms ease;
   display: inline-block;
   vertical-align: middle;
 }
 
 .footer-credit a:hover .footer-credit-logo {
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
 /* ── Testimonials ──────────────────────────────────────────── */
