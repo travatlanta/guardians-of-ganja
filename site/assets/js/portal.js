@@ -113,7 +113,7 @@
 
     signOut: function () {
       localStorage.removeItem(KEYS.session);
-      window.location.href = "login.html";
+      window.location.href = "/login";
     },
 
     getSession: function () {
@@ -238,9 +238,9 @@
   function requireAuth(requiredRole) {
     ensureAdmin();
     var user = auth.getCurrentUser();
-    if (!user) { window.location.href = "login.html"; return null; }
+    if (!user) { window.location.href = "/login"; return null; }
     if (requiredRole && user.role !== requiredRole) {
-      window.location.href = user.role === "admin" ? "admin.html" : "dashboard.html";
+      window.location.href = user.role === "admin" ? "/admin" : "/dashboard";
       return null;
     }
     return { profile: user };

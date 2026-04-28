@@ -1,12 +1,16 @@
 # Guardians of Ganja Static Rebuild (Phase 1)
 
 ## Included Pages
-- Home: index.html
-- Services: services.html
-- Contact: contact.html
-- Gallery: gallery.html
-- Privacy: privacy.html
-- Terms: terms.html
+- Home: /
+- Services Hub: /services
+- Service Details: /services/liability, /services/property, /services/commercial-auto, /services/products-completed-ops, /services/work-comp, /services/crop
+- Contact: /contact
+- Gallery: /gallery
+- Privacy: /privacy
+- Terms: /terms
+- Login: /login
+- Dashboard: /dashboard
+- Admin: /admin
 
 ## Localized Source Inputs
 - Raw downloaded assets: ../public/imports/guardians-of-ganja/raw
@@ -20,7 +24,7 @@
 - Curated asset pack builder: ../scripts/build-curated-asset-pack.ps1
 
 ## Quick Preview
-Open `index.html` directly, or run a local static server from this folder.
+Run a local static server from this folder and browse extensionless paths.
 
 Example (PowerShell):
 
@@ -30,3 +34,6 @@ python -m http.server 5500
 ```
 
 Then browse to `http://localhost:5500`.
+
+Notes:
+- Public links are extensionless.

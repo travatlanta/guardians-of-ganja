@@ -132,7 +132,7 @@ insert into public.email_templates (trigger_type, subject, body_html) values
   'Welcome to Guardians of Ganja — You''re in.',
   '<h2>Welcome, {{full_name}}!</h2>
 <p>Your account has been created. You can now log in to your client portal to view quotes, policies, and send messages to our team.</p>
-<p><a href="https://guardians-of-ganja.vercel.app/login.html">Access Your Portal →</a></p>
+<p><a href="https://guardians-of-ganja.vercel.app/login">Access Your Portal →</a></p>
 <p>Questions? Reply to this email anytime.</p>
 <p>— The Guardians of Ganja Team</p>'
 ),
@@ -142,7 +142,7 @@ insert into public.email_templates (trigger_type, subject, body_html) values
   '<h2>Hi {{full_name}},</h2>
 <p>A new <strong>{{document_type}}</strong> document has been uploaded to your client portal: <em>{{filename}}</em>.</p>
 {{#notes}}<p><strong>Note from your agent:</strong> {{notes}}</p>{{/notes}}
-<p><a href="https://guardians-of-ganja.vercel.app/dashboard.html">View in Portal →</a></p>
+<p><a href="https://guardians-of-ganja.vercel.app/dashboard">View in Portal →</a></p>
 <p>— The Guardians of Ganja Team</p>'
 ),
 (
@@ -150,7 +150,7 @@ insert into public.email_templates (trigger_type, subject, body_html) values
   'Your insurance quote is ready',
   '<h2>Hi {{full_name}},</h2>
 <p>Your insurance quote is ready for review in your client portal.</p>
-<p><a href="https://guardians-of-ganja.vercel.app/dashboard.html">View Your Quote →</a></p>
+<p><a href="https://guardians-of-ganja.vercel.app/dashboard">View Your Quote →</a></p>
 <p>Have questions? Reply to this email or send us a message through the portal.</p>
 <p>— The Guardians of Ganja Team</p>'
 ),
@@ -159,7 +159,7 @@ insert into public.email_templates (trigger_type, subject, body_html) values
   'New message from Guardians of Ganja',
   '<h2>Hi {{full_name}},</h2>
 <p>You have a new message from your agent regarding: <strong>{{subject}}</strong>.</p>
-<p><a href="https://guardians-of-ganja.vercel.app/dashboard.html">Read & Reply →</a></p>
+<p><a href="https://guardians-of-ganja.vercel.app/dashboard">Read & Reply →</a></p>
 <p>— The Guardians of Ganja Team</p>'
 ),
 (
@@ -169,7 +169,7 @@ insert into public.email_templates (trigger_type, subject, body_html) values
 <p><strong>Client:</strong> {{full_name}} ({{email}})<br>
 <strong>Subject:</strong> {{subject}}</p>
 <p><strong>Preview:</strong> {{message_preview}}</p>
-<p><a href="https://guardians-of-ganja.vercel.app/admin.html">View in Admin Panel →</a></p>'
+<p><a href="https://guardians-of-ganja.vercel.app/admin">View in Admin Panel →</a></p>'
 )
 on conflict (trigger_type) do nothing;
 

@@ -1,4 +1,18 @@
 (function () {
+  function setViewportVars() {
+    var root = document.documentElement;
+    var hero = document.querySelector(".hero");
+    if (!root || !hero) return;
+    var header = document.querySelector(".site-header");
+    var headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 72;
+    root.style.setProperty("--app-vh", (window.innerHeight * 0.01) + "px");
+    root.style.setProperty("--header-offset", headerHeight + "px");
+  }
+
+  setViewportVars();
+  window.addEventListener("resize", setViewportVars);
+  window.addEventListener("orientationchange", setViewportVars);
+
   var menuBtn = document.querySelector("[data-menu-btn]");
   var nav = document.querySelector("[data-site-nav]");
   if (menuBtn && nav) {
@@ -7,11 +21,12 @@
     });
   }
 
-  var current = window.location.pathname.split("/").pop() || "index.html";
+  var path = window.location.pathname.replace(/\/+$/, "") || "/";
+  var current = path.toLowerCase();
   var links = document.querySelectorAll("[data-nav-link]");
   links.forEach(function (link) {
-    var href = link.getAttribute("href");
-    if (href === current) {
+    var href = (link.getAttribute("href") || "").replace(/\/+$/, "") || "/";
+    if (href.toLowerCase() === current) {
       link.classList.add("active");
       link.setAttribute("aria-current", "page");
     }
@@ -45,9 +60,9 @@
         '<div class="nav-auth-dropdown" role="menu">' +
           '<div class="nav-auth-role-badge">' + (isAdmin ? 'Admin' : 'Client') + '</div>' +
           (isAdmin
-            ? '<a href="admin.html" class="nav-auth-item" role="menuitem">&#9878; Admin Panel</a>'
+            ? '<a href="/admin" class="nav-auth-item" role="menuitem">&#9878; Admin Panel</a>'
             : '') +
-          '<a href="dashboard.html" class="nav-auth-item" role="menuitem">&#128100; Client Portal</a>' +
+          '<a href="/dashboard" class="nav-auth-item" role="menuitem">&#128100; Client Portal</a>' +
           '<div class="nav-auth-divider"></div>' +
           '<button class="nav-auth-item nav-auth-signout" id="nav-signout-btn" role="menuitem">&#x2192; Sign Out</button>' +
         '</div>';
@@ -56,7 +71,7 @@
       var drop = wrap.querySelector(".nav-auth-dropdown");
       wrap.querySelector("#nav-signout-btn").addEventListener("click", function () {
         localStorage.removeItem("gog_session");
-        window.location.href = "login.html";
+        window.location.href = "/login";
       });
       btn.addEventListener("click", function (e) {
         e.stopPropagation();
@@ -81,13 +96,121 @@
         }
       });
     },
-    { threshold: 0.12 }
+    { threshold: 0.18, rootMargin: "0px 0px -40px 0px" }
   );
 
   document.querySelectorAll(".reveal").forEach(function (el, idx) {
-    el.style.transitionDelay = Math.min(idx * 60, 300) + "ms";
+    el.style.transitionDelay = Math.min(idx * 100, 400) + "ms";
     observer.observe(el);
   });
+
+  // Reveal variants + stagger containers
+  var revealSelectors = ".reveal-up, .reveal-left, .reveal-right, .reveal-scale, [data-stagger], .svc-check-list, .svc-cta-card";
+  document.querySelectorAll(revealSelectors).forEach(function (el) {
+    observer.observe(el);
+  });
+
+  // Hero h1 word-by-word animation
+  document.querySelectorAll(".hero h1, .svc-page-hero h1").forEach(function (h1) {
+    var words = h1.textContent.trim().split(/\s+/);
+    h1.innerHTML = words.map(function (w, i) {
+      return '<span class="hero-title-word" style="animation-delay:' + (120 + i * 90) + 'ms">' + w + '</span>';
+    }).join(" ");
+  });
+  // Typewriter on hero lead
+  var typeEl = document.getElementById("hero-typewriter");
+  if (typeEl) {
+    var typeText = "Covering your grass for a greener tomorrow.";
+    var typeIdx = 0;
+    var typeSpeed = 42; // ms per character
+
+    function typeNext() {
+      if (typeIdx <= typeText.length) {
+        typeEl.textContent = typeText.slice(0, typeIdx);
+        typeIdx++;
+        setTimeout(typeNext, typeSpeed);
+      } else {
+        // Done — pause, then remove cursor and cascade subcopy + buttons in
+        setTimeout(function () {
+          typeEl.classList.add("done");
+          document.querySelectorAll(".hero-cascade").forEach(function (el) {
+            el.style.opacity = "1";
+            el.style.transform = "translateY(0)";
+          });
+        }, 600);
+      }
+    }
+
+    // Start typing after h1 words have animated in
+    setTimeout(typeNext, 900);
+  }
+  // Parallax on hero media on scroll
+  var heroMedia = document.querySelector(".hero-media");
+  if (heroMedia) {
+    var ticking = false;
+    window.addEventListener("scroll", function () {
+      if (!ticking) {
+        requestAnimationFrame(function () {
+          var scrollY = window.scrollY || window.pageYOffset;
+          heroMedia.style.transform = "translateY(" + (scrollY * 0.18) + "px)";
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+  }
+
+  // ── Scroll-pin: services section card reveal ──────────────
+  (function () {
+    var pinWrap = document.getElementById("services-pin-wrap");
+    if (!pinWrap) return;
+
+    var cards = Array.prototype.slice.call(pinWrap.querySelectorAll(".pin-card"));
+    var note  = pinWrap.querySelector(".pin-note");
+    var CARD_COUNT  = cards.length;
+    var START_OFFSET = 220;  // px of translateY card starts from
+    var INITIAL_DELAY = 350; // scroll px before card 1 even begins moving
+    var TRAVEL_PX    = 500;  // scroll px for one card to fully travel in (~5 wheel notches)
+    var GAP_PX       = 420;  // scroll px between each card’s start point
+    var NOTE_PX      = 150;  // scroll px for note to fade
+
+    function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function getExtraScroll() {
+      return INITIAL_DELAY + (CARD_COUNT - 1) * GAP_PX + TRAVEL_PX + NOTE_PX;
+    }
+
+    function setup() {
+      var stickyEl = pinWrap.querySelector(".services-showcase");
+      if (!stickyEl) return;
+      pinWrap.style.height = (stickyEl.offsetHeight + getExtraScroll()) + "px";
+    }
+
+    function onScroll() {
+      var pinTop = pinWrap.getBoundingClientRect().top + (window.scrollY || window.pageYOffset);
+      var headerOffset = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--header-offset")) || 72;
+      var scrolled = (window.scrollY || window.pageYOffset) - pinTop + headerOffset;
+
+      cards.forEach(function (card, i) {
+        var start = INITIAL_DELAY + i * GAP_PX;
+        var end   = start + TRAVEL_PX;
+        var p     = easeOutCubic(clamp((scrolled - start) / TRAVEL_PX, 0, 1));
+        card.style.transform = "translateY(" + Math.round(START_OFFSET * (1 - p)) + "px)";
+        card.style.opacity   = p.toFixed(3);
+      });
+
+      if (note) {
+        var noteStart = INITIAL_DELAY + (CARD_COUNT - 1) * GAP_PX + TRAVEL_PX;
+        note.style.opacity = easeOutCubic(clamp((scrolled - noteStart) / NOTE_PX, 0, 1)).toFixed(3);
+      }
+    }
+
+    setup();
+    window.addEventListener("resize", setup, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  })();
 
   var filterButtons = document.querySelectorAll("[data-filter]");
   var galleryItems = document.querySelectorAll("[data-gallery-item]");

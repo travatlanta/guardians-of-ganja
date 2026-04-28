@@ -1,7 +1,7 @@
 /* ============================================================
-   portal.css — Shared styles for login.html, dashboard.html, admin.html
-   Uses the same CSS variables as main.css
-   ============================================================ */
+  portal.css - Shared styles for /login, /dashboard, /admin
+  Uses the same CSS variables as main.css
+  ============================================================ */
 
 /* ── Layout ─────────────────────────────────────────────── */
 .portal-body {

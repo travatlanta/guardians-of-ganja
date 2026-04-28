@@ -1,13 +1,13 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login — Guardians of Ganja</title>
     <meta name="robots" content="noindex, nofollow" />
-    <link rel="stylesheet" href="assets/css/main.css" />
-    <link rel="stylesheet" href="assets/css/portal.css" />
-    <script src="assets/js/portal.js"></script>
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/portal.css" />
+    <script src="/assets/js/portal.js"></script>
   </head>
   <body>
     <div class="login-page">
@@ -98,7 +98,7 @@
       // Redirect if already logged in
       Portal.auth.getSession() && (function () {
         var u = Portal.auth.getCurrentUser();
-        window.location.href = u && u.role === "admin" ? "admin.html" : "dashboard.html";
+        window.location.href = u && u.role === "admin" ? "/admin" : "/dashboard";
       })();
 
       // Tab switching
@@ -140,7 +140,7 @@
         if (!email || !password) return showError("signin-error", "Please fill in all fields.");
         var result = Portal.auth.signIn(email, password);
         if (result.error) return showError("signin-error", result.error.message);
-        window.location.href = result.data.user.role === "admin" ? "admin.html" : "dashboard.html";
+        window.location.href = result.data.user.role === "admin" ? "/admin" : "/dashboard";
       });
 
       // ── Create Account ───────────────────────────────────
@@ -157,7 +157,7 @@
         if (password.length < 6) return showError("signup-error", "Password must be at least 6 characters.");
         var result = Portal.auth.signUp(email, password, { full_name: fname + " " + lname, company: company, phone: phone });
         if (result.error) return showError("signup-error", result.error.message);
-        window.location.href = result.data.user.role === "admin" ? "admin.html" : "dashboard.html";
+        window.location.href = result.data.user.role === "admin" ? "/admin" : "/dashboard";
       });
 
       // ── Password Reset (local mode) ──────────────────────
