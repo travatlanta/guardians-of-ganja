@@ -897,11 +897,10 @@
 }
 
 .login-brand-mark {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #9ef0c7, #2fb073 58%, #154c35 100%);
-  box-shadow: 0 0 0 8px rgba(47, 176, 115, 0.1);
+  width: 64px;
+  height: 64px;
+  display: block;
+  object-fit: contain;
 }
 
 .login-brand-name {
@@ -1024,6 +1023,12 @@
 }
 
 /* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .login-page { padding: 1rem 0.5rem; }
+  .login-box { padding: 1.8rem 1.2rem; border-radius: 14px; }
+  .login-brand-mark { width: 52px; height: 52px; }
+}
+
 @media (max-width: 860px) {
   .portal-sidebar {
     width: 56px;

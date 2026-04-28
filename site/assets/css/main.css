@@ -1993,6 +1993,32 @@ textarea {
 @media (max-width: 480px) {
   .quote-cta-form { flex-direction: column; }
   .quote-cta-btn { width: 100%; text-align: center; }
+
+  /* Header */
+  .nav-wrap { min-height: 58px; }
+  .brand span { font-size: 0.92rem; }
+  .brand-mark { height: 28px; }
+
+  /* Hero */
+  .hero { padding: 3.2rem 0 2.2rem; }
+  .hero-shell { min-height: 22rem; }
+
+  /* Sections */
+  .section { padding: 1.8rem 0; }
+  .quote-cta-section { padding: 1.8rem 0; }
+
+  /* Footer credit — stack vertically on tiny screens */
+  .footer-credit {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    text-align: center;
+  }
+  .footer-credit-text { font-size: 0.78rem; }
+
+  /* Buttons full-width in hero */
+  .hero-actions { gap: 0.6rem; }
+  .hero .btn { padding: 0.7rem 1rem; font-size: 0.9rem; }
 }
 
 /* ── Testimonials ──────────────────────────────────────────── */
@@ -2199,7 +2225,6 @@ body { animation: pageIn 0.4s ease both; }
     grid-template-columns: 1fr 1fr;
   }
 
-  .service-accordion {
   .cover-card-track {
     --cover-gap: 1.2rem;
   }
@@ -2525,4 +2550,24 @@ body { animation: pageIn 0.4s ease both; }
   .testimonials-grid {
     grid-template-columns: 1fr;
   }
+
+  /* Section padding */
+  .section { padding: 2.2rem 0; }
+  .quote-cta-section { padding: 2.2rem 0; }
+
+  /* Footer bottom credit — allow wrap on narrow phones */
+  .footer-credit { flex-wrap: wrap; justify-content: center; }
+
+  /* Prevent long email address from blowing layout */
+  .footer-links a { overflow-wrap: break-word; word-break: break-all; }
+
+  /* Legal / text pages */
+  h2 { font-size: clamp(1.1rem, 5vw, 1.5rem); }
+  h3 { font-size: clamp(1rem, 4vw, 1.25rem); }
+
+  /* Gallery state sections */
+  .state-section { padding: 2.5rem 4vw 3rem; }
+
+  /* Card padding */
+  .card { padding: 1.4rem 1rem; }
 }
