@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -36,8 +36,8 @@
           <span class="brand-mark" aria-hidden="true"></span>
           <span>Guardians of Ganja</span>
         </a>
-        <button class="menu-btn" data-menu-btn aria-label="Toggle menu">Menu</button>
-        <nav class="site-nav hidden-mobile" data-site-nav aria-label="Primary navigation">
+        <button class="menu-btn" data-menu-btn aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation menu">Menu</button>
+        <nav class="site-nav hidden-mobile" id="primary-nav" data-site-nav aria-label="Primary navigation">
           <a href="/" data-nav-link>Home</a>
           <a href="/services" data-nav-link>Services</a>
           <a href="/contact" data-nav-link>Contact</a>
@@ -48,6 +48,11 @@
     </header>
 
     <main id="main">
+
+      <div class="container" style="padding-top:2.8rem;padding-bottom:0.8rem;">
+        <h2 style="margin:0;font-size:clamp(1.4rem,3vw,2rem);">Client &amp; Partner Gallery</h2>
+        <p style="color:var(--muted);margin:0.4rem 0 0;font-size:0.95rem;">Visual highlights from the cannabis operators and events we serve.</p>
+      </div>
 
       <!-- ======= MONTANA ======= -->
       <section class="state-section" aria-label="Montana client logos">

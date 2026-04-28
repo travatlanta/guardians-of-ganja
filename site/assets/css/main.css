@@ -2225,6 +2225,17 @@ body { animation: pageIn 0.4s ease both; }
     display: none;
   }
 
+  .site-nav a {
+    padding: 0.75rem 1rem;
+    min-height: 44px;
+    border-radius: 8px;
+  }
+
+  .site-nav a.active,
+  .site-nav a:hover {
+    background: #173227;
+  }
+
   .hero-grid,
   .split,
   .grid-3,

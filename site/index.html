@@ -26,6 +26,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="preload" as="image" href="/assets/img/home-hero.jpg" fetchpriority="high" />
     <link rel="stylesheet" href="/assets/css/main.css" />
     <!-- Google Analytics 4 — replace G-XXXXXXXXXX with your Measurement ID -->
     <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -39,9 +40,17 @@
       "url": "https://www.guardiansofganja.com",
       "logo": "https://www.guardiansofganja.com/assets/img/home-hero.jpg",
       "image": "https://www.guardiansofganja.com/assets/img/home-hero.jpg",
-      "telephone": "",
+      "telephone": "+14065032895",
+      "email": "Dalton@aschemanagency.com",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "US"
+      },
       "areaServed": "US",
       "serviceType": "Cannabis Insurance",
+      "openingHoursSpecification": [
+        {"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], "opens": "09:00", "closes": "17:00"}
+      ],
       "sameAs": ["https://www.linkedin.com/company/guardians-of-ganja/","https://www.instagram.com/guardiansofganja/"]
     }
     </script>
@@ -54,8 +63,8 @@
           <span class="brand-mark" aria-hidden="true"></span>
           <span>Guardians of Ganja</span>
         </a>
-        <button class="menu-btn" data-menu-btn aria-label="Toggle menu">Menu</button>
-        <nav class="site-nav hidden-mobile" data-site-nav aria-label="Primary navigation">
+        <button class="menu-btn" data-menu-btn aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation menu">Menu</button>
+        <nav class="site-nav hidden-mobile" id="primary-nav" data-site-nav aria-label="Primary navigation">
           <a href="/" data-nav-link>Home</a>
           <a href="/services" data-nav-link>Services</a>
           <a href="/contact" data-nav-link>Contact</a>

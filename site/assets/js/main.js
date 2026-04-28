@@ -17,7 +17,17 @@
   var nav = document.querySelector("[data-site-nav]");
   if (menuBtn && nav) {
     menuBtn.addEventListener("click", function () {
-      nav.classList.toggle("hidden-mobile");
+      var isOpen = nav.classList.toggle("hidden-mobile") === false;
+      menuBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      menuBtn.setAttribute("aria-label", isOpen ? "Close navigation menu" : "Open navigation menu");
+    });
+    // Close nav on outside click
+    document.addEventListener("click", function (e) {
+      if (!nav.classList.contains("hidden-mobile") && !nav.contains(e.target) && e.target !== menuBtn) {
+        nav.classList.add("hidden-mobile");
+        menuBtn.setAttribute("aria-expanded", "false");
+        menuBtn.setAttribute("aria-label", "Open navigation menu");
+      }
     });
   }
 

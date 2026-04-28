@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -143,8 +143,8 @@
           <span class="brand-mark" aria-hidden="true"></span>
           <span>Guardians of Ganja</span>
         </a>
-        <button class="menu-btn" data-menu-btn aria-label="Toggle menu">Menu</button>
-        <nav class="site-nav hidden-mobile" data-site-nav aria-label="Primary navigation">
+        <button class="menu-btn" data-menu-btn aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation menu">Menu</button>
+        <nav class="site-nav hidden-mobile" id="primary-nav" data-site-nav aria-label="Primary navigation">
           <a href="/" data-nav-link>Home</a>
           <a href="/services" data-nav-link>Services</a>
           <a href="/contact" data-nav-link>Contact</a>
@@ -154,6 +154,7 @@
       </div>
     </header>
 
+    <main id="main">
     <!-- Hero -->
     <div class="contact-hero">
       <div class="container contact-hero-content">
@@ -163,11 +164,11 @@
       </div>
     </div>
 
-    <main id="main">
       <div class="container contact-body">
 
         <!-- Left: info -->
-        <aside class="contact-info-col reveal">
+        <aside class="contact-info-col reveal" aria-label="Contact information">
+          <h2 style="font-size:1rem;font-weight:700;margin:0 0 0.7rem;color:var(--text)">How to Reach Us</h2>
           <p class="contact-info-intro">We specialize in cannabis insurance across every segment of the industry. Reach out directly or fill in the form and we'll get back to you promptly.</p>
 
           <div class="contact-card">
@@ -206,11 +207,11 @@
         <section class="contact-form-card reveal" aria-labelledby="quote-form-title">
           <h2 class="contact-form-title" id="quote-form-title">Start Your Quote</h2>
           <p class="contact-form-subtitle">We typically respond within one business day.</p>
-          <form data-contact-form novalidate aria-labelledby="quote-form-title">
+          <form data-contact-form method="post" action="/api/send-email" novalidate aria-labelledby="quote-form-title">
             <div class="contact-form-row">
               <div class="contact-form-group">
                 <label for="name">Full Name *</label>
-                <input id="name" name="name" type="text" autocomplete="name" placeholder="Jane Smith" required />
+                <input id="name" name="name" type="text" autocomplete="name" placeholder="Jane Smith" required aria-required="true" />
               </div>
               <div class="contact-form-group">
                 <label for="phone">Phone</label>
@@ -220,7 +221,7 @@
 
             <div class="contact-form-group">
               <label for="email">Email Address *</label>
-              <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required />
+              <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required aria-required="true" />
             </div>
 
             <div class="contact-form-group">
@@ -238,7 +239,7 @@
 
             <div class="contact-form-group">
               <label for="message">Tell us about your coverage needs *</label>
-              <textarea id="message" name="message" placeholder="Include your state, operation size, current coverage if any, and specific concerns…" required></textarea>
+              <textarea id="message" name="message" placeholder="Include your state, operation size, current coverage if any, and specific concerns…" required aria-required="true"></textarea>
             </div>
 
             <!-- Honeypot -->
