@@ -1789,9 +1789,6 @@ textarea {
   padding: 1.8rem 0 2rem;
   background: linear-gradient(180deg, rgba(11, 17, 23, 0), rgba(11, 17, 23, 0.65) 30%, rgba(11, 17, 23, 0.88));
   color: var(--muted);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .logo-wall {
@@ -1905,31 +1902,36 @@ textarea {
   color: #577182;
 }
 
+.footer-logo-img {
+  height: 80px;
+  width: auto;
+  display: block;
+  margin: 0 auto 0.5rem;
+  filter: brightness(0.9);
+}
+
 .footer-credit {
   border-top: 1px solid rgba(58, 84, 98, 0.2);
   margin-top: 1.2rem;
   padding: 0.7rem 0 0.3rem;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
-  box-sizing: border-box;
   text-align: center;
+  width: 100%;
 }
 
 .footer-credit-text {
+  display: inline;
   font-size: 0.75rem;
   color: #4a6258;
   letter-spacing: 0.03em;
   font-weight: 400;
-  line-height: 1;
-  white-space: nowrap;
+}
+
+.footer-credit a {
+  display: inline;
 }
 
 .footer-credit-logo {
-  display: inline-block;
+  display: inline;
   height: 40px;
   width: auto;
   opacity: 0.6;
