@@ -100,6 +100,11 @@ img {
   border: 1px solid var(--line);
   background: #14251c;
   color: var(--text);
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 0.9rem;
+  cursor: pointer;
+  border-radius: 8px;
 }
 
 .services-head {
@@ -125,6 +130,9 @@ img {
   border-radius: 8px;
   color: var(--muted);
   font-weight: 600;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .site-nav a.active,
@@ -204,8 +212,7 @@ img {
   display: flex;
 }
 
-.nav-auth-role-badge {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -610,7 +617,7 @@ h2 {
   align-items: center;
   gap: 0.25rem;
   margin-top: 0.3rem;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   color: #6e96a8;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -1846,12 +1853,7 @@ textarea {
   text-align: right;
 }
 
-.footer-eyebrow {
-  margin: 0;
-  color: #9ae8bd;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
@@ -1870,7 +1872,8 @@ textarea {
   font-size: 0.85rem;
 }
 
-.footer-links {
+.footer-links,
+.footer-social {
   margin: 0;
   display: inline-flex;
   gap: 0.45rem;
@@ -1878,18 +1881,61 @@ textarea {
   flex-wrap: wrap;
 }
 
-.footer-links a {
+.footer-social {
+  margin-top: 0.3rem;
+}
+
+.footer-links a,
+.footer-social a {
   color: #cdd9de;
   font-size: 0.9rem;
   transition: color 180ms ease;
 }
 
-.footer-links a:hover {
+.footer-links a:hover,
+.footer-social a:hover {
   color: #b7f6d7;
 }
 
-.footer-links span {
+.footer-links span,
+.footer-social span {
   color: #577182;
+}
+
+/* ── Testimonials ──────────────────────────────────────────── */
+.testimonials-section {
+  padding: 5rem 0;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.6rem;
+  margin-top: 2.4rem;
+}
+
+.testimonial-card {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1.8rem;
+  margin: 0;
+}
+
+.testimonial-text {
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.75;
+  font-style: italic;
+  margin: 0 0 1.2rem;
+}
+
+.testimonial-attribution {
+  border-top: 1px solid var(--line);
+  padding-top: 0.8rem;
+  font-style: normal;
+  color: var(--muted);
+  font-size: 0.85rem;
 }
 
 .reveal {
@@ -2367,7 +2413,12 @@ body { animation: pageIn 0.4s ease both; }
     text-align: center;
   }
 
-  .footer-links {
+  .footer-links,
+  .footer-social {
     justify-content: center;
+  }
+
+  .testimonials-grid {
+    grid-template-columns: 1fr;
   }
 }
