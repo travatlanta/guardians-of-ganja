@@ -1,0 +1,36 @@
+{
+  "outputDirectory": "site",
+  "buildCommand": null,
+  "installCommand": null,
+  "framework": null,
+  "rewrites": [
+    { "source": "/admin",     "destination": "/admin/index.html" },
+    { "source": "/dashboard", "destination": "/dashboard/index.html" },
+    { "source": "/login",     "destination": "/login/index.html" },
+    { "source": "/contact",   "destination": "/contact/index.html" },
+    { "source": "/gallery",   "destination": "/gallery/index.html" },
+    { "source": "/services",  "destination": "/services/index.html" },
+    { "source": "/privacy",   "destination": "/privacy/index.html" },
+    { "source": "/terms",     "destination": "/terms/index.html" },
+    { "source": "/services/liability",          "destination": "/services/liability/index.html" },
+    { "source": "/services/property",           "destination": "/services/property/index.html" },
+    { "source": "/services/commercial-auto",    "destination": "/services/commercial-auto/index.html" },
+    { "source": "/services/products-completed-ops", "destination": "/services/products-completed-ops/index.html" },
+    { "source": "/services/work-comp",          "destination": "/services/work-comp/index.html" },
+    { "source": "/services/crop",               "destination": "/services/crop/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache" }
+      ]
+    }
+  ]
+}
