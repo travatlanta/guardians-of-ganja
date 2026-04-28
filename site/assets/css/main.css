@@ -1903,32 +1903,36 @@ textarea {
 }
 
 .footer-credit {
-  border-top: 1px solid rgba(58, 84, 98, 0.3);
-  margin-top: 1.6rem;
-  padding-top: 1.2rem;
+  border-top: 1px solid rgba(58, 84, 98, 0.2);
+  margin-top: 1.2rem;
+  padding: 0.7rem 0 0.2rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.55rem;
+  gap: 0.4rem;
 }
 
 .footer-credit-text {
-  font-size: 0.78rem;
-  color: #557068;
-  letter-spacing: 0.04em;
-  font-weight: 500;
+  font-size: 0.72rem;
+  color: #4a6258;
+  letter-spacing: 0.03em;
+  font-weight: 400;
 }
 
 .footer-credit-logo {
-  height: 22px;
+  height: 14px;
+  max-height: 14px;
   width: auto;
-  opacity: 0.72;
+  max-width: 64px;
+  object-fit: contain;
+  opacity: 0.6;
   transition: opacity 180ms ease;
-  display: block;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .footer-credit a:hover .footer-credit-logo {
-  opacity: 1;
+  opacity: 0.9;
 }
 
 /* ── Testimonials ──────────────────────────────────────────── */
