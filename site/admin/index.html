@@ -1011,15 +1011,16 @@
         window._ga4Charts = {};
 
         // ── Sample data helpers ──────────────────────────────
-        // Generates plausible-looking daily traffic for N days
+        // Generates realistic-looking daily traffic for N days
         function sampleDailyViews(days) {
-          var base = 70, trend = 1.4;
+          var base = 72;
           var out = [];
+          // seed a consistent pattern so it looks like real data, not random noise
+          var pattern = [92,88,95,101,97,58,44, 98,105,99,108,103,61,47,
+                         110,107,114,109,116,68,52, 108,112,118,122,115,70,54,
+                         119,124,128];
           for (var i = 0; i < days; i++) {
-            var weekday = new Date(Date.now() - (days - 1 - i) * 86400000).getDay();
-            var isWeekend = weekday === 0 || weekday === 6;
-            var noise = Math.round((Math.random() - 0.4) * 30);
-            out.push(Math.max(8, Math.round(base + noise + i * trend * (isWeekend ? 0.5 : 1))));
+            out.push(pattern[i % pattern.length]);
           }
           return out;
         }
@@ -1029,7 +1030,7 @@
         var pvLabels = [];
         for (var d = pvDays - 1; d >= 0; d--) {
           var lbl = new Date(Date.now() - d * 86400000).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-          pvLabels.push(pvDays - 1 - d < pvDays && (pvDays - 1 - d) % 5 === 0 ? lbl : "");
+          pvLabels.push(lbl);
         }
 
         // 1. Page views line chart
@@ -1040,17 +1041,18 @@
             data: { labels: pvLabels, datasets: [{
               label: "Page Views",
               data: pvData,
-              borderColor: T, backgroundColor: "rgba(78,205,196,0.08)",
-              borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 5,
-              fill: true, tension: 0.4
+              borderColor: T, backgroundColor: "rgba(78,205,196,0.06)",
+              borderWidth: 2, pointRadius: 3, pointHoverRadius: 5,
+              pointBackgroundColor: T, pointBorderColor: "#0d1a12", pointBorderWidth: 1.5,
+              fill: true, tension: 0
             }]},
             options: {
               responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
               interaction: { mode: "index", intersect: false },
               plugins: { legend: { display: false }, tooltip: ttip },
               scales: {
-                x: { grid: { color: gridColor }, border: { display: false }, ticks: { maxTicksLimit: 8, maxRotation: 0 } },
-                y: { grid: { color: gridColor }, border: { display: false }, ticks: { maxTicksLimit: 5 }, beginAtZero: true }
+                x: { grid: { color: gridColor }, border: { display: false }, ticks: { maxTicksLimit: 10, maxRotation: 0, font: { size: 11 } } },
+                y: { grid: { color: gridColor }, border: { display: false }, ticks: { maxTicksLimit: 5 }, beginAtZero: false, suggestedMin: 30 }
               }
             }
           }
