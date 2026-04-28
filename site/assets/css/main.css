@@ -88,11 +88,9 @@ img {
 }
 
 .brand-mark {
-  width: 0.9rem;
-  height: 0.9rem;
-  border-radius: 999px;
-  background: radial-gradient(circle at 30% 30%, #9ef0c7, #2fb073 58%, #154c35 100%);
-  box-shadow: 0 0 0 4px rgba(47, 176, 115, 0.14);
+  display: block;
+  height: 36px;
+  width: auto;
 }
 
 .menu-btn {
@@ -1903,7 +1901,7 @@ textarea {
 }
 
 .footer-logo-img {
-  height: 80px;
+  height: 200px;
   width: auto;
   display: block;
   margin: 0 auto 0.5rem;
