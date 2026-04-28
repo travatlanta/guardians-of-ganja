@@ -1350,6 +1350,8 @@ h2 {
 
 .svc-back-btn svg {
   flex-shrink: 0;
+  width: 18px;
+  height: 18px;
   transition: transform 180ms;
 }
 
