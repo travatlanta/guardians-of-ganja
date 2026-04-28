@@ -1902,6 +1902,35 @@ textarea {
   color: #577182;
 }
 
+.footer-credit {
+  border-top: 1px solid rgba(58, 84, 98, 0.3);
+  margin-top: 1.6rem;
+  padding-top: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+.footer-credit-text {
+  font-size: 0.78rem;
+  color: #557068;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+.footer-credit-logo {
+  height: 22px;
+  width: auto;
+  opacity: 0.72;
+  transition: opacity 180ms ease;
+  display: block;
+}
+
+.footer-credit a:hover .footer-credit-logo {
+  opacity: 1;
+}
+
 /* ── Testimonials ──────────────────────────────────────────── */
 .testimonials-section {
   padding: 5rem 0;
