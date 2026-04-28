@@ -1956,7 +1956,7 @@ textarea {
 }
 
 .quote-cta-wrap {
-  max-width: 560px;
+  max-width: 700px;
   margin: 0 auto;
 }
 
@@ -1968,17 +1968,17 @@ textarea {
 
 .quote-cta-form {
   display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-  justify-content: center;
+  gap: 0.5rem;
+  align-items: center;
   margin-top: 1.2rem;
 }
 
 .quote-cta-input {
-  flex: 1 1 260px;
-  padding: 0.7rem 1rem;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.75rem 1.2rem;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 999px;
   background: rgba(15,27,21,0.8);
   color: var(--text);
   font-size: 0.95rem;
@@ -1987,6 +1987,13 @@ textarea {
 
 .quote-cta-input::placeholder { color: var(--muted); }
 .quote-cta-input:focus { border-color: var(--brand); outline: none; }
+
+.quote-cta-btn { white-space: nowrap; flex-shrink: 0; }
+
+@media (max-width: 480px) {
+  .quote-cta-form { flex-direction: column; }
+  .quote-cta-btn { width: 100%; text-align: center; }
+}
 
 /* ── Testimonials ──────────────────────────────────────────── */
 .testimonials-section {
