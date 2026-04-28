@@ -1905,12 +1905,13 @@ textarea {
 .footer-credit {
   border-top: 1px solid rgba(58, 84, 98, 0.2);
   margin-top: 1.2rem;
-  padding: 0.65rem 0 0.3rem;
-  width: 100%;
+  padding: 0.6rem 0 0.4rem;
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
+  width: 100%;
   text-align: center;
 }
 
@@ -1920,14 +1921,17 @@ textarea {
   letter-spacing: 0.03em;
   font-weight: 400;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .footer-credit-logo {
-  height: 20px;
-  width: auto;
+  display: inline-block;
+  height: 20px !important;
+  width: auto !important;
+  max-height: 20px !important;
+  max-width: 30px !important;
   opacity: 0.55;
   transition: opacity 180ms ease;
-  display: inline-block;
   vertical-align: middle;
 }
 
