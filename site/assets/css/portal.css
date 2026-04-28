@@ -897,7 +897,7 @@
 }
 
 .login-brand-mark {
-  width: 180px;
+  width: 240px;
   height: auto;
   display: block;
   object-fit: contain;
@@ -1026,7 +1026,7 @@
 @media (max-width: 480px) {
   .login-page { padding: 1rem 0.5rem; }
   .login-box { padding: 1.8rem 1.2rem; border-radius: 14px; }
-  .login-brand-mark { width: 140px; }
+  .login-brand-mark { width: 180px; }
 }
 
 @media (max-width: 860px) {
