@@ -1,7 +1,9 @@
 // Vercel Serverless Function: /api/send-email
-// Called by Supabase Database Webhooks
+// Triggered by internal API calls (subscribe, admin actions, etc.)
 // POST body: { trigger_type, recipient_email, recipient_name, variables: {} }
-// Requires env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, WEBHOOK_SECRET
+// Requires env vars: DATABASE_URL, RESEND_API_KEY, WEBHOOK_SECRET
+
+import { neon } from "@neondatabase/serverless";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -20,36 +22,31 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing trigger_type or recipient_email" });
   }
 
-  // ── Fetch active template from Supabase ─────────────────
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !serviceKey) {
-    return res.status(500).json({ error: "Supabase env vars not set" });
+  // ── Fetch active template from Neon ─────────────────────
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    return res.status(500).json({ error: "DATABASE_URL not configured" });
   }
 
-  const templateRes = await fetch(
-    `${supabaseUrl}/rest/v1/email_templates?trigger_type=eq.${encodeURIComponent(trigger_type)}&active=eq.true&limit=1`,
-    {
-      headers: {
-        apikey: serviceKey,
-        Authorization: `Bearer ${serviceKey}`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-
-  if (!templateRes.ok) {
-    return res.status(502).json({ error: "Failed to fetch template from Supabase" });
+  const sql = neon(dbUrl);
+  let templateRows;
+  try {
+    templateRows = await sql`
+      SELECT subject, body_html FROM email_templates
+      WHERE trigger_type = ${trigger_type} AND active = true
+      LIMIT 1
+    `;
+  } catch (dbErr) {
+    console.error("[send-email] DB error:", dbErr.message);
+    return res.status(502).json({ error: "Failed to fetch template from database" });
   }
 
-  const templates = await templateRes.json();
-  if (!templates || templates.length === 0) {
+  if (!templateRows || templateRows.length === 0) {
     // Template inactive or not found — silently skip
     return res.status(200).json({ skipped: true, reason: "No active template found" });
   }
 
-  const template = templates[0];
+  const template = templateRows[0];
 
   // ── Interpolate {{variable}} placeholders ───────────────
   function interpolate(str, vars) {
@@ -75,7 +72,7 @@ export default async function handler(req, res) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "Guardians of Ganja <no-reply@guardians-of-ganja.vercel.app>",
+      from: process.env.FROM_EMAIL || "Guardians of Ganja <noreply@guardiansofganja.com>",
       to: [recipient_email],
       subject,
       html: bodyHtml,

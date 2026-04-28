@@ -42,24 +42,18 @@
     }
   });
 
-  // Auth nav: show dropdown if logged in
+  // Auth nav: show dropdown when signed in via Clerk
   (function () {
     var authLink = document.getElementById("nav-auth-link");
     if (!authLink) return;
-    try {
-      var raw = localStorage.getItem("gog_session");
-      if (!raw) return;
-      var session = JSON.parse(raw);
-      if (!session || session.expires_at < Date.now()) return;
-      // Read user role from Portal if available, else from stored users array
-      var role = "customer";
-      try {
-        var users = JSON.parse(localStorage.getItem("gog_users") || "[]");
-        var u = users.find(function (u) { return u.id === session.user_id; });
-        if (u) role = u.role;
-      } catch (e) {}
-      // Build dropdown wrapper
+    if (!window.Portal) return;
+
+    Portal.loadClerk(function (clerk) {
+      if (!clerk.user) return; // not signed in — keep "Login" link as-is
+
+      var role    = (clerk.user.publicMetadata && clerk.user.publicMetadata.role) || "customer";
       var isAdmin = role === "admin";
+
       var wrap = document.createElement("div");
       wrap.className = "nav-auth-wrap";
       wrap.innerHTML =
@@ -69,19 +63,17 @@
         '</button>' +
         '<div class="nav-auth-dropdown" role="menu">' +
           '<div class="nav-auth-role-badge">' + (isAdmin ? 'Admin' : 'Client') + '</div>' +
-          (isAdmin
-            ? '<a href="/admin" class="nav-auth-item" role="menuitem">&#9878; Admin Panel</a>'
-            : '') +
+          (isAdmin ? '<a href="/admin" class="nav-auth-item" role="menuitem">&#9878; Admin Panel</a>' : '') +
           '<a href="/dashboard" class="nav-auth-item" role="menuitem">&#128100; Client Portal</a>' +
           '<div class="nav-auth-divider"></div>' +
           '<button class="nav-auth-item nav-auth-signout" id="nav-signout-btn" role="menuitem">&#x2192; Sign Out</button>' +
         '</div>';
       authLink.parentNode.replaceChild(wrap, authLink);
-      var btn = wrap.querySelector(".nav-auth-btn");
+
+      var btn  = wrap.querySelector(".nav-auth-btn");
       var drop = wrap.querySelector(".nav-auth-dropdown");
       wrap.querySelector("#nav-signout-btn").addEventListener("click", function () {
-        localStorage.removeItem("gog_session");
-        window.location.href = "/login";
+        Portal.signOut();
       });
       btn.addEventListener("click", function (e) {
         e.stopPropagation();
@@ -93,9 +85,7 @@
         btn.setAttribute("aria-expanded", "false");
       });
       drop.addEventListener("click", function (e) { e.stopPropagation(); });
-    } catch (e) {
-      // Parsing failed — leave as Login
-    }
+    });
   })();
 
   var observer = new IntersectionObserver(
@@ -414,5 +404,74 @@
       });
     });
   }
+
+  // ── Subscribe Modal ────────────────────────────────────────
+  (function () {
+    var overlay  = document.getElementById("subscribe-modal");
+    var openBtn  = document.getElementById("subscribe-open-btn");
+    var closeBtn = document.getElementById("subscribe-modal-close");
+    if (!overlay) return;
+
+    function openModal() {
+      overlay.classList.add("open");
+      document.body.style.overflow = "hidden";
+      var emailEl = document.getElementById("sub-email");
+      if (emailEl) setTimeout(function () { emailEl.focus(); }, 50);
+    }
+    function closeModal() {
+      overlay.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+
+    if (openBtn) openBtn.addEventListener("click", openModal);
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+    overlay.addEventListener("click", function (e) {
+      if (e.target === overlay) closeModal();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && overlay.classList.contains("open")) closeModal();
+    });
+
+    var submitBtn = document.getElementById("sub-submit-btn");
+    var msgEl     = document.getElementById("sub-msg");
+    if (!submitBtn) return;
+
+    submitBtn.addEventListener("click", function () {
+      var name    = (document.getElementById("sub-name")  && document.getElementById("sub-name").value.trim()) || "";
+      var email   = (document.getElementById("sub-email") && document.getElementById("sub-email").value.trim()) || "";
+      var consent = document.getElementById("sub-consent") && document.getElementById("sub-consent").checked;
+
+      msgEl.className = "subscribe-msg";
+      msgEl.textContent = "";
+
+      if (!email || !email.includes("@")) {
+        msgEl.className = "subscribe-msg error";
+        msgEl.textContent = "Please enter a valid email address.";
+        return;
+      }
+      if (!consent) {
+        msgEl.className = "subscribe-msg error";
+        msgEl.textContent = "Please check the consent box to subscribe.";
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Subscribing\u2026";
+
+      Portal.api.subscribe({ name: name, email: email, consent: true })
+        .then(function () {
+          msgEl.className = "subscribe-msg success";
+          msgEl.textContent = "\u2713 You\u2019re subscribed! Check your inbox for a welcome email.";
+          submitBtn.style.display = "none";
+          setTimeout(closeModal, 3000);
+        })
+        .catch(function (err) {
+          msgEl.className = "subscribe-msg error";
+          msgEl.textContent = err.message || "Something went wrong. Please try again.";
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Subscribe";
+        });
+    });
+  })();
 
 })();

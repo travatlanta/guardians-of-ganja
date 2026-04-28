@@ -9,7 +9,9 @@
     <link rel="apple-touch-icon" href="/assets/img/logo-icon.png" />
     <link rel="stylesheet" href="/assets/css/main.css" />
     <link rel="stylesheet" href="/assets/css/portal.css" />
+    <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.snow.css" />
     <script src="/assets/js/portal.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
   </head>
   <body class="portal-body">
 
@@ -91,24 +93,31 @@
 
         <!-- ── Users Tab ─────────────────────────────────── -->
         <section class="portal-tab-panel" id="tab-users" aria-label="Users">
-          <h1 class="portal-tab-title">Users</h1>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;margin-bottom:1rem;">
+            <h1 class="portal-tab-title" style="margin-bottom:0;">Users</h1>
+          </div>
+          <!-- Group filter pills -->
+          <div class="user-group-tabs" id="user-group-tabs" role="tablist" aria-label="User groups">
+            <button class="user-group-tab active" data-group="all"    role="tab" aria-selected="true">All</button>
+            <button class="user-group-tab"        data-group="admin"  role="tab" aria-selected="false">Admins</button>
+            <button class="user-group-tab"        data-group="customer" role="tab" aria-selected="false">Customers</button>
+            <button class="user-group-tab"        data-group="subscriber" role="tab" aria-selected="false">Subscribers</button>
+            <button class="user-group-tab"        data-group="quote" role="tab" aria-selected="false">Quote Requests</button>
+          </div>
           <div class="users-table-wrap">
             <table class="users-table" id="users-table">
               <thead>
                 <tr>
                   <th>Name</th>
                   <th>Email</th>
-                  <th>Company</th>
-                  <th>Role</th>
-                  <th>Joined</th>
+                  <th>Company / Source</th>
+                  <th>Group</th>
+                  <th>Joined / Submitted</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody id="users-table-body">
-                <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);">
-                  <span class="spinner" style="display:inline-block;"></span>
-                </td></tr>
-              </tbody>
+                <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);"><span class="spinner" style="display:inline-block;"></span></td></tr>
             </table>
           </div>
         </section>
@@ -121,14 +130,61 @@
           </div>
         </section>
 
-        <!-- ── Email Automations Tab ──────────────────────── -->
-        <section class="portal-tab-panel" id="tab-email" aria-label="Email Automations">
-          <h1 class="portal-tab-title">Email Automations</h1>
-          <p style="font-size:0.875rem;color:var(--muted);margin:0 0 0.6rem;">
-            Customize the automated emails sent to clients. Toggle to enable or disable. Click Edit to modify the subject and body. Use <code style="color:var(--accent);background:rgba(214,162,75,0.1);border-radius:3px;padding:0 3px;">{{variable}}</code> placeholders.
-          </p>
-          <div class="email-template-list" id="email-template-list">
-            <div class="portal-loading"><span class="spinner"></span> Loading…</div>
+<!-- ── Email Tab ───────────────────────────────── -->
+        <section class="portal-tab-panel" id="tab-email" aria-label="Email">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;margin-bottom:1rem;">
+            <h1 class="portal-tab-title" style="margin-bottom:0;">Email</h1>
+          </div>
+          <!-- Sub-nav -->
+          <nav class="email-subnav" aria-label="Email sections">
+            <button class="email-subnav-btn active" data-esec="campaigns">Campaigns</button>
+            <button class="email-subnav-btn" data-esec="automations">Automations</button>
+          </nav>
+
+          <!-- Campaigns section -->
+          <div class="email-section" id="email-sec-campaigns">
+            <div class="campaign-compose-card">
+              <h2 style="font-size:1rem;font-weight:600;margin:0 0 0.8rem;">New Campaign</h2>
+              <div class="form-group">
+                <label class="form-label" for="camp-subject">Subject</label>
+                <input class="form-input" id="camp-subject" type="text" placeholder="e.g. Q3 cannabis insurance update" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="camp-group">Send To</label>
+                <select class="form-select" id="camp-group">
+                  <option value="all">All users + subscribers</option>
+                  <option value="subscribers">Subscribers only</option>
+                  <option value="customers">Customers only</option>
+                  <option value="admins">Admins only</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Body</label>
+                <div id="campaign-editor" style="height:240px;"></div>
+              </div>
+              <p class="portal-error-msg" id="camp-err" style="display:none;"></p>
+              <button class="btn-sm btn-sm-primary" id="camp-send-btn" style="margin-top:0.6rem;">Send Campaign</button>
+            </div>
+
+            <div style="margin-top:1.5rem;">
+              <h2 style="font-size:0.9rem;font-weight:600;margin:0 0 0.6rem;color:var(--muted);">Campaign History</h2>
+              <div class="users-table-wrap">
+                <table class="users-table" id="campaign-history-table">
+                  <thead><tr><th>Subject</th><th>Group</th><th>Recipients</th><th>Sent</th><th>Date</th></tr></thead>
+                  <tbody id="campaign-history-body"><tr><td colspan="5" style="text-align:center;padding:1rem;color:var(--muted);"><span class="spinner" style="display:inline-block;"></span></td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Automations section -->
+          <div class="email-section" id="email-sec-automations" style="display:none;">
+            <p style="font-size:0.875rem;color:var(--muted);margin:0 0 0.6rem;">
+              Customize automated emails. Toggle to enable/disable. Use <code style="color:var(--accent);background:rgba(214,162,75,0.1);border-radius:3px;padding:0 3px;">{{variable}}</code> placeholders.
+            </p>
+            <div class="email-template-list" id="email-template-list">
+              <div class="portal-loading"><span class="spinner"></span> Loading…</div>
+            </div>
           </div>
         </section>
 
@@ -347,10 +403,9 @@
     </div>
 
     <script>
-    (function () {
-      var auth = Portal.requireAuth("admin");
-      if (!auth) return;
+    Portal.requireAuth("admin", function (auth) {
       var adminProfile       = auth.profile;
+      var clerk              = auth.clerk;
       var activeAdminThreadId = null;
 
       document.getElementById("portal-user-label").textContent = adminProfile.full_name || adminProfile.email;
@@ -367,7 +422,7 @@
           });
           if (btn.dataset.tab === "users")     loadUsers();
           if (btn.dataset.tab === "clients")   loadClients();
-          if (btn.dataset.tab === "email")     loadEmailTemplates();
+          if (btn.dataset.tab === "email")     { loadEmailTemplates(); loadCampaignHistory(); }
           if (btn.dataset.tab === "analytics") loadAnalytics();
         });
       });
@@ -431,88 +486,136 @@
         openAdminThread(activeAdminThreadId, subj, client);
         loadAdminThreads();
       });
-
-      // ══════════════════════════════════════════════════
+      // ==================================================
       // USERS
-      // ══════════════════════════════════════════════════
+      // ==================================================
+      var _allUserData = null;
+      var _activeGroup = "all";
+
+      // Group filter pills
+      document.querySelectorAll(".user-group-tab").forEach(function (pill) {
+        pill.addEventListener("click", function () {
+          document.querySelectorAll(".user-group-tab").forEach(function (p) {
+            p.classList.remove("active"); p.setAttribute("aria-selected", "false");
+          });
+          pill.classList.add("active"); pill.setAttribute("aria-selected", "true");
+          _activeGroup = pill.dataset.group;
+          if (_allUserData) renderUserTable(_allUserData, _activeGroup);
+        });
+      });
+
       function loadUsers() {
-        var users = Portal.db.users.getAll().sort(function (a, b) { return b.created_at > a.created_at ? 1 : -1; });
         var tbody = document.getElementById("users-table-body");
-        if (!users.length) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);">No users yet.</td></tr>';
-          return;
-        }
-        tbody.innerHTML = users.map(function (u) {
-          var isAdmin = u.role === "admin";
-          return '<tr>' +
-            '<td>' + Portal.escHtml(u.full_name || "—") + '</td>' +
-            '<td>' + Portal.escHtml(u.email) + '</td>' +
-            '<td>' + Portal.escHtml(u.company || "—") + '</td>' +
-            '<td><span class="badge ' + (isAdmin ? "badge-admin" : "badge-muted") + '">' + Portal.escHtml(u.role) + '</span></td>' +
-            '<td>' + Portal.formatDate(u.created_at) + '</td>' +
-            '<td>' + (u.id !== adminProfile.id
-              ? '<button class="btn-sm btn-sm-secondary" onclick="toggleRole(\'' + Portal.escHtml(u.id) + '\',\'' + Portal.escHtml(u.role) + '\',this)">' + (isAdmin ? "Demote" : "Make Admin") + '</button>'
-              : '<span style="font-size:0.75rem;color:var(--muted);">You</span>') + '</td>' +
-            '</tr>';
-        }).join("");
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);"><span class="spinner" style="display:inline-block;"></span></td></tr>';
+        Portal.api.users.getAll()
+          .then(function (data) { _allUserData = data; renderUserTable(data, _activeGroup); })
+          .catch(function (err) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);">' + Portal.escHtml(err.message) + '</td></tr>';
+          });
       }
 
-      window.toggleRole = function (userId, currentRole, btn) {
+      function renderUserTable(data, group) {
+        var tbody = document.getElementById("users-table-body");
+        var rows  = [];
+        if (group === "all" || group === "admin" || group === "customer") {
+          (data.profiles || [])
+            .filter(function (u) { return group === "all" || u.role === group; })
+            .forEach(function (u) {
+              var isAdmin = u.role === "admin";
+              var isSelf  = u.clerk_id === adminProfile.clerk_id;
+              rows.push('<tr>' +
+                '<td>' + Portal.escHtml(u.full_name || "—") + '</td>' +
+                '<td>' + Portal.escHtml(u.email || "—") + '</td>' +
+                '<td>' + Portal.escHtml(u.company || "—") + '</td>' +
+                '<td><span class="badge ' + (isAdmin ? "badge-admin" : "badge-muted") + '">' + Portal.escHtml(u.role) + '</span></td>' +
+                '<td>' + Portal.formatDate(u.created_at) + '</td>' +
+                '<td>' + (isSelf ? '<span style="font-size:0.75rem;color:var(--muted);">You</span>'
+                  : '<button class="btn-sm btn-sm-secondary" onclick="toggleUserRole(\'' + Portal.escHtml(u.clerk_id) + '\',\'' + Portal.escHtml(u.role) + '\',this)">' + (isAdmin ? "Demote" : "Make Admin") + '</button> <button class="btn-sm" style="color:#e8715a;border-color:#e8715a;" onclick="deleteUser(\'' + Portal.escHtml(u.clerk_id) + '\',this)">Remove</button>') + '</td>' +
+                '</tr>');
+            });
+        }
+        if (group === "all" || group === "subscriber") {
+          (data.subscribers || []).forEach(function (s) {
+            rows.push('<tr><td>' + Portal.escHtml(s.name || "—") + '</td><td>' + Portal.escHtml(s.email) + '</td><td>—</td><td><span class="badge badge-subscriber">subscriber</span></td><td>' + Portal.formatDate(s.subscribed_at) + '</td><td></td></tr>');
+          });
+        }
+        if (group === "all" || group === "quote") {
+          (data.quoteRequests || []).forEach(function (q) {
+            rows.push('<tr><td>' + Portal.escHtml(q.name || "—") + '</td><td>' + Portal.escHtml(q.email) + '</td><td>' + Portal.escHtml(q.company || "—") + '</td><td><span class="badge badge-quote">quote request</span></td><td>' + Portal.formatDate(q.submitted_at) + '</td><td></td></tr>');
+          });
+        }
+        tbody.innerHTML = rows.length ? rows.join("") : '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);">No entries in this group.</td></tr>';
+      }
+
+      window.toggleUserRole = function (clerkId, currentRole, btn) {
         var newRole = currentRole === "admin" ? "customer" : "admin";
-        Portal.db.users.update(userId, { role: newRole });
-        loadUsers();
+        btn.disabled = true; btn.textContent = "Saving…";
+        Portal.api.users.setRole(clerkId, newRole)
+          .then(function () { loadUsers(); })
+          .catch(function (err) { btn.disabled = false; btn.textContent = currentRole === "admin" ? "Demote" : "Make Admin"; alert(err.message); });
       };
 
-      // ══════════════════════════════════════════════════
+      window.deleteUser = function (clerkId, btn) {
+        if (!confirm("Remove this user? This cannot be undone.")) return;
+        btn.disabled = true; btn.textContent = "Removing…";
+        Portal.api.users.remove(clerkId)
+          .then(function () { loadUsers(); })
+          .catch(function (err) { btn.disabled = false; btn.textContent = "Remove"; alert(err.message); });
+      };
+
+      // ==================================================
       // CLIENTS
-      // ══════════════════════════════════════════════════
+      // ==================================================
       function loadClients() {
-        var clients = Portal.db.users.getAll()
-          .filter(function (u) { return u.role === "customer"; })
-          .sort(function (a, b) { return (a.full_name || a.email) > (b.full_name || b.email) ? 1 : -1; });
         var grid = document.getElementById("client-grid-body");
-        if (!clients.length) {
-          grid.innerHTML = '<div class="inbox-empty"><span class="inbox-empty-icon">👤</span><span>No clients yet.</span></div>';
-          return;
-        }
-        grid.innerHTML = clients.map(function (c) {
-          var ini = Portal.initials(c.full_name || c.email);
-          return '<div class="client-card" id="client-' + Portal.escHtml(c.id) + '">' +
-            '<div class="client-card-header" onclick="toggleClient(\'' + Portal.escHtml(c.id) + '\')">' +
-              '<div class="client-avatar">' + ini + '</div>' +
-              '<div><div class="client-card-name">' + Portal.escHtml(c.full_name || "—") + '</div>' +
-              '<div class="client-card-company">' + Portal.escHtml(c.company || "—") + '</div></div>' +
-              '<span class="client-card-expand-icon">▾</span>' +
-            '</div>' +
-            '<div class="client-card-body">' +
-              '<div class="client-info-row"><span class="client-info-label">Email</span><span class="client-info-value">' + Portal.escHtml(c.email) + '</span></div>' +
-              '<div class="client-info-row"><span class="client-info-label">Phone</span><span class="client-info-value">' + Portal.escHtml(c.phone || "—") + '</span></div>' +
-              '<div class="client-info-row"><span class="client-info-label">Joined</span><span class="client-info-value">' + Portal.formatDate(c.created_at) + '</span></div>' +
-              '<div class="client-docs-section"><div class="client-docs-title">Documents</div>' +
-                '<div id="client-docs-' + Portal.escHtml(c.id) + '"></div>' +
-              '</div>' +
-              '<div class="client-upload-form">' +
-                '<div class="client-upload-form-title">Upload Document</div>' +
-                '<div class="form-group"><label class="form-label">File</label><input type="file" class="form-input" id="upload-file-' + Portal.escHtml(c.id) + '" style="padding:0.45rem;" /></div>' +
-                '<div class="form-group"><label class="form-label">Type</label>' +
-                  '<select class="form-select" id="upload-type-' + Portal.escHtml(c.id) + '">' +
-                    '<option value="policy">Policy</option><option value="quote">Quote</option><option value="other">Other</option>' +
-                  '</select></div>' +
-                '<div class="form-group"><label class="form-label">Notes (optional)</label><input type="text" class="form-input" id="upload-notes-' + Portal.escHtml(c.id) + '" placeholder="e.g. Renewal 2026" /></div>' +
-                '<p class="portal-error-msg" id="upload-err-' + Portal.escHtml(c.id) + '" style="display:none;"></p>' +
-                '<button class="btn-sm btn-sm-primary" onclick="uploadDoc(\'' + Portal.escHtml(c.id) + '\',this)">Upload</button>' +
-              '</div>' +
-            '</div>' +
-            '</div>';
-        }).join("");
+        grid.innerHTML = '<div class="portal-loading"><span class="spinner"></span> Loading…</div>';
+        Portal.api.users.getAll()
+          .then(function (data) {
+            var clients = (data.profiles || [])
+              .filter(function (u) { return u.role === "customer"; })
+              .sort(function (a, b) { return (a.full_name || a.email) > (b.full_name || b.email) ? 1 : -1; });
+            if (!clients.length) {
+              grid.innerHTML = '<div class="inbox-empty"><span class="inbox-empty-icon">👤</span><span>No clients yet.</span></div>';
+              return;
+            }
+            grid.innerHTML = clients.map(function (c) {
+              var ini = Portal.initials(c.full_name || c.email);
+              return '<div class="client-card" id="client-' + Portal.escHtml(c.clerk_id) + '">' +
+                '<div class="client-card-header" onclick="toggleClient(\'' + Portal.escHtml(c.clerk_id) + '\')">' +
+                  '<div class="client-avatar">' + ini + '</div>' +
+                  '<div><div class="client-card-name">' + Portal.escHtml(c.full_name || "—") + '</div>' +
+                  '<div class="client-card-company">' + Portal.escHtml(c.company || "—") + '</div></div>' +
+                  '<span class="client-card-expand-icon">▾</span>' +
+                '</div>' +
+                '<div class="client-card-body">' +
+                  '<div class="client-info-row"><span class="client-info-label">Email</span><span class="client-info-value">' + Portal.escHtml(c.email || "—") + '</span></div>' +
+                  '<div class="client-info-row"><span class="client-info-label">Phone</span><span class="client-info-value">' + Portal.escHtml(c.phone || "—") + '</span></div>' +
+                  '<div class="client-info-row"><span class="client-info-label">Joined</span><span class="client-info-value">' + Portal.formatDate(c.created_at) + '</span></div>' +
+                  '<div class="client-docs-section"><div class="client-docs-title">Documents</div>' +
+                    '<div id="client-docs-' + Portal.escHtml(c.clerk_id) + '"></div>' +
+                  '</div>' +
+                  '<div class="client-upload-form">' +
+                    '<div class="client-upload-form-title">Upload Document</div>' +
+                    '<div class="form-group"><label class="form-label">File</label><input type="file" class="form-input" id="upload-file-' + Portal.escHtml(c.clerk_id) + '" style="padding:0.45rem;" /></div>' +
+                    '<div class="form-group"><label class="form-label">Type</label><select class="form-select" id="upload-type-' + Portal.escHtml(c.clerk_id) + '"><option value="policy">Policy</option><option value="quote">Quote</option><option value="other">Other</option></select></div>' +
+                    '<div class="form-group"><label class="form-label">Notes (optional)</label><input type="text" class="form-input" id="upload-notes-' + Portal.escHtml(c.clerk_id) + '" placeholder="e.g. Renewal 2026" /></div>' +
+                    '<p class="portal-error-msg" id="upload-err-' + Portal.escHtml(c.clerk_id) + '" style="display:none;"></p>' +
+                    '<button class="btn-sm btn-sm-primary" onclick="uploadDoc(\'' + Portal.escHtml(c.clerk_id) + '\',this)">Upload</button>' +
+                  '</div>' +
+                '</div>' +
+                '</div>';
+            }).join("");
+          })
+          .catch(function (err) {
+            document.getElementById("client-grid-body").innerHTML = '<div class="inbox-empty"><span>' + Portal.escHtml(err.message) + '</span></div>';
+          });
       }
 
       window.toggleClient = function (clientId) {
         var card = document.getElementById("client-" + clientId);
         if (!card) return;
-        var wasOpen = card.classList.contains("is-open");
         card.classList.toggle("is-open");
-        if (!wasOpen) renderClientDocs(clientId);
+        if (card.classList.contains("is-open")) renderClientDocs(clientId);
       };
 
       function renderClientDocs(clientId) {
@@ -554,23 +657,105 @@
         reader.readAsDataURL(file);
       };
 
-      // ══════════════════════════════════════════════════
-      // EMAIL AUTOMATIONS (stored locally)
-      // ══════════════════════════════════════════════════
+      // ==================================================
+      // EMAIL CAMPAIGNS + AUTOMATIONS
+      // ==================================================
+
+      // Sub-nav switching
+      document.querySelectorAll(".email-subnav-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          document.querySelectorAll(".email-subnav-btn").forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          var sec = btn.dataset.esec;
+          document.querySelectorAll(".email-section").forEach(function (s) {
+            s.style.display = s.id === "email-sec-" + sec ? "" : "none";
+          });
+          if (sec === "automations") loadEmailTemplates();
+          if (sec === "campaigns")   loadCampaignHistory();
+        });
+      });
+
+      // Quill editor (lazy init)
+      var _quill = null;
+      function getQuill() {
+        if (_quill) return _quill;
+        var el = document.getElementById("campaign-editor");
+        if (!el || typeof Quill === "undefined") return null;
+        _quill = new Quill(el, { theme: "snow", placeholder: "Write your campaign email body…",
+          modules: { toolbar: [["bold","italic","underline"],[{"list":"ordered"},{"list":"bullet"}],["link"],["clean"]] } });
+        return _quill;
+      }
+
+      function loadCampaignHistory() {
+        var tbody = document.getElementById("campaign-history-body");
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1rem;color:var(--muted);"><span class="spinner" style="display:inline-block;"></span></td></tr>';
+        Portal.api.emails.getHistory()
+          .then(function (campaigns) {
+            if (!campaigns.length) {
+              tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--muted);">No campaigns sent yet.</td></tr>';
+              return;
+            }
+            tbody.innerHTML = campaigns.map(function (c) {
+              return '<tr>' +
+                '<td>' + Portal.escHtml(c.subject) + '</td>' +
+                '<td>' + Portal.escHtml(c.target_group) + '</td>' +
+                '<td>' + (c.recipient_count || 0) + '</td>' +
+                '<td><span class="badge ' + (c.status === "sent" ? "badge-green" : "badge-muted") + '">' + Portal.escHtml(c.status) + '</span></td>' +
+                '<td>' + Portal.formatDate(c.sent_at || c.created_at) + '</td>' +
+                '</tr>';
+            }).join("");
+          })
+          .catch(function (err) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1rem;color:var(--muted);">' + Portal.escHtml(err.message) + '</td></tr>';
+          });
+        setTimeout(getQuill, 100);
+      }
+
+      document.getElementById("camp-send-btn").addEventListener("click", function () {
+        var btn     = this;
+        var subject = document.getElementById("camp-subject").value.trim();
+        var group   = document.getElementById("camp-group").value;
+        var errEl   = document.getElementById("camp-err");
+        var q       = getQuill();
+        var body    = q ? q.root.innerHTML : "";
+        errEl.style.display = "none";
+        if (!subject) { errEl.textContent = "Subject is required."; errEl.style.display = "block"; return; }
+        if (!body || body === "<p><br></p>") { errEl.textContent = "Email body is required."; errEl.style.display = "block"; return; }
+        btn.disabled = true; btn.textContent = "Sending…";
+        Portal.api.emails.sendCampaign({ subject: subject, target_group: group, body_html: body })
+          .then(function () {
+            btn.textContent = "Sent ✓";
+            document.getElementById("camp-subject").value = "";
+            if (q) q.root.innerHTML = "";
+            loadCampaignHistory();
+            setTimeout(function () { btn.disabled = false; btn.textContent = "Send Campaign"; }, 2500);
+          })
+          .catch(function (err) {
+            errEl.textContent = err.message || "Send failed.";
+            errEl.style.display = "block";
+            btn.disabled = false; btn.textContent = "Send Campaign";
+          });
+      });
+
+
+
+      // ── Email Automations (template editor) ────────────
       var TEMPLATE_META = {
+        welcome_subscriber:        { label: "Welcome Subscriber",          desc: "Sent when someone subscribes.",                     vars: "{{name}}, {{email}}" },
         signup_confirmation:       { label: "Signup Confirmation",         desc: "Sent when a new account is created.",               vars: "{{full_name}}" },
         new_document:              { label: "New Document Uploaded",        desc: "Sent when a document is uploaded for a client.",    vars: "{{full_name}}, {{document_type}}, {{filename}}, {{notes}}" },
         new_quote:                 { label: "New Quote Available",          desc: "Sent when a quote document is uploaded.",           vars: "{{full_name}}" },
-        new_message_from_admin:    { label: "New Message (Admin → Client)", desc: "Sent to client when admin replies.",                vars: "{{full_name}}, {{subject}}" },
-        new_message_from_customer: { label: "New Message (Client → Admin)", desc: "Sent to admin when client sends a message.",        vars: "{{full_name}}, {{email}}, {{subject}}, {{message_preview}}" }
+        new_message_from_admin:    { label: "New Message (Admin to Client)", desc: "Sent to client when admin replies.",               vars: "{{full_name}}, {{subject}}" },
+        new_message_from_customer: { label: "New Message (Client to Admin)", desc: "Sent to admin when client sends a message.",      vars: "{{full_name}}, {{email}}, {{subject}}, {{message_preview}}" }
       };
 
       var DEFAULT_TEMPLATES = [
+        { id: "tpl-welcome",  trigger_type: "welcome_subscriber",        active: true, subject: "Welcome to Guardians of Ganja updates!", body_html: "<h2>Hey {{name}},</h2>\n<p>Thanks for subscribing. You'll get cannabis insurance news and industry insights from our team.</p>" },
         { id: "tpl-signup",   trigger_type: "signup_confirmation",       active: true, subject: "Welcome to Guardians of Ganja — You're in.", body_html: "<h2>Welcome, {{full_name}}!</h2>\n<p>Your account is ready. Log in to your client portal to view quotes, policies, and send messages.</p>" },
-        { id: "tpl-doc",      trigger_type: "new_document",              active: true, subject: "New document available in your portal",       body_html: "<h2>Hi {{full_name}},</h2>\n<p>A new <strong>{{document_type}}</strong> document has been uploaded: <em>{{filename}}</em>.</p>" },
-        { id: "tpl-quote",    trigger_type: "new_quote",                 active: true, subject: "Your insurance quote is ready",               body_html: "<h2>Hi {{full_name}},</h2>\n<p>Your insurance quote is ready for review in your portal.</p>" },
-        { id: "tpl-admin-msg",trigger_type: "new_message_from_admin",    active: true, subject: "New message from Guardians of Ganja",         body_html: "<h2>Hi {{full_name}},</h2>\n<p>You have a new message regarding: <strong>{{subject}}</strong>.</p>" },
-        { id: "tpl-cust-msg", trigger_type: "new_message_from_customer", active: true, subject: "New client message: {{subject}}",             body_html: "<h2>New message from {{full_name}}</h2>\n<p>{{full_name}} ({{email}}) sent a message: {{subject}}</p>" }
+        { id: "tpl-doc",      trigger_type: "new_document",              active: true, subject: "New document available in your portal", body_html: "<h2>Hi {{full_name}},</h2>\n<p>A new <strong>{{document_type}}</strong> document has been uploaded: <em>{{filename}}</em>.</p>" },
+        { id: "tpl-quote",    trigger_type: "new_quote",                 active: true, subject: "Your insurance quote is ready",         body_html: "<h2>Hi {{full_name}},</h2>\n<p>Your insurance quote is ready for review in your portal.</p>" },
+        { id: "tpl-admin-msg",trigger_type: "new_message_from_admin",    active: true, subject: "New message from Guardians of Ganja",   body_html: "<h2>Hi {{full_name}},</h2>\n<p>You have a new message regarding: <strong>{{subject}}</strong>.</p>" },
+        { id: "tpl-cust-msg", trigger_type: "new_message_from_customer", active: true, subject: "New client message: {{subject}}",       body_html: "<h2>New message from {{full_name}}</h2>\n<p>{{full_name}} ({{email}}) sent a message: {{subject}}</p>" }
       ];
 
       function getTemplates() {
@@ -595,7 +780,7 @@
               '</div>' +
             '</div>' +
             '<div class="email-template-edit-form" id="tmpl-form-' + t.id + '">' +
-              '<div class="template-vars-hint">Available variables: ' + meta.vars.split(",").map(function (v) { return '<code>' + v.trim() + '</code>'; }).join(" ") + '</div>' +
+              '<div class="template-vars-hint">Variables: ' + meta.vars.split(",").map(function (v) { return '<code>' + v.trim() + '</code>'; }).join(" ") + '</div>' +
               '<div class="form-group"><label class="form-label">Subject</label><input type="text" class="form-input" id="tmpl-subject-' + t.id + '" value="' + Portal.escHtml(t.subject) + '" /></div>' +
               '<div class="form-group"><label class="form-label">Body (HTML)</label><textarea class="form-textarea" id="tmpl-body-' + t.id + '" rows="8">' + Portal.escHtml(t.body_html) + '</textarea></div>' +
               '<p class="portal-error-msg" id="tmpl-err-' + t.id + '" style="display:none;"></p>' +
@@ -610,13 +795,11 @@
 
       window.openTemplateEditor  = function (id) { document.getElementById("tmpl-form-" + id).classList.add("open"); };
       window.closeTemplateEditor = function (id) { document.getElementById("tmpl-form-" + id).classList.remove("open"); };
-
-      window.toggleTemplate = function (id, checkbox) {
+      window.toggleTemplate = function (id, cb) {
         var tpls = getTemplates();
         var t = tpls.find(function (x) { return x.id === id; });
-        if (t) { t.active = checkbox.checked; saveTemplates(tpls); }
+        if (t) { t.active = cb.checked; saveTemplates(tpls); }
       };
-
       window.saveTemplate = function (id, btn) {
         var subject  = document.getElementById("tmpl-subject-" + id).value.trim();
         var bodyHtml = document.getElementById("tmpl-body-"    + id).value;
@@ -626,10 +809,9 @@
         var tpls = getTemplates();
         var t = tpls.find(function (x) { return x.id === id; });
         if (t) { t.subject = subject; t.body_html = bodyHtml; saveTemplates(tpls); }
-        btn.textContent = "Saved ✓";
+        btn.textContent = "Saved \u2713";
         setTimeout(function () { btn.textContent = "Save"; closeTemplateEditor(id); }, 1200);
       };
-
       // ══════════════════════════════════════════════════
       // ANALYTICS
       // ══════════════════════════════════════════════════
@@ -654,7 +836,7 @@
       }
 
       function renderActivityOnly() {
-        var users   = Portal.db.users.getAll();
+        var users = []; // users now in Neon (not available in analytics without API call)
         var threads = Portal.db.threads.getAll();
         var docs    = (function () { try { return JSON.parse(localStorage.getItem("gog_documents") || "[]"); } catch (e) { return []; } })();
         var messages = [];
@@ -664,14 +846,14 @@
 
       function renderAnalytics() {
         // ── Data ───────────────────────────────────────────
-        var users    = Portal.db.users.getAll();
+        var users = []; // users now in Neon (not available in analytics without API call)
         var threads  = Portal.db.threads.getAll();
         var docs     = (function () { try { return JSON.parse(localStorage.getItem("gog_documents") || "[]"); } catch (e) { return []; } })();
         var messages = [];
         threads.forEach(function (t) { Portal.db.messages.getByThread(t.id).forEach(function (m) { messages.push(m); }); });
 
         var customers = users.filter(function (u) { return u.role === "customer"; });
-        var admins    = users.filter(function (u) { return u.role === "admin"; });
+        var admins = [];
         var range     = _anActiveRange;
         var now       = Date.now();
         var dayMs     = 86400000;
@@ -1187,7 +1369,7 @@
 
       // ── Init ───────────────────────────────────────────
       loadAdminThreads();
-    })();
+    });
     </script>
     <footer class="site-footer" style="margin-top:0;padding:0.9rem 0 1.2rem;">
       <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;width:100%;border-top:1px solid rgba(58,84,98,0.2);margin-top:0.8rem;padding:0.5rem 0 0.8rem;">

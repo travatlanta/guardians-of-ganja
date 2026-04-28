@@ -1,46 +1,147 @@
-﻿// portal.js — Self-contained localStorage auth + data store
-// No external services required. Works immediately.
+﻿// portal.js — Guardians of Ganja portal layer
+// Auth: Clerk CDN  |  New data: Neon via /api/*  |  Legacy: localStorage (threads, messages, docs)
+//
+// ─── SETUP ──────────────────────────────────────────────────────────────────
+// Replace the placeholder below with your Clerk Publishable Key.
+// Get it from: https://dashboard.clerk.com → API Keys → Publishable Key
+// (starts with pk_test_ or pk_live_ — this key is safe to be public in browser code)
 
 (function () {
   "use strict";
 
-  var KEYS = {
-    users:     "gog_users",
-    threads:   "gog_threads",
-    messages:  "gog_messages",
-    documents: "gog_documents",
-    session:   "gog_session"
-  };
+  var CLERK_PUBLISHABLE_KEY = "REPLACE_WITH_YOUR_CLERK_PUBLISHABLE_KEY";
 
-  var ADMINS = [
-    { email: "trav.mcmichael@gmail.com", password: "86238623",  full_name: "Trav McMichael" },
-    { email: "mike@lucentengine.ai",    password: "12341234",  full_name: "Mike" }
-  ];
-  // kept for back-compat with signUp role check
-  var ADMIN_EMAIL = "trav.mcmichael@gmail.com";
+  // ── Clerk Loader ──────────────────────────────────────────
+  var _clerkCallbacks = [];
+  var _clerkState = "idle"; // idle | loading | ready
 
-  // ── Simple hash (prototype — not cryptographic) ──────────
-  function hashPassword(pw) {
-    var str  = pw + ":gog2026:" + pw.length;
-    var hash = 5381;
-    for (var i = 0; i < str.length; i++) {
-      hash = ((hash << 5) + hash) ^ str.charCodeAt(i);
-      hash = hash >>> 0;
-    }
-    return hash.toString(16).padStart(8, "0");
+  function loadClerk(callback) {
+    if (_clerkState === "ready" && window.Clerk) { callback(window.Clerk); return; }
+    _clerkCallbacks.push(callback);
+    if (_clerkState === "loading") return;
+    _clerkState = "loading";
+
+    var s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js";
+    s.crossOrigin = "anonymous";
+    s.onload = function () {
+      var clerk = new window.Clerk(CLERK_PUBLISHABLE_KEY);
+      clerk.load().then(function () {
+        window.Clerk = clerk;
+        _clerkState = "ready";
+        var cbs = _clerkCallbacks.slice();
+        _clerkCallbacks = [];
+        cbs.forEach(function (cb) { cb(clerk); });
+      }).catch(function (err) {
+        console.error("[Portal] Clerk.load() failed:", err);
+        _clerkState = "idle";
+      });
+    };
+    s.onerror = function () {
+      console.error("[Portal] Failed to load Clerk CDN script");
+      _clerkState = "idle";
+    };
+    document.head.appendChild(s);
   }
 
-  // ── Storage helpers ───────────────────────────────────────
+  // ── API helpers ───────────────────────────────────────────
+  function _getToken() {
+    return new Promise(function (resolve) {
+      if (window.Clerk && window.Clerk.session) {
+        window.Clerk.session.getToken().then(resolve).catch(function () { resolve(null); });
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  function apiFetch(path, options) {
+    return _getToken().then(function (token) {
+      var headers = Object.assign({ "Content-Type": "application/json" }, (options && options.headers) || {});
+      if (token) headers["Authorization"] = "Bearer " + token;
+      return fetch(path, Object.assign({}, options, { headers: headers }));
+    }).then(function (resp) {
+      if (!resp.ok) {
+        return resp.json().catch(function () { return { error: resp.statusText }; }).then(function (err) {
+          throw new Error(err.error || "API error " + resp.status);
+        });
+      }
+      return resp.json();
+    });
+  }
+
+  var api = {
+    users: {
+      getAll: function () { return apiFetch("/api/users"); },
+      update: function (id, data) {
+        return apiFetch("/api/users", { method: "PATCH", body: JSON.stringify(Object.assign({ id: id }, data)) });
+      },
+      remove: function (id) {
+        return apiFetch("/api/users", { method: "DELETE", body: JSON.stringify({ id: id }) });
+      }
+    },
+    emails: {
+      getCampaigns: function () { return apiFetch("/api/email-campaign"); },
+      sendCampaign: function (data) {
+        return apiFetch("/api/email-campaign", { method: "POST", body: JSON.stringify(data) });
+      }
+    },
+    subscribe: function (data) {
+      return fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      }).then(function (r) {
+        if (!r.ok) return r.json().then(function (e) { throw new Error(e.error || "Subscribe failed"); });
+        return r.json();
+      });
+    }
+  };
+
+  // ── requireAuth (async, callback-based) ───────────────────
+  function requireAuth(requiredRole, callback) {
+    loadClerk(function (clerk) {
+      if (!clerk.user) {
+        window.location.href = "/login";
+        return;
+      }
+      var role = (clerk.user.publicMetadata && clerk.user.publicMetadata.role) || "customer";
+      if (requiredRole === "admin" && role !== "admin") {
+        window.location.href = "/dashboard";
+        return;
+      }
+      var profile = {
+        id:        clerk.user.id,
+        email:     clerk.user.primaryEmailAddress
+                     ? clerk.user.primaryEmailAddress.emailAddress
+                     : "",
+        full_name: [clerk.user.firstName, clerk.user.lastName].filter(Boolean).join(" "),
+        company:   (clerk.user.unsafeMetadata && clerk.user.unsafeMetadata.company) || "",
+        phone:     (clerk.user.unsafeMetadata && clerk.user.unsafeMetadata.phone) || "",
+        role:      role
+      };
+      callback({ profile: profile, clerk: clerk });
+    });
+  }
+
+  function signOut() {
+    loadClerk(function (clerk) {
+      clerk.signOut().then(function () { window.location.href = "/login"; });
+    });
+  }
+
+  // ── localStorage DB (threads, messages, documents) ────────
+  var KEYS = {
+    threads:   "gog_threads",
+    messages:  "gog_messages",
+    documents: "gog_documents"
+  };
+
   function readArr(key) {
     try { return JSON.parse(localStorage.getItem(key) || "[]"); }
     catch (e) { return []; }
   }
-  function readObj(key) {
-    try { return JSON.parse(localStorage.getItem(key) || "null"); }
-    catch (e) { return null; }
-  }
   function save(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
-
   function uuid() {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
       var r = Math.random() * 16 | 0;
@@ -49,106 +150,7 @@
   }
   function nowIso() { return new Date().toISOString(); }
 
-  function _strip(u) {
-    var c = Object.assign({}, u);
-    delete c.password_hash;
-    return c;
-  }
-
-  // ── Seed admin (runs once) ────────────────────────────────
-  function ensureAdmin() {
-    var users = readArr(KEYS.users);
-    var changed = false;
-    ADMINS.forEach(function (a) {
-      if (!users.some(function (u) { return u.email.toLowerCase() === a.email.toLowerCase(); })) {
-        users.unshift({
-          id:            uuid(),
-          email:         a.email,
-          password_hash: hashPassword(a.password),
-          full_name:     a.full_name,
-          company:       "Guardians of Ganja",
-          phone:         "",
-          role:          "admin",
-          created_at:    nowIso()
-        });
-        changed = true;
-      }
-    });
-    if (changed) save(KEYS.users, users);
-  }
-
-  // ── Auth ──────────────────────────────────────────────────
-  var auth = {
-    signIn: function (email, password) {
-      var users = readArr(KEYS.users);
-      var user  = users.find(function (u) { return u.email.toLowerCase() === email.toLowerCase(); });
-      if (!user || user.password_hash !== hashPassword(password)) {
-        return { error: { message: "Invalid email or password." } };
-      }
-      save(KEYS.session, { user_id: user.id, expires_at: Date.now() + 7 * 24 * 60 * 60 * 1000 });
-      return { data: { user: _strip(user) }, error: null };
-    },
-
-    signUp: function (email, password, meta) {
-      var users = readArr(KEYS.users);
-      if (users.some(function (u) { return u.email.toLowerCase() === email.toLowerCase(); })) {
-        return { error: { message: "An account with this email already exists." } };
-      }
-      var role = ADMINS.some(function (a) { return a.email.toLowerCase() === email.toLowerCase(); }) ? "admin" : "customer";
-      var nu = {
-        id:            uuid(),
-        email:         email,
-        password_hash: hashPassword(password),
-        full_name:     meta.full_name || "",
-        company:       meta.company  || "",
-        phone:         meta.phone    || "",
-        role:          role,
-        created_at:    nowIso()
-      };
-      users.push(nu);
-      save(KEYS.users, users);
-      save(KEYS.session, { user_id: nu.id, expires_at: Date.now() + 7 * 24 * 60 * 60 * 1000 });
-      return { data: { user: _strip(nu) }, error: null };
-    },
-
-    signOut: function () {
-      localStorage.removeItem(KEYS.session);
-      window.location.href = "/login";
-    },
-
-    getSession: function () {
-      var s = readObj(KEYS.session);
-      if (!s || s.expires_at < Date.now()) { localStorage.removeItem(KEYS.session); return null; }
-      return s;
-    },
-
-    getCurrentUser: function () {
-      var s = auth.getSession();
-      if (!s) return null;
-      var u = readArr(KEYS.users).find(function (u) { return u.id === s.user_id; });
-      return u ? _strip(u) : null;
-    }
-  };
-
-  // ── Database ──────────────────────────────────────────────
   var db = {
-    users: {
-      getAll: function () { return readArr(KEYS.users).map(_strip); },
-      getById: function (id) {
-        var u = readArr(KEYS.users).find(function (u) { return u.id === id; });
-        return u ? _strip(u) : null;
-      },
-      update: function (id, fields) {
-        var users = readArr(KEYS.users);
-        var idx   = users.findIndex(function (u) { return u.id === id; });
-        if (idx === -1) return { error: "Not found" };
-        delete fields.password_hash;
-        Object.assign(users[idx], fields);
-        save(KEYS.users, users);
-        return { error: null };
-      }
-    },
-
     threads: {
       getByCustomer: function (customerId) {
         return readArr(KEYS.threads)
@@ -156,12 +158,7 @@
           .sort(function (a, b) { return b.last_message_at > a.last_message_at ? 1 : -1; });
       },
       getAll: function () {
-        var users = readArr(KEYS.users);
         return readArr(KEYS.threads)
-          .map(function (t) {
-            var c = users.find(function (u) { return u.id === t.customer_id; });
-            return Object.assign({}, t, { customer_name: c ? (c.full_name || c.email) : "Unknown" });
-          })
           .sort(function (a, b) { return b.last_message_at > a.last_message_at ? 1 : -1; });
       },
       create: function (customerId, subject) {
@@ -176,17 +173,9 @@
 
     messages: {
       getByThread: function (threadId) {
-        var users = readArr(KEYS.users);
         return readArr(KEYS.messages)
           .filter(function (m) { return m.thread_id === threadId; })
-          .sort(function (a, b) { return a.created_at > b.created_at ? 1 : -1; })
-          .map(function (m) {
-            var sender = users.find(function (u) { return u.id === m.sender_id; });
-            return Object.assign({}, m, {
-              sender_name: sender ? (sender.full_name || sender.email) : "Unknown",
-              sender_role: sender ? sender.role : "customer"
-            });
-          });
+          .sort(function (a, b) { return a.created_at > b.created_at ? 1 : -1; });
       },
       create: function (threadId, senderId, content) {
         var msgs    = readArr(KEYS.messages);
@@ -234,18 +223,6 @@
     }
   };
 
-  // ── requireAuth ───────────────────────────────────────────
-  function requireAuth(requiredRole) {
-    ensureAdmin();
-    var user = auth.getCurrentUser();
-    if (!user) { window.location.href = "/login"; return null; }
-    if (requiredRole && user.role !== requiredRole) {
-      window.location.href = user.role === "admin" ? "/admin" : "/dashboard";
-      return null;
-    }
-    return { profile: user };
-  }
-
   // ── Utilities ─────────────────────────────────────────────
   function formatDate(iso) {
     if (!iso) return "";
@@ -263,17 +240,16 @@
     return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 
-  // Init
-  ensureAdmin();
-
   window.Portal = {
-    auth:          auth,
+    api:           api,
     db:            db,
+    loadClerk:     loadClerk,
     requireAuth:   requireAuth,
-    signOut:       function () { auth.signOut(); },
+    signOut:       signOut,
     formatDate:    formatDate,
     formatDateTime:formatDateTime,
     initials:      initials,
     escHtml:       escHtml
   };
 })();
+
