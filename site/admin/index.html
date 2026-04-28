@@ -148,71 +148,6 @@
             </div>
           </div>
 
-          <!-- KPI row -->
-          <div class="an-kpi-row" id="an-kpi-row">
-            <div class="an-loading"><span class="spinner"></span> Loading charts&hellip;</div>
-          </div>
-
-          <!-- Row 1: Growth line + User roles donut -->
-          <div class="an-chart-row">
-            <div class="an-chart-card an-chart-wide">
-              <div class="an-chart-label">Growth Over Time</div>
-              <div class="an-chart-sub">Cumulative users, conversations &amp; messages</div>
-              <div class="an-canvas-wrap" style="height:220px;"><canvas id="an-growth-chart"></canvas></div>
-            </div>
-            <div class="an-chart-card an-chart-narrow">
-              <div class="an-chart-label">User Breakdown</div>
-              <div class="an-chart-sub">Role distribution</div>
-              <div class="an-canvas-wrap" style="height:160px;"><canvas id="an-roles-chart"></canvas></div>
-              <div id="an-roles-legend" class="an-donut-legend"></div>
-            </div>
-          </div>
-
-          <!-- Row 2: Daily activity bar + Doc types donut -->
-          <div class="an-chart-row">
-            <div class="an-chart-card an-chart-wide">
-              <div class="an-chart-label">Daily Activity</div>
-              <div class="an-chart-sub">Signups, messages &amp; document uploads — last 30 days</div>
-              <div class="an-canvas-wrap" style="height:210px;"><canvas id="an-daily-chart"></canvas></div>
-            </div>
-            <div class="an-chart-card an-chart-narrow">
-              <div class="an-chart-label">Document Types</div>
-              <div class="an-chart-sub">Portfolio breakdown</div>
-              <div class="an-canvas-wrap" style="height:160px;"><canvas id="an-doctypes-chart"></canvas></div>
-              <div id="an-doctypes-legend" class="an-donut-legend"></div>
-            </div>
-          </div>
-
-          <!-- Row 3: Top clients + Day-of-week heatmap -->
-          <div class="an-chart-row">
-            <div class="an-chart-card an-chart-half">
-              <div class="an-chart-label">Most Active Clients</div>
-              <div class="an-chart-sub">By total messages sent</div>
-              <div class="an-canvas-wrap" style="height:220px;"><canvas id="an-clients-chart"></canvas></div>
-            </div>
-            <div class="an-chart-card an-chart-half">
-              <div class="an-chart-label">Peak Activity</div>
-              <div class="an-chart-sub">Total events by day of week (all time)</div>
-              <div class="an-canvas-wrap" style="height:180px;"><canvas id="an-weekday-chart"></canvas></div>
-            </div>
-          </div>
-
-          <!-- Message volume full-width line chart -->
-          <div class="an-chart-card">
-            <div class="an-chart-label">Message Volume</div>
-            <div class="an-chart-sub">Messages sent per day over selected period</div>
-            <div class="an-canvas-wrap" style="height:120px;"><canvas id="an-messages-chart"></canvas></div>
-          </div>
-
-          <!-- Recent activity feed -->
-          <div class="an-chart-card">
-            <div class="an-chart-label">Recent Activity</div>
-            <table class="users-table" style="margin-top:0.7rem;">
-              <thead><tr><th>Time</th><th>Event</th><th>Detail</th></tr></thead>
-              <tbody id="analytics-activity-body"></tbody>
-            </table>
-          </div>
-
           <!-- ══ Google Analytics 4 Section ══════════════════ -->
           <div class="ga4-section-divider">
             <span class="ga4-section-label">
@@ -346,6 +281,76 @@
               </div>
               <div class="an-canvas-wrap" style="height:220px;"><canvas id="ga4-geo-chart"></canvas></div>
             </div>
+          </div>
+
+          <!-- ══ Portal Activity ══════════════════════════════ -->
+          <div class="ga4-section-divider" style="margin-top:0.5rem;">
+            <span class="ga4-section-label">Portal Activity</span>
+          </div>
+
+          <!-- KPI row -->
+          <div class="an-kpi-row" id="an-kpi-row">
+            <div class="an-loading"><span class="spinner"></span> Loading charts&hellip;</div>
+          </div>
+
+          <!-- Row 1: Growth line + User roles donut -->
+          <div class="an-chart-row">
+            <div class="an-chart-card an-chart-wide">
+              <div class="an-chart-label">Growth Over Time</div>
+              <div class="an-chart-sub">Cumulative users, conversations &amp; messages</div>
+              <div class="an-canvas-wrap" style="height:220px;"><canvas id="an-growth-chart"></canvas></div>
+            </div>
+            <div class="an-chart-card an-chart-narrow">
+              <div class="an-chart-label">User Breakdown</div>
+              <div class="an-chart-sub">Role distribution</div>
+              <div class="an-canvas-wrap" style="height:160px;"><canvas id="an-roles-chart"></canvas></div>
+              <div id="an-roles-legend" class="an-donut-legend"></div>
+            </div>
+          </div>
+
+          <!-- Row 2: Daily activity bar + Doc types donut -->
+          <div class="an-chart-row">
+            <div class="an-chart-card an-chart-wide">
+              <div class="an-chart-label">Daily Activity</div>
+              <div class="an-chart-sub">Signups, messages &amp; document uploads — last 30 days</div>
+              <div class="an-canvas-wrap" style="height:210px;"><canvas id="an-daily-chart"></canvas></div>
+            </div>
+            <div class="an-chart-card an-chart-narrow">
+              <div class="an-chart-label">Document Types</div>
+              <div class="an-chart-sub">Portfolio breakdown</div>
+              <div class="an-canvas-wrap" style="height:160px;"><canvas id="an-doctypes-chart"></canvas></div>
+              <div id="an-doctypes-legend" class="an-donut-legend"></div>
+            </div>
+          </div>
+
+          <!-- Row 3: Top clients + Day-of-week heatmap -->
+          <div class="an-chart-row">
+            <div class="an-chart-card an-chart-half">
+              <div class="an-chart-label">Most Active Clients</div>
+              <div class="an-chart-sub">By total messages sent</div>
+              <div class="an-canvas-wrap" style="height:220px;"><canvas id="an-clients-chart"></canvas></div>
+            </div>
+            <div class="an-chart-card an-chart-half">
+              <div class="an-chart-label">Peak Activity</div>
+              <div class="an-chart-sub">Total events by day of week (all time)</div>
+              <div class="an-canvas-wrap" style="height:180px;"><canvas id="an-weekday-chart"></canvas></div>
+            </div>
+          </div>
+
+          <!-- Message volume full-width line chart -->
+          <div class="an-chart-card">
+            <div class="an-chart-label">Message Volume</div>
+            <div class="an-chart-sub">Messages sent per day over selected period</div>
+            <div class="an-canvas-wrap" style="height:120px;"><canvas id="an-messages-chart"></canvas></div>
+          </div>
+
+          <!-- Recent activity feed -->
+          <div class="an-chart-card">
+            <div class="an-chart-label">Recent Activity</div>
+            <table class="users-table" style="margin-top:0.7rem;">
+              <thead><tr><th>Time</th><th>Event</th><th>Detail</th></tr></thead>
+              <tbody id="analytics-activity-body"></tbody>
+            </table>
           </div>
 
         </section>
