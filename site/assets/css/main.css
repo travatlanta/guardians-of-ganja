@@ -1323,6 +1323,33 @@ h2 {
   margin-bottom: 0.6rem;
 }
 
+.svc-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+  transition: color 180ms, gap 180ms;
+}
+
+.svc-back-btn:hover {
+  color: var(--brand);
+  gap: 0.6rem;
+}
+
+.svc-back-btn svg {
+  flex-shrink: 0;
+  transition: transform 180ms;
+}
+
+.svc-back-btn:hover svg {
+  transform: translateX(-3px);
+}
+
 .svc-page-hero h1 {
   font-size: clamp(2.6rem, 5.5vw, 4.2rem);
   line-height: 1.08;
