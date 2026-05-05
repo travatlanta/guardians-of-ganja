@@ -42,16 +42,15 @@
     }
   });
 
-  // Auth nav: show dropdown when signed in via Clerk
+  // Auth nav: show dropdown when signed in
   (function () {
     var authLink = document.getElementById("nav-auth-link");
     if (!authLink) return;
     if (!window.Portal) return;
 
-    Portal.loadClerk(function (clerk) {
-      if (!clerk.user) return; // not signed in — keep "Login" link as-is
-
-      var role    = (clerk.user.publicMetadata && clerk.user.publicMetadata.role) || "customer";
+    Portal.api.auth.me().then(function (data) {
+      var profile = data.user;
+      var role    = profile.role || "customer";
       var isAdmin = role === "admin";
 
       var wrap = document.createElement("div");
@@ -85,7 +84,7 @@
         btn.setAttribute("aria-expanded", "false");
       });
       drop.addEventListener("click", function (e) { e.stopPropagation(); });
-    });
+    }).catch(function () { /* not logged in — keep Login link as-is */ });
   })();
 
   var observer = new IntersectionObserver(

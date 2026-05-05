@@ -27,8 +27,8 @@
       },
       me:      function () { return apiFetch("/api/auth/me"); },
       logout:  function () { return apiFetch("/api/auth/logout", { method: "POST" }); },
-      register: function (data) {
-        return apiFetch("/api/auth/register", { method: "POST", body: JSON.stringify(data) });
+      signup: function (email, password, full_name) {
+        return apiFetch("/api/auth/signup", { method: "POST", body: JSON.stringify({ email: email, password: password, full_name: full_name }) });
       }
     },
     quotes: {
