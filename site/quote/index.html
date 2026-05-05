@@ -90,8 +90,7 @@
 
         <!-- Legal / security note -->
         <p class="qs-splash-security">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Your information is encrypted, never sold, and only shared with carriers on your behalf. By starting this application you agree to our
+          By starting this application you agree to our
           <a href="/privacy" target="_blank">Privacy Policy</a> and <a href="/terms" target="_blank">Terms of Service</a>.
         </p>
 
@@ -938,6 +937,7 @@
         setTimeout(function () {
           splash.style.display = "none";
           document.getElementById("quote-app").style.display = "block";
+          window.scrollTo({ top: 0, behavior: "instant" });
         }, 350);
       });
 
