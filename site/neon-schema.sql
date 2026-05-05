@@ -122,6 +122,18 @@ INSERT INTO email_templates (trigger_type, active, subject, body_html) VALUES
   )
 ON CONFLICT (trigger_type) DO NOTHING;
 
+-- ── Quote Applications (full insurance application from the PDF form) ────────
+CREATE TABLE IF NOT EXISTS quote_applications (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  clerk_user_id  TEXT NOT NULL REFERENCES user_profiles(clerk_user_id) ON DELETE CASCADE,
+  status         TEXT NOT NULL DEFAULT 'draft'
+                   CHECK (status IN ('draft', 'submitted', 'in_review', 'quoted', 'closed')),
+  form_data      JSONB NOT NULL DEFAULT '{}',
+  submitted_at   TIMESTAMPTZ,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- ── Indexes ─────────────────────────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_subscribers_email    ON subscribers(email);
 CREATE INDEX IF NOT EXISTS idx_user_profiles_email  ON user_profiles(email);
@@ -129,3 +141,6 @@ CREATE INDEX IF NOT EXISTS idx_user_profiles_role   ON user_profiles(role);
 CREATE INDEX IF NOT EXISTS idx_quote_requests_email ON quote_requests(email);
 CREATE INDEX IF NOT EXISTS idx_email_sends_campaign ON email_sends(campaign_id);
 CREATE INDEX IF NOT EXISTS idx_campaigns_sent_at    ON email_campaigns(sent_at DESC);
+CREATE INDEX IF NOT EXISTS idx_quote_apps_user      ON quote_applications(clerk_user_id);
+CREATE INDEX IF NOT EXISTS idx_quote_apps_status    ON quote_applications(status);
+CREATE INDEX IF NOT EXISTS idx_quote_apps_created   ON quote_applications(created_at DESC);

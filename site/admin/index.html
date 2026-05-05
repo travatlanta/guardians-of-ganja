@@ -40,6 +40,10 @@
           <span class="btn-icon">👤</span>
           <span>Users</span>
         </button>
+        <button class="sidebar-btn" data-tab="applications">
+          <span class="btn-icon">📋</span>
+          <span>Applications</span>
+        </button>
         <button class="sidebar-btn" data-tab="clients">
           <span class="btn-icon">🗂</span>
           <span>Clients</span>
@@ -121,6 +125,44 @@
             </table>
           </div>
         </section>
+
+        <!-- ── Applications Tab ──────────────────────────── -->
+        <section class="portal-tab-panel" id="tab-applications" aria-label="Applications">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;margin-bottom:1rem;">
+            <h1 class="portal-tab-title" style="margin-bottom:0;">Quote Applications</h1>
+            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+              <select class="form-select" id="apps-status-filter" style="font-size:0.8rem;padding:0.3rem 1.8rem 0.3rem 0.6rem;width:auto">
+                <option value="">All Statuses</option>
+                <option value="submitted">Submitted</option>
+                <option value="in_review">In Review</option>
+                <option value="quoted">Quoted</option>
+                <option value="draft">Draft</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+          </div>
+          <div id="apps-table-wrap">
+            <div class="portal-loading"><span class="spinner"></span> Loading…</div>
+          </div>
+        </section>
+
+        <!-- ── Application Detail Modal ──────────────────── -->
+        <div class="app-modal-overlay" id="app-detail-modal">
+          <div class="app-modal-box">
+            <div class="app-modal-top">
+              <div>
+                <h2 class="app-modal-title" id="app-modal-title">Application</h2>
+                <p style="font-size:0.8rem;color:var(--muted);margin:0.2rem 0 0" id="app-modal-meta"></p>
+              </div>
+              <div style="display:flex;align-items:center;gap:0.6rem">
+                <select class="app-status-select" id="app-modal-status"></select>
+                <button class="btn-sm btn-sm-primary" id="app-status-save-btn" type="button">Save Status</button>
+                <button class="app-modal-close" id="app-modal-close" type="button">✕</button>
+              </div>
+            </div>
+            <div id="app-modal-body" style="max-height:70vh;overflow-y:auto;display:flex;flex-direction:column;gap:1.2rem;padding-right:0.3rem"></div>
+          </div>
+        </div>
 
         <!-- ── Clients Tab ────────────────────────────────── -->
         <section class="portal-tab-panel" id="tab-clients" aria-label="Clients">
@@ -420,11 +462,186 @@
           document.querySelectorAll(".portal-tab-panel").forEach(function (p) {
             p.classList.toggle("active", p.id === "tab-" + btn.dataset.tab);
           });
-          if (btn.dataset.tab === "users")     loadUsers();
-          if (btn.dataset.tab === "clients")   loadClients();
-          if (btn.dataset.tab === "email")     { loadEmailTemplates(); loadCampaignHistory(); }
-          if (btn.dataset.tab === "analytics") loadAnalytics();
+          if (btn.dataset.tab === "users")        loadUsers();
+          if (btn.dataset.tab === "applications") loadApplications();
+          if (btn.dataset.tab === "clients")      loadClients();
+          if (btn.dataset.tab === "email")        { loadEmailTemplates(); loadCampaignHistory(); }
+          if (btn.dataset.tab === "analytics")    loadAnalytics();
         });
+      });
+
+      // ══════════════════════════════════════════════════
+      // APPLICATIONS
+      // ══════════════════════════════════════════════════
+      var allApps = [];
+      var activeAppId = null;
+
+      function loadApplications() {
+        var wrap = document.getElementById("apps-table-wrap");
+        wrap.innerHTML = '<div class="portal-loading"><span class="spinner"></span> Loading…</div>';
+
+        Portal.api.quotes.getAll()
+          .then(function (data) {
+            allApps = data.applications || [];
+            renderAppsTable(allApps);
+          })
+          .catch(function (err) {
+            wrap.innerHTML = '<p style="color:var(--muted);padding:1rem">Failed to load applications: ' + Portal.escHtml(err.message) + '</p>';
+          });
+
+        document.getElementById("apps-status-filter").addEventListener("change", function () {
+          var filter = this.value;
+          renderAppsTable(filter ? allApps.filter(function (a) { return a.status === filter; }) : allApps);
+        });
+      }
+
+      function renderAppsTable(apps) {
+        var wrap = document.getElementById("apps-table-wrap");
+        if (!apps.length) {
+          wrap.innerHTML = '<div class="inbox-empty" style="padding:2rem;font-size:0.88rem;color:var(--muted)">No applications found.</div>';
+          return;
+        }
+        var statusLabels = { draft:"Draft", submitted:"Submitted", in_review:"In Review", quoted:"Quote Ready", closed:"Closed" };
+        wrap.innerHTML = '<div style="overflow-x:auto"><table class="apps-table"><thead><tr>' +
+          '<th>Applicant</th><th>Company / DBA</th><th>Operations</th><th>Status</th><th>Submitted</th><th>Actions</th>' +
+          '</tr></thead><tbody>' +
+          apps.map(function (app) {
+            var bi  = (app.form_data && app.form_data.basic_info) || {};
+            var ops = (app.form_data && app.form_data.operations && app.form_data.operations.operation_types) || [];
+            var st  = app.status;
+            return '<tr>' +
+              '<td><div style="font-weight:600">' + Portal.escHtml(app.full_name || "—") + '</div><div style="font-size:0.77rem;color:var(--muted)">' + Portal.escHtml(app.email) + '</div></td>' +
+              '<td>' + Portal.escHtml(bi.named_applicant || app.company || "—") + (bi.dba ? '<br><span style="font-size:0.77rem;color:var(--muted)">DBA: ' + Portal.escHtml(bi.dba) + '</span>' : '') + '</td>' +
+              '<td style="font-size:0.78rem;color:var(--muted);max-width:160px">' + Portal.escHtml(ops.slice(0, 3).join(", ") + (ops.length > 3 ? "…" : "")) + '</td>' +
+              '<td><span class="badge status-' + st + '">' + (statusLabels[st] || st) + '</span></td>' +
+              '<td style="font-size:0.8rem;color:var(--muted);white-space:nowrap">' + (app.submitted_at ? Portal.formatDate(app.submitted_at) : "—") + '</td>' +
+              '<td><button class="btn-sm btn-sm-secondary" style="font-size:0.75rem" onclick="openAppModal(\'' + app.id + '\')">View</button></td>' +
+              '</tr>';
+          }).join("") +
+          '</tbody></table></div>';
+      }
+
+      window.openAppModal = function (id) {
+        var app = allApps.find(function (a) { return a.id === id; });
+        if (!app) return;
+        activeAppId = id;
+
+        var statusLabels = { draft:"Draft", submitted:"Submitted", in_review:"In Review", quoted:"Quote Ready", closed:"Closed" };
+        var fd = app.form_data || {};
+        var bi = fd.basic_info || {};
+        var cv = fd.coverage_history || {};
+        var op = fd.operations || {};
+        var cp = fd.coverage_preferences || {};
+        var gl = cp.gl || {};
+        var pl = cp.pl || {};
+        var cu = fd.cultivation || {};
+        var ex = fd.extraction || {};
+        var ws = fd.wholesale || {};
+        var mf = fd.manufacturing || {};
+        var sc = fd.security || {};
+        var sg = fd.signature || {};
+
+        document.getElementById("app-modal-title").textContent = (bi.named_applicant || app.full_name || "Application");
+        document.getElementById("app-modal-meta").textContent = app.email + (app.submitted_at ? " · Submitted " + Portal.formatDate(app.submitted_at) : " · Last saved " + Portal.formatDate(app.updated_at));
+
+        // Status select
+        var sel = document.getElementById("app-modal-status");
+        sel.innerHTML = Object.keys(statusLabels).map(function (k) {
+          return '<option value="' + k + '"' + (app.status === k ? " selected" : "") + '>' + statusLabels[k] + '</option>';
+        }).join("");
+
+        function sec(title, fields) {
+          var rows = fields.filter(function (f) { return f[1]; });
+          if (!rows.length) return "";
+          return '<div class="app-modal-section">' +
+            '<p class="app-modal-section-title">' + title + '</p>' +
+            '<div class="app-modal-grid">' +
+            rows.map(function (f) {
+              return '<div class="app-modal-field"><dt>' + f[0] + '</dt><dd>' + Portal.escHtml(String(f[1])) + '</dd></div>';
+            }).join("") +
+            '</div></div>';
+        }
+        function yn(val) { return val === true ? "Yes" : val === false ? "No" : "—"; }
+        function arr(a)  { return (a && a.length) ? a.join(", ") : "—"; }
+
+        document.getElementById("app-modal-body").innerHTML = [
+          sec("Business Info", [
+            ["Legal Name", bi.named_applicant], ["DBA", bi.dba], ["Effective Date", bi.effective_date],
+            ["Address", [bi.mailing_address, bi.city, bi.state, bi.zip].filter(Boolean).join(", ")],
+            ["Phone", bi.phone], ["Email", bi.email], ["# Locations", bi.num_locations],
+            ["Inspection Contact", [bi.inspect_name, bi.inspect_title, bi.inspect_phone].filter(Boolean).join(", ")],
+            ["Date Established", bi.date_established],
+          ]),
+          sec("Coverage History", [
+            ["Has Prior Coverage", yn(cv.has_prior_coverage)], ["Claims Last 5 Yrs", yn(cv.claims_last_5)],
+            ["Ever Declined", yn(cv.ever_declined)], ["Open Claims", yn(cv.open_claims)], ["Non-Renewed", yn(cv.non_renewed)],
+          ]),
+          sec("Operations", [
+            ["Operation Types", arr(op.operation_types)], ["Product Types", arr(op.product_types)],
+          ]),
+          sec("General Liability", [
+            ["GL Limits", gl.limits], ["Deductible", gl.deductible], ["Premises Increase", arr(gl.premises)],
+            ["Medical Advice", yn(gl.medical_advice)], ["Open 24/7", yn(gl.open_247)],
+            ["Safety Manual", yn(gl.safety_manual)], ["Employee Training", yn(gl.emp_training)],
+            ["Security Guards", yn(gl.security_guards)],
+          ]),
+          sec("Product Liability", [
+            ["PL Limits", pl.limits], ["Product Withdrawal", yn(pl.withdrawal)], ["Withdrawal Limit", pl.wd_limit],
+            ["Retro Date", pl.retro_date || yn(pl.retro)], ["Products from China", yn(pl.china)],
+            ["White Labeled", yn(pl.white_label)], ["Sell Online", yn(pl.sell_online)],
+            ["Manfg Vape/Disp", yn(pl.manfg_vape)], ["All Tested", yn(pl.all_tested)],
+            ["3rd Party Testing", yn(pl.third_party)], ["Recalled 3yr", yn(pl.recalled)],
+            ["Claims 3yr", yn(pl.claims_3yr)], ["Attorney Consulted", yn(pl.attorney)],
+          ]),
+          (fd.buildings && fd.buildings.length ? '<div class="app-modal-section"><p class="app-modal-section-title">Buildings (' + fd.buildings.length + ')</p>' +
+            fd.buildings.map(function (b, i) {
+              return '<div style="margin-bottom:0.6rem;padding:0.5rem;background:rgba(47,176,115,0.05);border-radius:8px;font-size:0.82rem"><strong>Location ' + (b.loc_num || (i+1)) + ' Bldg ' + (b.bldg_num || "") + '</strong> — ' +
+                [b.address, b.city, b.state].filter(Boolean).join(", ") + (b.sq_ft ? " · " + b.sq_ft + " sq ft" : "") + " · " + (b.owned_leased || "") + '</div>';
+            }).join("") + '</div>' : ""),
+          (!cu.na ? sec("Cultivation", [
+            ["Types", arr(cu.types)], ["Lighting", arr(cu.lighting)],
+            ["Max Plants", cu.max_plants], ["Crop Value", cu.crop_value],
+          ]) : ""),
+          (!ex.na ? sec("Extraction", [
+            ["Methods", arr(ex.methods)], ["C1D1", yn(ex.c1d1)],
+            ["Safety Program", yn(ex.safety_program)], ["Fire Suppression", yn(ex.fire_suppression)],
+          ]) : ""),
+          (!ws.na ? sec("Wholesale", [
+            ["Products", arr(ws.products)], ["Income 12mo", ws.income_12m],
+            ["% Wholesale", ws.pct], ["Distributor", ws.distributor],
+          ]) : ""),
+          (!mf.na ? sec("Manufacturing", [
+            ["Products", arr(mf.products)],
+            ["Hoods Cleaned", yn(mf.hoods_cleaned)], ["Fire Extinguishers", yn(mf.extinguishers)],
+          ]) : ""),
+          sec("Security Measures", [
+            ["Measures", arr(sc.measures)],
+            ["Safe Bolted", yn(sc.safe_bolted)], ["Dogs", yn(sc.dogs)],
+            ["Alarm Alerts", yn(sc.alarm_alerts)], ["Safe Size", sc.safe_size],
+          ]),
+          sec("Signature", [["Name", sg.name], ["Title", sg.title]]),
+        ].join("");
+
+        document.getElementById("app-detail-modal").classList.add("open");
+      };
+
+      document.getElementById("app-modal-close").addEventListener("click", function () {
+        document.getElementById("app-detail-modal").classList.remove("open");
+      });
+      document.getElementById("app-detail-modal").addEventListener("click", function (e) {
+        if (e.target === this) this.classList.remove("open");
+      });
+
+      document.getElementById("app-status-save-btn").addEventListener("click", function () {
+        var newStatus = document.getElementById("app-modal-status").value;
+        Portal.api.quotes.updateStatus(activeAppId, newStatus)
+          .then(function () {
+            var app = allApps.find(function (a) { return a.id === activeAppId; });
+            if (app) app.status = newStatus;
+            renderAppsTable(allApps);
+            document.getElementById("app-detail-modal").classList.remove("open");
+          })
+          .catch(function (err) { alert("Failed to update status: " + err.message); });
       });
 
       // ══════════════════════════════════════════════════

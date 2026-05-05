@@ -33,6 +33,10 @@
           <span class="btn-icon">✉</span>
           <span>Inbox</span>
         </button>
+        <button class="sidebar-btn" data-tab="application">
+          <span class="btn-icon">📋</span>
+          <span>My Application</span>
+        </button>
         <button class="sidebar-btn" data-tab="documents">
           <span class="btn-icon">📄</span>
           <span>Documents</span>
@@ -84,6 +88,17 @@
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <!-- ── My Application Tab ────────────────────────── -->
+        <section class="portal-tab-panel" id="tab-application" aria-label="My Application">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;margin-bottom:1.2rem;">
+            <h1 class="portal-tab-title" style="margin:0">My Application</h1>
+            <a class="btn-sm btn-sm-primary" href="/quote" id="start-app-btn" style="text-decoration:none">Start Application →</a>
+          </div>
+          <div id="app-tab-body">
+            <div class="portal-loading"><span class="spinner"></span> Loading…</div>
           </div>
         </section>
 
@@ -144,12 +159,87 @@
             p.classList.toggle("active", p.id === "tab-" + btn.dataset.tab);
           });
           if (btn.dataset.tab === "documents") loadDocuments();
+          if (btn.dataset.tab === "application") loadApplication();
           if (btn.dataset.tab === "account" && !profileMounted) {
             profileMounted = true;
             clerk.mountUserProfile(document.getElementById("clerk-user-profile"));
           }
         });
       });
+
+      // ── My Application ─────────────────────────────────
+      var appLoaded = false;
+      function loadApplication() {
+        if (appLoaded) return;
+        appLoaded = true;
+        var body = document.getElementById("app-tab-body");
+        var startBtn = document.getElementById("start-app-btn");
+
+        Portal.api.quotes.get()
+          .then(function (data) {
+            var app = data.application;
+            if (!app) {
+              startBtn.style.display = "inline-flex";
+              body.innerHTML =
+                '<div class="app-summary-card" style="align-items:center;text-align:center;gap:1.4rem;padding:2.5rem">' +
+                  '<div style="font-size:2.5rem">📋</div>' +
+                  '<div>' +
+                    '<p style="font-weight:700;color:var(--text);font-size:1rem;margin:0 0 0.4rem">No Application Yet</p>' +
+                    '<p style="color:var(--muted);font-size:0.88rem;margin:0">Complete your insurance application to receive a customized quote for your operation.</p>' +
+                  '</div>' +
+                  '<a class="btn-sm btn-sm-primary" href="/quote" style="text-decoration:none">Start My Application →</a>' +
+                '</div>';
+              return;
+            }
+
+            var fd = app.form_data || {};
+            var bi = fd.basic_info || {};
+            var statusLabel = { draft:"Draft", submitted:"Submitted", in_review:"In Review", quoted:"Quote Ready", closed:"Closed" }[app.status] || app.status;
+            var statusClass = "status-" + app.status;
+
+            startBtn.style.display = app.status === "draft" ? "inline-flex" : "none";
+            if (app.status === "draft") startBtn.textContent = "Continue Application →";
+
+            body.innerHTML =
+              '<div class="app-summary-card">' +
+                '<div class="app-summary-header">' +
+                  '<h2 class="app-summary-title">' + Portal.escHtml(bi.named_applicant || "Insurance Application") + '</h2>' +
+                  '<span class="badge ' + statusClass + '">' + statusLabel + '</span>' +
+                '</div>' +
+                '<div class="app-summary-meta">' +
+                  (app.submitted_at ? 'Submitted: ' + Portal.formatDate(app.submitted_at) : 'Last saved: ' + Portal.formatDate(app.updated_at)) +
+                '</div>' +
+                '<div style="border-top:1px solid var(--line);padding-top:0.8rem">' +
+                  '<p style="font-size:0.75rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--brand);margin:0 0 0.6rem">Application Summary</p>' +
+                  '<div class="app-detail-grid">' +
+                    appField("Business", bi.named_applicant) +
+                    appField("DBA", bi.dba) +
+                    appField("Location", [bi.city, bi.state].filter(Boolean).join(", ")) +
+                    appField("Phone", bi.phone) +
+                    appField("Effective Date", bi.effective_date) +
+                    appField("Locations", bi.num_locations) +
+                    appField("Operations", ((fd.operations || {}).operation_types || []).join(", ")) +
+                    appField("GL Limits", ((fd.coverage_preferences || {}).gl || {}).limits) +
+                    appField("PL Limits", ((fd.coverage_preferences || {}).pl || {}).limits) +
+                  '</div>' +
+                '</div>' +
+                (app.status !== "draft" ?
+                  '' :
+                  '<div style="border-top:1px solid var(--line);padding-top:0.8rem">' +
+                    '<p style="font-size:0.82rem;color:var(--muted)">Your draft is saved. Continue where you left off.</p>' +
+                  '</div>'
+                ) +
+              '</div>';
+          })
+          .catch(function () {
+            body.innerHTML = '<div class="portal-loading" style="color:var(--muted)">Unable to load application. <a href="/quote" style="color:var(--brand)">Start or continue here →</a></div>';
+          });
+      }
+
+      function appField(label, val) {
+        if (!val) return "";
+        return '<div class="app-detail-item"><label>' + label + '</label><span>' + Portal.escHtml(String(val)) + '</span></div>';
+      }
 
       // ── Inbox ──────────────────────────────────────────
       function loadThreads() {

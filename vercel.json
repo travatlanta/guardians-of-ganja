@@ -3,6 +3,7 @@
   "buildCommand": null,
   "framework": null,
   "rewrites": [
+    { "source": "/quote",     "destination": "/quote/index.html" },
     { "source": "/admin",     "destination": "/admin/index.html" },
     { "source": "/dashboard", "destination": "/dashboard/index.html" },
     { "source": "/login",     "destination": "/login/index.html" },

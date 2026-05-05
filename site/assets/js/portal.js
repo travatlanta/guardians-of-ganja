@@ -16,6 +16,10 @@
   var _clerkState = "idle"; // idle | loading | ready
 
   function loadClerk(callback) {
+    if (CLERK_PUBLISHABLE_KEY === "REPLACE_WITH_YOUR_CLERK_PUBLISHABLE_KEY") {
+      console.warn("[Portal] Clerk not loaded: set CLERK_PUBLISHABLE_KEY in portal.js");
+      return;
+    }
     if (_clerkState === "ready" && window.Clerk) { callback(window.Clerk); return; }
     _clerkCallbacks.push(callback);
     if (_clerkState === "loading") return;
@@ -71,6 +75,13 @@
   }
 
   var api = {
+    quotes: {
+      get: function ()         { return apiFetch("/api/quote-application"); },
+      getAll: function ()      { return apiFetch("/api/quote-application?all=true"); },
+      save: function (fd, sub) { return apiFetch("/api/quote-application", { method: "POST", body: JSON.stringify({ form_data: fd, submit: !!sub }) }); },
+      updateStatus: function (id, status) { return apiFetch("/api/quote-application", { method: "PATCH", body: JSON.stringify({ id: id, status: status }) }); },
+      remove: function (id) { return apiFetch("/api/quote-application", { method: "DELETE", body: JSON.stringify({ id: id }) }); },
+    },
     users: {
       getAll: function () { return apiFetch("/api/users"); },
       update: function (id, data) {
@@ -246,6 +257,7 @@
     loadClerk:     loadClerk,
     requireAuth:   requireAuth,
     signOut:       signOut,
+    apiFetch:      apiFetch,
     formatDate:    formatDate,
     formatDateTime:formatDateTime,
     initials:      initials,
