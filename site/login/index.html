@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login � Guardians of Ganja</title>
+    <title>Login — Guardians of Ganja</title>
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/png" href="/assets/img/logo-icon.png" />
     <link rel="apple-touch-icon" href="/assets/img/logo-icon.png" />
@@ -15,49 +15,25 @@
     <div class="login-page">
       <div class="login-box">
 
-        <!-- Brand -->
         <div class="login-brand">
           <img src="/assets/img/logo-full.png" alt="Guardians of Ganja" class="login-brand-mark" />
         </div>
 
-        <!-- Clerk Sign-In Widget -->
-        <div class="login-clerk-wrap" id="clerk-signin"></div>
-        <p id="login-loading" style="text-align:center;color:#6b8a78;font-size:0.85rem;padding:2rem 0;">Loading�</p>
+        <form class="login-form" id="login-form" novalidate>
+          <div class="login-field">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" name="email" autocomplete="email" placeholder="you@example.com" required />
+          </div>
+          <div class="login-field">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" name="password" autocomplete="current-password" placeholder="••••••••" required />
+          </div>
+          <p class="login-error" id="login-error" hidden></p>
+          <button type="submit" class="btn btn-primary login-submit" id="login-btn">Sign In</button>
+        </form>
+
       </div>
     </div>
-
-    <script>
-    Portal.loadClerk(function (clerk) {
-      document.getElementById("login-loading").style.display = "none";
-      if (clerk.user) {
-        var role = (clerk.user.publicMetadata && clerk.user.publicMetadata.role) || "customer";
-        window.location.href = role === "admin" ? "/admin" : "/dashboard";
-        return;
-      }
-      clerk.mountSignIn(document.getElementById("clerk-signin"), {
-        afterSignInUrl:  "/dashboard",
-        afterSignUpUrl:  "/dashboard",
-        signUpUrl:       "/login",
-        appearance: {
-          variables: {
-            colorPrimary:         "#2fb073",
-            colorBackground:      "#0a1510",
-            colorText:            "#e8f1ea",
-            colorTextSecondary:   "#6b8a78",
-            colorInputBackground: "#0d1a12",
-            colorInputText:       "#e8f1ea",
-            borderRadius:         "8px",
-            fontFamily:           '"Sora", "Segoe UI", sans-serif'
-          },
-          elements: {
-            card:        { boxShadow: "none", border: "none", background: "transparent", padding: "0" },
-            rootBox:     { width: "100%" },
-            formButtonPrimary: { background: "#2fb073" }
-          }
-        }
-      });
-    });
-    </script>
 
     <footer class="site-footer" style="margin-top:0;padding:0.9rem 0 1.2rem;">
       <div class="footer-credit" style="display:flex;align-items:center;justify-content:center;gap:1rem;width:100%;border-top:1px solid rgba(58,84,98,0.2);margin-top:0.8rem;padding:0.5rem 0 0.8rem;">
@@ -66,5 +42,43 @@
       </div>
     </footer>
 
+    <script>
+    (function () {
+      // Redirect already-logged-in users
+      Portal.api.auth.me().then(function (data) {
+        window.location.href = data.user.role === "admin" ? "/admin" : "/dashboard";
+      }).catch(function () { /* not logged in — stay on page */ });
+
+      var form  = document.getElementById("login-form");
+      var btn   = document.getElementById("login-btn");
+      var err   = document.getElementById("login-error");
+
+      function showError(msg) {
+        err.textContent = msg;
+        err.hidden = false;
+        btn.disabled = false;
+        btn.textContent = "Sign In";
+      }
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        err.hidden = true;
+        btn.disabled = true;
+        btn.textContent = "Signing in…";
+
+        var email    = document.getElementById("login-email").value.trim();
+        var password = document.getElementById("login-password").value;
+
+        if (!email || !password) { showError("Please enter your email and password."); return; }
+
+        Portal.api.auth.login(email, password).then(function (data) {
+          var redirect = new URLSearchParams(window.location.search).get("redirect");
+          window.location.href = redirect || (data.user.role === "admin" ? "/admin" : "/dashboard");
+        }).catch(function (e) {
+          showError(e.message || "Invalid email or password.");
+        });
+      });
+    })();
+    </script>
   </body>
 </html>

@@ -1,161 +1,109 @@
 // /api/quote-application.js
-// CRUD for insurance quote applications (multi-step form submissions).
+// Anonymous quote form submissions — no login required.
+// Saves to Neon and fires a notification email to the broker.
 //
-// GET    /api/quote-application        — customer: their own app; admin with ?all=true: all apps
-// POST   /api/quote-application        — create or update (upsert) caller's application
-// PATCH  /api/quote-application        — admin only: update application status
-// DELETE /api/quote-application        — admin only: delete an application
+// POST  /api/quote-application — submit form data
+// GET   /api/quote-application — admin only: list all submissions
+// PATCH /api/quote-application — admin only: update status
+// DELETE /api/quote-application — admin only: delete
 
-import { neon } from "@neondatabase/serverless";
+import { neon }  from "@neondatabase/serverless";
+import { verifyJWT, getTokenFromRequest } from "./_jwt.js";
 
-const b64 = (s) => s.replace(/-/g, "+").replace(/_/g, "/");
-
-// Verify any valid Clerk JWT; returns { userId } or null
-async function verifyToken(authHeader) {
-  if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
-  const token = authHeader.slice(7);
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const header  = JSON.parse(Buffer.from(b64(parts[0]), "base64").toString("utf8"));
-    const payload = JSON.parse(Buffer.from(b64(parts[1]), "base64").toString("utf8"));
-    if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return null;
-
-    const jwksRes = await fetch("https://api.clerk.com/v1/jwks");
-    if (!jwksRes.ok) return null;
-    const { keys } = await jwksRes.json();
-    const jwk = keys.find((k) => k.kid === header.kid);
-    if (!jwk) return null;
-
-    const cryptoKey = await crypto.subtle.importKey(
-      "jwk", jwk,
-      { name: "RSASSA-PKCS1-v1_5", hash: { name: "SHA-256" } },
-      false, ["verify"]
-    );
-    const sigBytes = Buffer.from(b64(parts[2]), "base64");
-    const msgBytes = new TextEncoder().encode(`${parts[0]}.${parts[1]}`);
-    const valid = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", cryptoKey, sigBytes, msgBytes);
-    if (!valid) return null;
-
-    return { userId: payload.sub };
-  } catch {
-    return null;
-  }
-}
-
-// Additionally checks admin role in Neon
-async function verifyAdminToken(authHeader, sql) {
-  const result = await verifyToken(authHeader);
-  if (!result) return null;
-  const rows = await sql`SELECT role FROM user_profiles WHERE clerk_user_id = ${result.userId}`;
-  if (!rows.length || rows[0].role !== "admin") return null;
-  return result;
+function requireAdmin(req) {
+  const payload = verifyJWT(getTokenFromRequest(req));
+  return payload && payload.role === "admin" ? payload : null;
 }
 
 export default async function handler(req, res) {
-  const auth = await verifyToken(req.headers.authorization);
-  if (!auth) return res.status(401).json({ error: "Unauthorized" });
-
   const sql = neon(process.env.DATABASE_URL);
 
-  // ── GET ─────────────────────────────────────────────────────────────────────
+  // ── GET: admin lists all submissions ────────────────────────────────────────
   if (req.method === "GET") {
-    // Check if admin requesting all applications
-    if (req.query.all === "true") {
-      const admin = await verifyAdminToken(req.headers.authorization, sql);
-      if (!admin) return res.status(403).json({ error: "Forbidden" });
+    const admin = requireAdmin(req);
+    if (!admin) return res.status(403).json({ error: "Forbidden" });
 
-      const apps = await sql`
-        SELECT
-          qa.id, qa.clerk_user_id, qa.status, qa.form_data,
-          qa.submitted_at, qa.created_at, qa.updated_at,
-          up.full_name, up.email, up.company
-        FROM quote_applications qa
-        JOIN user_profiles up ON up.clerk_user_id = qa.clerk_user_id
-        ORDER BY qa.created_at DESC
-      `;
-      return res.status(200).json({ applications: apps });
-    }
-
-    // Customer: return their own application
-    const rows = await sql`
-      SELECT id, clerk_user_id, status, form_data, submitted_at, created_at, updated_at
+    const apps = await sql`
+      SELECT id, contact_name, contact_email, status, form_data, submitted_at, created_at, updated_at
       FROM quote_applications
-      WHERE clerk_user_id = ${auth.userId}
       ORDER BY created_at DESC
-      LIMIT 1
     `;
-    return res.status(200).json({ application: rows[0] || null });
+    return res.status(200).json({ applications: apps });
   }
 
-  // ── POST: create or update caller's application ──────────────────────────────
+  // ── POST: anonymous submission ──────────────────────────────────────────────
   if (req.method === "POST") {
-    const { form_data, submit } = req.body || {};
+    const { form_data, contact_email, contact_name } = req.body || {};
+
     if (!form_data || typeof form_data !== "object") {
-      return res.status(400).json({ error: "form_data object is required" });
+      return res.status(400).json({ error: "form_data is required" });
+    }
+    if (!contact_email) {
+      return res.status(400).json({ error: "contact_email is required" });
     }
 
-    const newStatus = submit ? "submitted" : "draft";
-    const submittedAt = submit ? new Date().toISOString() : null;
-
-    // Upsert: one application per user (update if exists, else insert)
-    const existing = await sql`
-      SELECT id FROM quote_applications WHERE clerk_user_id = ${auth.userId} ORDER BY created_at DESC LIMIT 1
+    const [app] = await sql`
+      INSERT INTO quote_applications (contact_email, contact_name, status, form_data, submitted_at)
+      VALUES (
+        ${contact_email.toLowerCase().trim()},
+        ${contact_name || ""},
+        'submitted',
+        ${JSON.stringify(form_data)}::jsonb,
+        now()
+      )
+      RETURNING id, status, submitted_at, created_at
     `;
 
-    let app;
-    if (existing.length) {
-      const updateRows = await sql`
-        UPDATE quote_applications
-        SET
-          form_data   = ${JSON.stringify(form_data)}::jsonb,
-          status      = CASE
-                          WHEN status = 'draft' THEN ${newStatus}
-                          ELSE status
-                        END,
-          submitted_at = COALESCE(submitted_at, ${submittedAt}),
-          updated_at  = now()
-        WHERE id = ${existing[0].id}
-        RETURNING id, status, submitted_at, updated_at
-      `;
-      app = updateRows[0];
-    } else {
-      const insertRows = await sql`
-        INSERT INTO quote_applications (clerk_user_id, status, form_data, submitted_at)
-        VALUES (
-          ${auth.userId},
-          ${newStatus},
-          ${JSON.stringify(form_data)}::jsonb,
-          ${submittedAt}
-        )
-        RETURNING id, status, submitted_at, created_at
-      `;
-      app = insertRows[0];
+    // Notify broker via Resend
+    const resendKey = process.env.RESEND_API_KEY;
+    if (resendKey) {
+      const summaryRows = Object.entries(form_data)
+        .map(([k, v]) => `<tr><td style="padding:4px 8px;font-weight:600;white-space:nowrap">${k}</td><td style="padding:4px 8px">${Array.isArray(v) ? v.join(", ") : v}</td></tr>`)
+        .join("");
+
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from:    `Guardians of Ganja <${process.env.FROM_EMAIL || "noreply@guardiansofganja.com"}>`,
+          to:      ["Dalton@aschemanagency.com"],
+          subject: `New Quote Application — ${contact_name || contact_email}`,
+          html: `
+            <h2 style="color:#2fb073">New Quote Application</h2>
+            <p><strong>From:</strong> ${contact_name || "(no name)"} &lt;${contact_email}&gt;</p>
+            <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+            <table style="border-collapse:collapse;width:100%;margin-top:1rem;font-size:14px">
+              ${summaryRows}
+            </table>
+            <p style="margin-top:1.5rem">
+              <a href="https://guardiansofganja.com/admin" style="color:#2fb073">View in Admin Panel →</a>
+            </p>
+          `,
+        }),
+      }).catch(e => console.error("[quote-application] Email failed:", e.message));
     }
 
-    return res.status(200).json({ application: app });
+    return res.status(200).json({ success: true, id: app.id });
   }
 
-  // ── PATCH: admin updates status ──────────────────────────────────────────────
+  // ── PATCH: admin updates status ─────────────────────────────────────────────
   if (req.method === "PATCH") {
-    const admin = await verifyAdminToken(req.headers.authorization, sql);
+    const admin = requireAdmin(req);
     if (!admin) return res.status(403).json({ error: "Forbidden" });
 
     const { id, status } = req.body || {};
-    const valid = ["draft", "submitted", "in_review", "quoted", "closed"];
+    const valid = ["submitted", "in_review", "quoted", "closed"];
     if (!id || !valid.includes(status)) {
-      return res.status(400).json({ error: "id and valid status are required" });
+      return res.status(400).json({ error: "id and valid status required" });
     }
 
-    await sql`
-      UPDATE quote_applications SET status = ${status}, updated_at = now() WHERE id = ${id}
-    `;
+    await sql`UPDATE quote_applications SET status = ${status}, updated_at = now() WHERE id = ${id}`;
     return res.status(200).json({ success: true });
   }
 
-  // ── DELETE: admin removes an application ─────────────────────────────────────
+  // ── DELETE: admin removes ───────────────────────────────────────────────────
   if (req.method === "DELETE") {
-    const admin = await verifyAdminToken(req.headers.authorization, sql);
+    const admin = requireAdmin(req);
     if (!admin) return res.status(403).json({ error: "Forbidden" });
 
     const { id } = req.body || {};

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Portal — Guardians of Ganja</title>
+    <title>My Portal ï¿½ Guardians of Ganja</title>
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/png" href="/assets/img/logo-icon.png" />
     <link rel="apple-touch-icon" href="/assets/img/logo-icon.png" />
@@ -20,7 +20,7 @@
         <span>Guardians of Ganja</span>
       </a>
       <div class="portal-header-right">
-        <span class="portal-user-label" id="portal-user-label">Loading…</span>
+        <span class="portal-user-label" id="portal-user-label">Loadingï¿½</span>
         <button class="portal-signout-btn" id="signout-btn">Sign Out</button>
       </div>
     </header>
@@ -65,7 +65,7 @@
               </div>
               <div id="thread-list-body">
                 <div class="portal-loading" style="padding:2rem;">
-                  <span class="spinner"></span> Loading…
+                  <span class="spinner"></span> Loadingï¿½
                 </div>
               </div>
             </div>
@@ -79,11 +79,11 @@
 
               <div id="inbox-thread-view" style="display:none;flex-direction:column;flex:1;">
                 <div class="inbox-view-header">
-                  <span class="inbox-view-subject" id="view-subject">—</span>
+                  <span class="inbox-view-subject" id="view-subject">ï¿½</span>
                 </div>
                 <div class="inbox-messages" id="inbox-messages"></div>
                 <div class="inbox-reply">
-                  <textarea id="reply-text" placeholder="Write a reply…" rows="3"></textarea>
+                  <textarea id="reply-text" placeholder="Write a replyï¿½" rows="3"></textarea>
                   <button class="btn-sm btn-sm-primary" id="send-reply-btn" style="flex-shrink:0;align-self:flex-end;">Send</button>
                 </div>
               </div>
@@ -98,7 +98,7 @@
             <a class="btn-sm btn-sm-primary" href="/quote" id="start-app-btn" style="text-decoration:none">Start Application ?</a>
           </div>
           <div id="app-tab-body">
-            <div class="portal-loading"><span class="spinner"></span> Loading…</div>
+            <div class="portal-loading"><span class="spinner"></span> Loadingï¿½</div>
           </div>
         </section>
 
@@ -106,14 +106,14 @@
         <section class="portal-tab-panel" id="tab-documents" aria-label="Documents">
           <h1 class="portal-tab-title">Documents</h1>
           <div id="doc-grid-body" class="doc-grid">
-            <div class="portal-loading"><span class="spinner"></span> Loading…</div>
+            <div class="portal-loading"><span class="spinner"></span> Loadingï¿½</div>
           </div>
         </section>
 
         <!-- -- Account Tab ---------------------------- -->
         <section class="portal-tab-panel" id="tab-account" aria-label="Account">
           <h1 class="portal-tab-title">Account Settings</h1>
-          <div id="clerk-user-profile" class="clerk-profile-mount"></div>
+          <div class="app-summary-card" id="account-info" style="max-width:480px;"></div>
         </section>
 
       </main>
@@ -142,9 +142,7 @@
     <script>
     Portal.requireAuth(null, function (auth) {
       var profile      = auth.profile;
-      var clerk        = auth.clerk;
       var activeThreadId = null;
-      var profileMounted = false;
 
       document.getElementById("portal-user-label").textContent = profile.full_name || profile.email;
       document.getElementById("signout-btn").addEventListener("click", Portal.signOut);
@@ -160,10 +158,7 @@
           });
           if (btn.dataset.tab === "documents") loadDocuments();
           if (btn.dataset.tab === "application") loadApplication();
-          if (btn.dataset.tab === "account" && !profileMounted) {
-            profileMounted = true;
-            clerk.mountUserProfile(document.getElementById("clerk-user-profile"));
-          }
+          if (btn.dataset.tab === "account") loadAccount();
         });
       });
 
@@ -172,73 +167,34 @@
       function loadApplication() {
         if (appLoaded) return;
         appLoaded = true;
-        var body = document.getElementById("app-tab-body");
+        var body    = document.getElementById("app-tab-body");
         var startBtn = document.getElementById("start-app-btn");
-
-        Portal.api.quotes.get()
-          .then(function (data) {
-            var app = data.application;
-            if (!app) {
-              startBtn.style.display = "inline-flex";
-              body.innerHTML =
-                '<div class="app-summary-card" style="align-items:center;text-align:center;gap:1.4rem;padding:2.5rem">' +
-                  '<div style="font-size:2.5rem">??</div>' +
-                  '<div>' +
-                    '<p style="font-weight:700;color:var(--text);font-size:1rem;margin:0 0 0.4rem">No Application Yet</p>' +
-                    '<p style="color:var(--muted);font-size:0.88rem;margin:0">Complete your insurance application to receive a customized quote for your operation.</p>' +
-                  '</div>' +
-                  '<a class="btn-sm btn-sm-primary" href="/quote" style="text-decoration:none">Start My Application ?</a>' +
-                '</div>';
-              return;
-            }
-
-            var fd = app.form_data || {};
-            var bi = fd.basic_info || {};
-            var statusLabel = { draft:"Draft", submitted:"Submitted", in_review:"In Review", quoted:"Quote Ready", closed:"Closed" }[app.status] || app.status;
-            var statusClass = "status-" + app.status;
-
-            startBtn.style.display = app.status === "draft" ? "inline-flex" : "none";
-            if (app.status === "draft") startBtn.textContent = "Continue Application ?";
-
-            body.innerHTML =
-              '<div class="app-summary-card">' +
-                '<div class="app-summary-header">' +
-                  '<h2 class="app-summary-title">' + Portal.escHtml(bi.named_applicant || "Insurance Application") + '</h2>' +
-                  '<span class="badge ' + statusClass + '">' + statusLabel + '</span>' +
-                '</div>' +
-                '<div class="app-summary-meta">' +
-                  (app.submitted_at ? 'Submitted: ' + Portal.formatDate(app.submitted_at) : 'Last saved: ' + Portal.formatDate(app.updated_at)) +
-                '</div>' +
-                '<div style="border-top:1px solid var(--line);padding-top:0.8rem">' +
-                  '<p style="font-size:0.75rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--brand);margin:0 0 0.6rem">Application Summary</p>' +
-                  '<div class="app-detail-grid">' +
-                    appField("Business", bi.named_applicant) +
-                    appField("DBA", bi.dba) +
-                    appField("Location", [bi.city, bi.state].filter(Boolean).join(", ")) +
-                    appField("Phone", bi.phone) +
-                    appField("Effective Date", bi.effective_date) +
-                    appField("Locations", bi.num_locations) +
-                    appField("Operations", ((fd.operations || {}).operation_types || []).join(", ")) +
-                    appField("GL Limits", ((fd.coverage_preferences || {}).gl || {}).limits) +
-                    appField("PL Limits", ((fd.coverage_preferences || {}).pl || {}).limits) +
-                  '</div>' +
-                '</div>' +
-                (app.status !== "draft" ?
-                  '' :
-                  '<div style="border-top:1px solid var(--line);padding-top:0.8rem">' +
-                    '<p style="font-size:0.82rem;color:var(--muted)">Your draft is saved. Continue where you left off.</p>' +
-                  '</div>'
-                ) +
-              '</div>';
-          })
-          .catch(function () {
-            body.innerHTML = '<div class="portal-loading" style="color:var(--muted)">Unable to load application. <a href="/quote" style="color:var(--brand)">Start or continue here ?</a></div>';
-          });
+        startBtn.style.display = "inline-flex";
+        body.innerHTML =
+          '<div class="app-summary-card" style="align-items:center;text-align:center;gap:1.4rem;padding:2.5rem">' +
+            '<div style="font-size:2.5rem">&#128203;</div>' +
+            '<div>' +
+              '<p style="font-weight:700;color:var(--text);font-size:1rem;margin:0 0 0.4rem">Start Your Application</p>' +
+              '<p style="color:var(--muted);font-size:0.88rem;margin:0">Complete the quote form and our team will be in touch with a customized quote for your operation.</p>' +
+            '</div>' +
+            '<a class="btn-sm btn-sm-primary" href="/quote" style="text-decoration:none">Start My Application &#8594;</a>' +
+          '</div>';
       }
 
-      function appField(label, val) {
-        if (!val) return "";
-        return '<div class="app-detail-item"><label>' + label + '</label><span>' + Portal.escHtml(String(val)) + '</span></div>';
+      // -- Account ----------------------------------------
+      var accountLoaded = false;
+      function loadAccount() {
+        if (accountLoaded) return;
+        accountLoaded = true;
+        var el = document.getElementById("account-info");
+        el.innerHTML =
+          '<div class="app-summary-header"><h2 class="app-summary-title">Profile</h2></div>' +
+          '<div class="app-detail-grid" style="margin-top:0.8rem;">' +
+            '<div class="app-detail-item"><label>Name</label><span>' + Portal.escHtml(profile.full_name || "â€”") + '</span></div>' +
+            '<div class="app-detail-item"><label>Email</label><span>' + Portal.escHtml(profile.email) + '</span></div>' +
+            '<div class="app-detail-item"><label>Role</label><span>' + Portal.escHtml(profile.role) + '</span></div>' +
+          '</div>' +
+          '<p style="font-size:0.82rem;color:var(--muted);margin-top:1.2rem;">To update your name or password, contact your agent.</p>';
       }
 
       // -- Inbox ------------------------------------------
@@ -348,7 +304,7 @@
     </script>
     <footer class="site-footer" style="margin-top:0;padding:0.9rem 0 1.2rem;">
       <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;width:100%;border-top:1px solid rgba(58,84,98,0.2);margin-top:0.8rem;padding:0.5rem 0 0.8rem;">
-        <span class="footer-credit-text">© 2026 All rights reserved.</span>
+        <span class="footer-credit-text">ï¿½ 2026 All rights reserved.</span>
         <span class="footer-credit-text" style="opacity:0.5;">|</span>
         <span class="footer-powered"><span class="footer-credit-text">Powered by</span>
         <a href="https://lucentengine.ai" target="_blank" rel="noopener noreferrer" aria-label="Lucent Engine">

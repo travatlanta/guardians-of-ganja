@@ -1,101 +1,62 @@
-﻿// portal.js — Guardians of Ganja portal layer
-// Auth: Clerk CDN  |  New data: Neon via /api/*  |  Legacy: localStorage (threads, messages, docs)
-//
-// ─── SETUP ──────────────────────────────────────────────────────────────────
-// Replace the placeholder below with your Clerk Publishable Key.
-// Get it from: https://dashboard.clerk.com → API Keys → Publishable Key
-// (starts with pk_test_ or pk_live_ — this key is safe to be public in browser code)
+// portal.js — Guardians of Ganja portal layer
+// Auth: cookie-based JWT via /api/auth/*  |  Data: Neon via /api/*
 
 (function () {
   "use strict";
 
-  var CLERK_PUBLISHABLE_KEY = "REPLACE_WITH_YOUR_CLERK_PUBLISHABLE_KEY";
-
-  // ── Clerk Loader ──────────────────────────────────────────
-  var _clerkCallbacks = [];
-  var _clerkState = "idle"; // idle | loading | ready
-
-  function loadClerk(callback) {
-    if (CLERK_PUBLISHABLE_KEY === "REPLACE_WITH_YOUR_CLERK_PUBLISHABLE_KEY") {
-      console.warn("[Portal] Clerk not loaded: set CLERK_PUBLISHABLE_KEY in portal.js");
-      return;
-    }
-    if (_clerkState === "ready" && window.Clerk) { callback(window.Clerk); return; }
-    _clerkCallbacks.push(callback);
-    if (_clerkState === "loading") return;
-    _clerkState = "loading";
-
-    var s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js";
-    s.crossOrigin = "anonymous";
-    s.onload = function () {
-      var clerk = new window.Clerk(CLERK_PUBLISHABLE_KEY);
-      clerk.load().then(function () {
-        window.Clerk = clerk;
-        _clerkState = "ready";
-        var cbs = _clerkCallbacks.slice();
-        _clerkCallbacks = [];
-        cbs.forEach(function (cb) { cb(clerk); });
-      }).catch(function (err) {
-        console.error("[Portal] Clerk.load() failed:", err);
-        _clerkState = "idle";
-      });
-    };
-    s.onerror = function () {
-      console.error("[Portal] Failed to load Clerk CDN script");
-      _clerkState = "idle";
-    };
-    document.head.appendChild(s);
-  }
-
-  // ── API helpers ───────────────────────────────────────────
-  function _getToken() {
-    return new Promise(function (resolve) {
-      if (window.Clerk && window.Clerk.session) {
-        window.Clerk.session.getToken().then(resolve).catch(function () { resolve(null); });
-      } else {
-        resolve(null);
-      }
-    });
-  }
-
+  // ── API helpers ───────────────────────────────────────────────────────────
+  // Cookies are sent automatically — no Authorization header needed.
+  // credentials: "same-origin" ensures cookies are included.
   function apiFetch(path, options) {
-    return _getToken().then(function (token) {
-      var headers = Object.assign({ "Content-Type": "application/json" }, (options && options.headers) || {});
-      if (token) headers["Authorization"] = "Bearer " + token;
-      return fetch(path, Object.assign({}, options, { headers: headers }));
-    }).then(function (resp) {
-      if (!resp.ok) {
-        return resp.json().catch(function () { return { error: resp.statusText }; }).then(function (err) {
-          throw new Error(err.error || "API error " + resp.status);
-        });
-      }
-      return resp.json();
-    });
+    var headers = Object.assign({ "Content-Type": "application/json" }, (options && options.headers) || {});
+    return fetch(path, Object.assign({}, options, { headers: headers, credentials: "same-origin" }))
+      .then(function (resp) {
+        if (!resp.ok) {
+          return resp.json().catch(function () { return { error: resp.statusText }; }).then(function (err) {
+            throw new Error(err.error || "API error " + resp.status);
+          });
+        }
+        return resp.json();
+      });
   }
 
   var api = {
+    auth: {
+      login:   function (email, password) {
+        return apiFetch("/api/auth/login", { method: "POST", body: JSON.stringify({ email: email, password: password }) });
+      },
+      me:      function () { return apiFetch("/api/auth/me"); },
+      logout:  function () { return apiFetch("/api/auth/logout", { method: "POST" }); },
+      register: function (data) {
+        return apiFetch("/api/auth/register", { method: "POST", body: JSON.stringify(data) });
+      }
+    },
     quotes: {
-      get: function ()         { return apiFetch("/api/quote-application"); },
-      getAll: function ()      { return apiFetch("/api/quote-application?all=true"); },
-      save: function (fd, sub) { return apiFetch("/api/quote-application", { method: "POST", body: JSON.stringify({ form_data: fd, submit: !!sub }) }); },
-      updateStatus: function (id, status) { return apiFetch("/api/quote-application", { method: "PATCH", body: JSON.stringify({ id: id, status: status }) }); },
-      remove: function (id) { return apiFetch("/api/quote-application", { method: "DELETE", body: JSON.stringify({ id: id }) }); },
+      getAll:      function ()           { return apiFetch("/api/quote-application"); },
+      submit:      function (fd, email, name) {
+        return apiFetch("/api/quote-application", {
+          method: "POST",
+          body: JSON.stringify({ form_data: fd, contact_email: email, contact_name: name })
+        });
+      },
+      updateStatus: function (id, status) {
+        return apiFetch("/api/quote-application", { method: "PATCH", body: JSON.stringify({ id: id, status: status }) });
+      },
+      remove:      function (id) {
+        return apiFetch("/api/quote-application", { method: "DELETE", body: JSON.stringify({ id: id }) });
+      }
     },
     users: {
-      getAll: function () { return apiFetch("/api/users"); },
-      update: function (id, data) {
-        return apiFetch("/api/users", { method: "PATCH", body: JSON.stringify(Object.assign({ id: id }, data)) });
-      },
-      remove: function (id) {
-        return apiFetch("/api/users", { method: "DELETE", body: JSON.stringify({ id: id }) });
-      }
+      getAll:  function ()          { return apiFetch("/api/users"); },
+      update:  function (id, data)  { return apiFetch("/api/users", { method: "PATCH", body: JSON.stringify(Object.assign({ id: id }, data)) }); },
+      remove:  function (id)        { return apiFetch("/api/users", { method: "DELETE", body: JSON.stringify({ id: id }) }); }
+    },
+    invites: {
+      send:    function (email, role) { return apiFetch("/api/auth/invite", { method: "POST", body: JSON.stringify({ email: email, role: role }) }); }
     },
     emails: {
-      getCampaigns: function () { return apiFetch("/api/email-campaign"); },
-      sendCampaign: function (data) {
-        return apiFetch("/api/email-campaign", { method: "POST", body: JSON.stringify(data) });
-      }
+      getCampaigns: function ()     { return apiFetch("/api/email-campaign"); },
+      sendCampaign: function (data) { return apiFetch("/api/email-campaign", { method: "POST", body: JSON.stringify(data) }); }
     },
     subscribe: function (data) {
       return fetch("/api/subscribe", {
@@ -109,48 +70,35 @@
     }
   };
 
-  // ── requireAuth (async, callback-based) ───────────────────
+  // ── requireAuth ───────────────────────────────────────────────────────────
+  // Calls /api/auth/me — if not logged in redirects to /login.
+  // callback receives { profile } where profile = { id, email, name, role }
   function requireAuth(requiredRole, callback) {
-    loadClerk(function (clerk) {
-      if (!clerk.user) {
-        window.location.href = "/login";
-        return;
-      }
-      var role = (clerk.user.publicMetadata && clerk.user.publicMetadata.role) || "customer";
-      if (requiredRole === "admin" && role !== "admin") {
+    api.auth.me().then(function (data) {
+      var profile = data.user;
+      if (requiredRole === "admin" && profile.role !== "admin") {
         window.location.href = "/dashboard";
         return;
       }
-      var profile = {
-        id:        clerk.user.id,
-        email:     clerk.user.primaryEmailAddress
-                     ? clerk.user.primaryEmailAddress.emailAddress
-                     : "",
-        full_name: [clerk.user.firstName, clerk.user.lastName].filter(Boolean).join(" "),
-        company:   (clerk.user.unsafeMetadata && clerk.user.unsafeMetadata.company) || "",
-        phone:     (clerk.user.unsafeMetadata && clerk.user.unsafeMetadata.phone) || "",
-        role:      role
-      };
-      callback({ profile: profile, clerk: clerk });
+      callback({ profile: profile });
+    }).catch(function () {
+      window.location.href = "/login?redirect=" + encodeURIComponent(window.location.pathname);
     });
   }
 
   function signOut() {
-    loadClerk(function (clerk) {
-      clerk.signOut().then(function () { window.location.href = "/login"; });
+    api.auth.logout().then(function () {
+      window.location.href = "/login";
+    }).catch(function () {
+      window.location.href = "/login";
     });
   }
 
-  // ── localStorage DB (threads, messages, documents) ────────
-  var KEYS = {
-    threads:   "gog_threads",
-    messages:  "gog_messages",
-    documents: "gog_documents"
-  };
+  // ── localStorage DB (threads, messages, documents) ────────────────────────
+  var KEYS = { threads: "gog_threads", messages: "gog_messages", documents: "gog_documents" };
 
   function readArr(key) {
-    try { return JSON.parse(localStorage.getItem(key) || "[]"); }
-    catch (e) { return []; }
+    try { return JSON.parse(localStorage.getItem(key) || "[]"); } catch (e) { return []; }
   }
   function save(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
   function uuid() {
@@ -169,8 +117,7 @@
           .sort(function (a, b) { return b.last_message_at > a.last_message_at ? 1 : -1; });
       },
       getAll: function () {
-        return readArr(KEYS.threads)
-          .sort(function (a, b) { return b.last_message_at > a.last_message_at ? 1 : -1; });
+        return readArr(KEYS.threads).sort(function (a, b) { return b.last_message_at > a.last_message_at ? 1 : -1; });
       },
       create: function (customerId, subject) {
         var threads = readArr(KEYS.threads);
@@ -181,7 +128,6 @@
         return t;
       }
     },
-
     messages: {
       getByThread: function (threadId) {
         return readArr(KEYS.messages)
@@ -189,7 +135,7 @@
           .sort(function (a, b) { return a.created_at > b.created_at ? 1 : -1; });
       },
       create: function (threadId, senderId, content) {
-        var msgs    = readArr(KEYS.messages);
+        var msgs = readArr(KEYS.messages);
         var threads = readArr(KEYS.threads);
         var n = nowIso();
         var m = { id: uuid(), thread_id: threadId, sender_id: senderId, content: content, read: false, created_at: n };
@@ -207,7 +153,6 @@
         save(KEYS.messages, msgs);
       }
     },
-
     documents: {
       getByClient: function (clientId) {
         return readArr(KEYS.documents)
@@ -234,7 +179,7 @@
     }
   };
 
-  // ── Utilities ─────────────────────────────────────────────
+  // ── Utilities ─────────────────────────────────────────────────────────────
   function formatDate(iso) {
     if (!iso) return "";
     return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
@@ -252,16 +197,14 @@
   }
 
   window.Portal = {
-    api:           api,
-    db:            db,
-    loadClerk:     loadClerk,
-    requireAuth:   requireAuth,
-    signOut:       signOut,
-    apiFetch:      apiFetch,
-    formatDate:    formatDate,
-    formatDateTime:formatDateTime,
-    initials:      initials,
-    escHtml:       escHtml
+    api:            api,
+    db:             db,
+    requireAuth:    requireAuth,
+    signOut:        signOut,
+    apiFetch:       apiFetch,
+    formatDate:     formatDate,
+    formatDateTime: formatDateTime,
+    initials:       initials,
+    escHtml:        escHtml
   };
 })();
-
