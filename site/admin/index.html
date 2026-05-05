@@ -23,7 +23,7 @@
       </a>
       <div class="portal-header-right">
         <span class="badge badge-admin">Admin</span>
-        <span class="portal-user-label" id="portal-user-label">Loading�</span>
+        <span class="portal-user-label" id="portal-user-label">Loading&hellip;</span>
         <button class="portal-signout-btn" id="signout-btn">Sign Out</button>
       </div>
     </header>
@@ -81,13 +81,13 @@
               <div id="admin-thread-view" style="display:none;flex-direction:column;flex:1;">
                 <div class="inbox-view-header">
                   <div>
-                    <div class="inbox-view-subject" id="admin-view-subject">�</div>
-                    <div style="font-size:0.75rem;color:var(--muted);margin-top:0.15rem;" id="admin-view-client">�</div>
+                    <div class="inbox-view-subject" id="admin-view-subject">&mdash;</div>
+                    <div style="font-size:0.75rem;color:var(--muted);margin-top:0.15rem;" id="admin-view-client">&mdash;</div>
                   </div>
                 </div>
                 <div class="inbox-messages" id="admin-inbox-messages"></div>
                 <div class="inbox-reply">
-                  <textarea id="admin-reply-text" placeholder="Write a reply�" rows="3"></textarea>
+                  <textarea id="admin-reply-text" placeholder="Write a reply&hellip;" rows="3"></textarea>
                   <button class="btn-sm btn-sm-primary" id="admin-send-reply" style="flex-shrink:0;align-self:flex-end;">Send</button>
                 </div>
               </div>
@@ -103,11 +103,12 @@
           </div>
           <!-- Group filter pills -->
           <div class="user-group-tabs" id="user-group-tabs" role="tablist" aria-label="User groups">
-            <button class="user-group-tab active" data-group="all"    role="tab" aria-selected="true">All</button>
-            <button class="user-group-tab"        data-group="admin"  role="tab" aria-selected="false">Admins</button>
+            <button class="user-group-tab active" data-group="all"     role="tab" aria-selected="true">All</button>
+            <button class="user-group-tab"        data-group="admin"   role="tab" aria-selected="false">Admins</button>
             <button class="user-group-tab"        data-group="customer" role="tab" aria-selected="false">Customers</button>
             <button class="user-group-tab"        data-group="subscriber" role="tab" aria-selected="false">Subscribers</button>
-            <button class="user-group-tab"        data-group="quote" role="tab" aria-selected="false">Quote Requests</button>
+            <button class="user-group-tab"        data-group="quote"   role="tab" aria-selected="false">Quote Requests</button>
+            <button class="user-group-tab"        data-group="invite"  role="tab" aria-selected="false" id="tab-pending-invites">Pending Invites</button>
           </div>
           <div class="users-table-wrap">
             <table class="users-table" id="users-table">
@@ -143,7 +144,7 @@
             </div>
           </div>
           <div id="apps-table-wrap">
-            <div class="portal-loading"><span class="spinner"></span> Loading�</div>
+            <div class="portal-loading"><span class="spinner"></span> Loading&hellip;</div>
           </div>
         </section>
 
@@ -169,7 +170,7 @@
         <section class="portal-tab-panel" id="tab-clients" aria-label="Clients">
           <h1 class="portal-tab-title">Clients</h1>
           <div class="client-grid" id="client-grid-body">
-            <div class="portal-loading"><span class="spinner"></span> Loading�</div>
+            <div class="portal-loading"><span class="spinner"></span> Loading&hellip;</div>
           </div>
         </section>
 
@@ -226,7 +227,7 @@
               Customize automated emails. Toggle to enable/disable. Use <code style="color:var(--accent);background:rgba(214,162,75,0.1);border-radius:3px;padding:0 3px;">{{variable}}</code> placeholders.
             </p>
             <div class="email-template-list" id="email-template-list">
-              <div class="portal-loading"><span class="spinner"></span> Loading�</div>
+              <div class="portal-loading"><span class="spinner"></span> Loading&hellip;</div>
             </div>
           </div>
         </section>
@@ -302,7 +303,7 @@
               <div class="ga4-card-head">
                 <div>
                   <div class="an-chart-label">Page Views Over Time</div>
-                  <div class="an-chart-sub">Daily page views � last 30 days</div>
+                  <div class="an-chart-sub">Daily page views &mdash; last 30 days</div>
                 </div>
                 <span class="ga4-sample-badge">SAMPLE</span>
               </div>
@@ -327,7 +328,7 @@
               <div class="ga4-card-head">
                 <div>
                   <div class="an-chart-label">New vs. Returning</div>
-                  <div class="an-chart-sub">Weekly trend � last 8 weeks</div>
+                  <div class="an-chart-sub">Weekly trend &mdash; last 8 weeks</div>
                 </div>
                 <span class="ga4-sample-badge">SAMPLE</span>
               </div>
@@ -351,7 +352,7 @@
               <div class="ga4-card-head">
                 <div>
                   <div class="an-chart-label">Top Pages</div>
-                  <div class="an-chart-sub">Most viewed � last 30 days</div>
+                  <div class="an-chart-sub">Most viewed &mdash; last 30 days</div>
                 </div>
                 <span class="ga4-sample-badge">SAMPLE</span>
               </div>
@@ -399,7 +400,7 @@
           <div class="an-chart-row">
             <div class="an-chart-card an-chart-wide">
               <div class="an-chart-label">Daily Activity</div>
-              <div class="an-chart-sub">Signups, messages &amp; document uploads � last 30 days</div>
+              <div class="an-chart-sub">Signups, messages &amp; document uploads &mdash; last 30 days</div>
               <div class="an-canvas-wrap" style="height:210px;"><canvas id="an-daily-chart"></canvas></div>
             </div>
             <div class="an-chart-card an-chart-narrow">
@@ -546,7 +547,7 @@
 
       function loadApplications() {
         var wrap = document.getElementById("apps-table-wrap");
-        wrap.innerHTML = '<div class="portal-loading"><span class="spinner"></span> Loading�</div>';
+        wrap.innerHTML = '<div class="portal-loading"><span class="spinner"></span> Loading&hellip;</div>';
 
         Portal.api.quotes.getAll()
           .then(function (data) {
@@ -578,11 +579,11 @@
             var ops = (app.form_data && app.form_data.operations && app.form_data.operations.operation_types) || [];
             var st  = app.status;
             return '<tr>' +
-              '<td><div style="font-weight:600">' + Portal.escHtml(app.full_name || "�") + '</div><div style="font-size:0.77rem;color:var(--muted)">' + Portal.escHtml(app.email) + '</div></td>' +
-              '<td>' + Portal.escHtml(bi.named_applicant || app.company || "�") + (bi.dba ? '<br><span style="font-size:0.77rem;color:var(--muted)">DBA: ' + Portal.escHtml(bi.dba) + '</span>' : '') + '</td>' +
-              '<td style="font-size:0.78rem;color:var(--muted);max-width:160px">' + Portal.escHtml(ops.slice(0, 3).join(", ") + (ops.length > 3 ? "�" : "")) + '</td>' +
+              '<td><div style="font-weight:600">' + Portal.escHtml(app.full_name || "&mdash;") + '</div><div style="font-size:0.77rem;color:var(--muted)">' + Portal.escHtml(app.email) + '</div></td>' +
+              '<td>' + Portal.escHtml(bi.named_applicant || app.company || "&mdash;") + (bi.dba ? '<br><span style="font-size:0.77rem;color:var(--muted)">DBA: ' + Portal.escHtml(bi.dba) + '</span>' : '') + '</td>' +
+              '<td style="font-size:0.78rem;color:var(--muted);max-width:160px">' + Portal.escHtml(ops.slice(0, 3).join(", ") + (ops.length > 3 ? "&hellip;" : "")) + '</td>' +
               '<td><span class="badge status-' + st + '">' + (statusLabels[st] || st) + '</span></td>' +
-              '<td style="font-size:0.8rem;color:var(--muted);white-space:nowrap">' + (app.submitted_at ? Portal.formatDate(app.submitted_at) : "�") + '</td>' +
+              '<td style="font-size:0.8rem;color:var(--muted);white-space:nowrap">' + (app.submitted_at ? Portal.formatDate(app.submitted_at) : "&hellip;") + '</td>' +
               '<td><button class="btn-sm btn-sm-secondary" style="font-size:0.75rem" onclick="openAppModal(\'' + app.id + '\')">View</button></td>' +
               '</tr>';
           }).join("") +
@@ -610,7 +611,7 @@
         var sg = fd.signature || {};
 
         document.getElementById("app-modal-title").textContent = (bi.named_applicant || app.full_name || "Application");
-        document.getElementById("app-modal-meta").textContent = app.email + (app.submitted_at ? " � Submitted " + Portal.formatDate(app.submitted_at) : " � Last saved " + Portal.formatDate(app.updated_at));
+        document.getElementById("app-modal-meta").textContent = app.email + (app.submitted_at ? " &mdash; Submitted " + Portal.formatDate(app.submitted_at) : " &mdash; Last saved " + Portal.formatDate(app.updated_at));
 
         // Status select
         var sel = document.getElementById("app-modal-status");
@@ -629,8 +630,8 @@
             }).join("") +
             '</div></div>';
         }
-        function yn(val) { return val === true ? "Yes" : val === false ? "No" : "�"; }
-        function arr(a)  { return (a && a.length) ? a.join(", ") : "�"; }
+        function yn(val) { return val === true ? "Yes" : val === false ? "No" : "&mdash;"; }
+        function arr(a)  { return (a && a.length) ? a.join(", ") : "&mdash;"; }
 
         document.getElementById("app-modal-body").innerHTML = [
           sec("Business Info", [
@@ -663,8 +664,8 @@
           ]),
           (fd.buildings && fd.buildings.length ? '<div class="app-modal-section"><p class="app-modal-section-title">Buildings (' + fd.buildings.length + ')</p>' +
             fd.buildings.map(function (b, i) {
-              return '<div style="margin-bottom:0.6rem;padding:0.5rem;background:rgba(47,176,115,0.05);border-radius:8px;font-size:0.82rem"><strong>Location ' + (b.loc_num || (i+1)) + ' Bldg ' + (b.bldg_num || "") + '</strong> � ' +
-                [b.address, b.city, b.state].filter(Boolean).join(", ") + (b.sq_ft ? " � " + b.sq_ft + " sq ft" : "") + " � " + (b.owned_leased || "") + '</div>';
+              return '<div style="margin-bottom:0.6rem;padding:0.5rem;background:rgba(47,176,115,0.05);border-radius:8px;font-size:0.82rem"><strong>Location ' + (b.loc_num || (i+1)) + ' Bldg ' + (b.bldg_num || "") + '</strong> &mdash; ' +
+                [b.address, b.city, b.state].filter(Boolean).join(", ") + (b.sq_ft ? " &middot; " + b.sq_ft + " sq ft" : "") + " &middot; " + (b.owned_leased || "") + '</div>';
             }).join("") + '</div>' : ""),
           (!cu.na ? sec("Cultivation", [
             ["Types", arr(cu.types)], ["Lighting", arr(cu.lighting)],
@@ -725,7 +726,7 @@
         body.innerHTML = threads.map(function (t) {
           return '<div class="thread-item' + (t.id === activeAdminThreadId ? " active" : "") + '" data-thread-id="' + Portal.escHtml(t.id) + '" data-subject="' + Portal.escHtml(t.subject) + '" data-client="' + Portal.escHtml(t.customer_name) + '">' +
             '<div class="thread-item-subject">' + Portal.escHtml(t.subject) + '</div>' +
-            '<div class="thread-item-meta">' + Portal.escHtml(t.customer_name) + ' � ' + Portal.formatDateTime(t.last_message_at) + '</div>' +
+            '<div class="thread-item-meta">' + Portal.escHtml(t.customer_name) + ' &middot; ' + Portal.formatDateTime(t.last_message_at) + '</div>' +
             '</div>';
         }).join("");
         body.querySelectorAll(".thread-item").forEach(function (item) {
@@ -755,7 +756,7 @@
           var isAdmin = m.sender_role === "admin";
           return '<div>' +
             '<div class="msg-bubble ' + (isAdmin ? "from-admin" : "from-customer") + '">' + Portal.escHtml(m.content) + '</div>' +
-            '<div class="msg-bubble-meta" style="text-align:' + (isAdmin ? "left" : "right") + '">' + Portal.escHtml(m.sender_name) + ' � ' + Portal.formatDateTime(m.created_at) + '</div>' +
+            '<div class="msg-bubble-meta" style="text-align:' + (isAdmin ? "left" : "right") + '">' + Portal.escHtml(m.sender_name) + ' &middot; ' + Portal.formatDateTime(m.created_at) + '</div>' +
             '</div>';
         }).join("");
         container.scrollTop = container.scrollHeight;
@@ -809,9 +810,9 @@
               var isAdmin = u.role === "admin";
               var isSelf  = u.id === adminProfile.id;
               rows.push('<tr>' +
-                '<td>' + Portal.escHtml(u.full_name || "�") + '</td>' +
-                '<td>' + Portal.escHtml(u.email || "�") + '</td>' +
-                '<td>' + Portal.escHtml(u.company || "�") + '</td>' +
+                '<td>' + Portal.escHtml(u.full_name || "&mdash;") + '</td>' +
+                '<td>' + Portal.escHtml(u.email || "&mdash;") + '</td>' +
+                '<td>' + Portal.escHtml(u.company || "&mdash;") + '</td>' +
                 '<td><span class="badge ' + (isAdmin ? "badge-admin" : "badge-muted") + '">' + Portal.escHtml(u.role) + '</span></td>' +
                 '<td>' + Portal.formatDate(u.created_at) + '</td>' +
                 '<td>' + (isSelf ? '<span style="font-size:0.75rem;color:var(--muted);">You</span>'
@@ -821,12 +822,25 @@
         }
         if (group === "all" || group === "subscriber") {
           (data.subscribers || []).forEach(function (s) {
-            rows.push('<tr><td>' + Portal.escHtml(s.name || "�") + '</td><td>' + Portal.escHtml(s.email) + '</td><td>�</td><td><span class="badge badge-subscriber">subscriber</span></td><td>' + Portal.formatDate(s.created_at) + '</td><td></td></tr>');
+            rows.push('<tr><td>' + Portal.escHtml(s.full_name || "&mdash;") + '</td><td>' + Portal.escHtml(s.email) + '</td><td>&mdash;</td><td><span class="badge badge-subscriber">subscriber</span></td><td>' + Portal.formatDate(s.created_at) + '</td><td></td></tr>');
           });
         }
         if (group === "all" || group === "quote") {
           (data.quoteApps || []).forEach(function (q) {
-            rows.push('<tr><td>' + Portal.escHtml(q.name || "�") + '</td><td>' + Portal.escHtml(q.email) + '</td><td>' + Portal.escHtml(q.company || "�") + '</td><td><span class="badge badge-quote">quote request</span></td><td>' + Portal.formatDate(q.created_at) + '</td><td></td></tr>');
+            rows.push('<tr><td>' + Portal.escHtml(q.full_name || "&mdash;") + '</td><td>' + Portal.escHtml(q.email) + '</td><td>' + Portal.escHtml(q.company || "&mdash;") + '</td><td><span class="badge badge-quote">quote request</span></td><td>' + Portal.formatDate(q.created_at) + '</td><td></td></tr>');
+          });
+        }
+        if (group === "all" || group === "invite") {
+          (data.pendingInvites || []).forEach(function (inv) {
+            var roleLabel = inv.role === "admin" ? "admin" : "customer";
+            rows.push('<tr>' +
+              '<td style="color:var(--muted);font-style:italic;">Pending</td>' +
+              '<td>' + Portal.escHtml(inv.email) + '</td>' +
+              '<td>&mdash;</td>' +
+              '<td><span class="badge badge-muted" style="opacity:0.7;">' + roleLabel + ' invite</span></td>' +
+              '<td>' + Portal.formatDate(inv.created_at) + '</td>' +
+              '<td><button class="btn-sm" style="color:#e8715a;border-color:#e8715a;" onclick="revokeInvite(\'' + Portal.escHtml(inv.id) + '\',\'' + Portal.escHtml(inv.email) + '\',this)">Revoke</button></td>' +
+              '</tr>');
           });
         }
         tbody.innerHTML = rows.length ? rows.join("") : '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);">No entries in this group.</td></tr>';
@@ -834,7 +848,7 @@
 
       window.toggleUserRole = function (userId, currentRole, btn) {
         var newRole = currentRole === "admin" ? "customer" : "admin";
-        btn.disabled = true; btn.textContent = "Saving�";
+        btn.disabled = true; btn.textContent = "Saving&hellip;";
         Portal.api.users.update(userId, { role: newRole })
           .then(function () { loadUsers(); })
           .catch(function (err) { btn.disabled = false; btn.textContent = currentRole === "admin" ? "Demote" : "Make Admin"; alert(err.message); });
@@ -842,10 +856,18 @@
 
       window.deleteUser = function (userId, btn) {
         if (!confirm("Remove this user? This cannot be undone.")) return;
-        btn.disabled = true; btn.textContent = "Removing�";
+        btn.disabled = true; btn.textContent = "Removing&hellip;";
         Portal.api.users.remove(userId)
           .then(function () { loadUsers(); })
           .catch(function (err) { btn.disabled = false; btn.textContent = "Remove"; alert(err.message); });
+      };
+
+      window.revokeInvite = function (inviteId, email, btn) {
+        if (!confirm("Revoke invite for " + email + "? They will no longer be able to use this link.")) return;
+        btn.disabled = true; btn.textContent = "Revoking&hellip;";
+        Portal.api.invites.revoke(inviteId)
+          .then(function () { loadUsers(); })
+          .catch(function (err) { btn.disabled = false; btn.textContent = "Revoke"; alert(err.message); });
       };
 
       // ==================================================
@@ -853,7 +875,7 @@
       // ==================================================
       function loadClients() {
         var grid = document.getElementById("client-grid-body");
-        grid.innerHTML = '<div class="portal-loading"><span class="spinner"></span> Loading�</div>';
+        grid.innerHTML = '<div class="portal-loading"><span class="spinner"></span> Loading&hellip;</div>';
         Portal.api.users.getAll()
           .then(function (data) {
             var clients = (data.profiles || [])
@@ -868,13 +890,13 @@
               return '<div class="client-card" id="client-' + Portal.escHtml(c.id) + '">' +
                 '<div class="client-card-header" onclick="toggleClient(\'' + Portal.escHtml(c.id) + '\')">' +
                   '<div class="client-avatar">' + ini + '</div>' +
-                  '<div><div class="client-card-name">' + Portal.escHtml(c.full_name || "�") + '</div>' +
-                  '<div class="client-card-company">' + Portal.escHtml(c.company || "�") + '</div></div>' +
+                  '<div><div class="client-card-name">' + Portal.escHtml(c.full_name || "&mdash;") + '</div>' +
+                  '<div class="client-card-company">' + Portal.escHtml(c.company || "&mdash;") + '</div></div>' +
                   '<span class="client-card-expand-icon">?</span>' +
                 '</div>' +
                 '<div class="client-card-body">' +
-                  '<div class="client-info-row"><span class="client-info-label">Email</span><span class="client-info-value">' + Portal.escHtml(c.email || "�") + '</span></div>' +
-                  '<div class="client-info-row"><span class="client-info-label">Phone</span><span class="client-info-value">' + Portal.escHtml(c.phone || "�") + '</span></div>' +
+                  '<div class="client-info-row"><span class="client-info-label">Email</span><span class="client-info-value">' + Portal.escHtml(c.email || "&hellip;") + '</span></div>' +
+                  '<div class="client-info-row"><span class="client-info-label">Phone</span><span class="client-info-value">' + Portal.escHtml(c.phone || "&hellip;") + '</span></div>' +
                   '<div class="client-info-row"><span class="client-info-label">Joined</span><span class="client-info-value">' + Portal.formatDate(c.created_at) + '</span></div>' +
                   '<div class="client-docs-section"><div class="client-docs-title">Documents</div>' +
                     '<div id="client-docs-' + Portal.escHtml(c.id) + '"></div>' +
@@ -929,11 +951,11 @@
         var file = fileInput.files && fileInput.files[0];
         if (!file) { errEl.textContent = "Please select a file."; errEl.style.display = "block"; return; }
         if (file.size > 4 * 1024 * 1024) { errEl.textContent = "File too large. Max 4 MB."; errEl.style.display = "block"; return; }
-        btn.disabled = true; btn.textContent = "Uploading�";
+        btn.disabled = true; btn.textContent = "Uploading&hellip;";
         var reader = new FileReader();
         reader.onload = function (e) {
           Portal.db.documents.create(clientId, typeSelect.value, file.name, e.target.result, notesInput.value.trim(), adminProfile.id);
-          btn.disabled = false; btn.textContent = "Uploaded ?";
+          btn.disabled = false; btn.textContent = "Uploaded ✓";
           fileInput.value = ""; notesInput.value = "";
           renderClientDocs(clientId);
           setTimeout(function () { btn.textContent = "Upload"; }, 2000);
@@ -966,7 +988,7 @@
         if (_quill) return _quill;
         var el = document.getElementById("campaign-editor");
         if (!el || typeof Quill === "undefined") return null;
-        _quill = new Quill(el, { theme: "snow", placeholder: "Write your campaign email body�",
+        _quill = new Quill(el, { theme: "snow", placeholder: "Write your campaign email body&hellip;",
           modules: { toolbar: [["bold","italic","underline"],[{"list":"ordered"},{"list":"bullet"}],["link"],["clean"]] } });
         return _quill;
       }
@@ -1007,10 +1029,10 @@
         errEl.style.display = "none";
         if (!subject) { errEl.textContent = "Subject is required."; errEl.style.display = "block"; return; }
         if (!body || body === "<p><br></p>") { errEl.textContent = "Email body is required."; errEl.style.display = "block"; return; }
-        btn.disabled = true; btn.textContent = "Sending�";
+        btn.disabled = true; btn.textContent = "Sending&hellip;";
         Portal.api.emails.sendCampaign({ subject: subject, target_group: group, body_html: body })
           .then(function () {
-            btn.textContent = "Sent ?";
+            btn.textContent = "Sent ✓";
             document.getElementById("camp-subject").value = "";
             if (q) q.root.innerHTML = "";
             loadCampaignHistory();
@@ -1037,7 +1059,7 @@
 
       var DEFAULT_TEMPLATES = [
         { id: "tpl-welcome",  trigger_type: "welcome_subscriber",        active: true, subject: "Welcome to Guardians of Ganja updates!", body_html: "<h2>Hey {{name}},</h2>\n<p>Thanks for subscribing. You'll get cannabis insurance news and industry insights from our team.</p>" },
-        { id: "tpl-signup",   trigger_type: "signup_confirmation",       active: true, subject: "Welcome to Guardians of Ganja � You're in.", body_html: "<h2>Welcome, {{full_name}}!</h2>\n<p>Your account is ready. Log in to your client portal to view quotes, policies, and send messages.</p>" },
+        { id: "tpl-signup",   trigger_type: "signup_confirmation",       active: true, subject: "Welcome to Guardians of Ganja &mdash; You're in.", body_html: "<h2>Welcome, {{full_name}}!</h2>\n<p>Your account is ready. Log in to your client portal to view quotes, policies, and send messages.</p>" },
         { id: "tpl-doc",      trigger_type: "new_document",              active: true, subject: "New document available in your portal", body_html: "<h2>Hi {{full_name}},</h2>\n<p>A new <strong>{{document_type}}</strong> document has been uploaded: <em>{{filename}}</em>.</p>" },
         { id: "tpl-quote",    trigger_type: "new_quote",                 active: true, subject: "Your insurance quote is ready",         body_html: "<h2>Hi {{full_name}},</h2>\n<p>Your insurance quote is ready for review in your portal.</p>" },
         { id: "tpl-admin-msg",trigger_type: "new_message_from_admin",    active: true, subject: "New message from Guardians of Ganja",   body_html: "<h2>Hi {{full_name}},</h2>\n<p>You have a new message regarding: <strong>{{subject}}</strong>.</p>" },
@@ -1260,7 +1282,7 @@
         function trend(items, start) {
           var cur  = countInWindow(items, start);
           var prev = countInWindow(items, prevStart) - cur;
-          if (prev === 0 && cur === 0) return { cur: cur, cls: "flat", arrow: "�", pct: "0%" };
+          if (prev === 0 && cur === 0) return { cur: cur, cls: "flat", arrow: "&hellip;", pct: "0%" };
           if (prev === 0) return { cur: cur, cls: "up", arrow: "?", pct: "new" };
           var pct = Math.round(((cur - prev) / Math.max(prev, 1)) * 100);
           return { cur: cur, cls: pct > 0 ? "up" : pct < 0 ? "down" : "flat", arrow: pct > 0 ? "&#8593;" : pct < 0 ? "&#8595;" : "&mdash;", pct: Math.abs(pct) + "%" };
@@ -1637,11 +1659,11 @@
           events.push({ ts: u.created_at, type: "Signup",   detail: (u.full_name || u.email) + " joined" + (u.company ? " (" + u.company + ")" : "") });
         });
         messages.forEach(function (m) {
-          var preview = (m.content || "").slice(0, 64) + ((m.content || "").length > 64 ? "�" : "");
+          var preview = (m.content || "").slice(0, 64) + ((m.content || "").length > 64 ? "&hellip;" : "");
           events.push({ ts: m.created_at, type: "Message",  detail: (m.sender_name || "Unknown") + ": " + preview });
         });
         docs.forEach(function (d) {
-          events.push({ ts: d.created_at || "", type: "Document", detail: d.filename + " (" + (d.type || "�") + ")" });
+          events.push({ ts: d.created_at || "", type: "Document", detail: d.filename + " (" + (d.type || "unknown") + ")" });
         });
         events.sort(function (a, b) { return new Date(b.ts).getTime() - new Date(a.ts).getTime(); });
         var tbody = document.getElementById("analytics-activity-body");
@@ -1665,7 +1687,7 @@
     </script>
     <footer class="site-footer" style="margin-top:0;padding:0.9rem 0 1.2rem;">
       <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;width:100%;border-top:1px solid rgba(58,84,98,0.2);margin-top:0.8rem;padding:0.5rem 0 0.8rem;">
-        <span class="footer-credit-text">� 2026 All rights reserved.</span>
+        <span class="footer-credit-text">&copy; 2026 All rights reserved.</span>
         <span class="footer-credit-text" style="opacity:0.5;">|</span>
         <span class="footer-powered"><span class="footer-credit-text">Powered by</span>
         <a href="https://lucentengine.ai" target="_blank" rel="noopener noreferrer" aria-label="Lucent Engine">
@@ -1674,3 +1696,5 @@
       </div>
     </footer>  </body>
 </html>
+
+

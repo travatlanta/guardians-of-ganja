@@ -94,5 +94,17 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true, message: `Invite sent to ${email}` });
   }
 
+  // ── DELETE: revoke a pending invite (admin only) ───────────────────────────
+  if (req.method === "DELETE") {
+    const admin = requireAdmin(req);
+    if (!admin) return res.status(403).json({ error: "Forbidden" });
+
+    const { id } = req.body || {};
+    if (!id) return res.status(400).json({ error: "id is required" });
+
+    await sql`DELETE FROM user_invites WHERE id = ${id} AND accepted_at IS NULL`;
+    return res.status(200).json({ success: true });
+  }
+
   return res.status(405).json({ error: "Method not allowed" });
 }

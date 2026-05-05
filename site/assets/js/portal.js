@@ -52,7 +52,8 @@
       remove:  function (id)        { return apiFetch("/api/users", { method: "DELETE", body: JSON.stringify({ id: id }) }); }
     },
     invites: {
-      send:    function (email, role) { return apiFetch("/api/auth/invite", { method: "POST", body: JSON.stringify({ email: email, role: role }) }); }
+      send:   function (email, role) { return apiFetch("/api/auth/invite", { method: "POST",   body: JSON.stringify({ email: email, role: role }) }); },
+      revoke: function (id)          { return apiFetch("/api/auth/invite", { method: "DELETE", body: JSON.stringify({ id: id }) }); }
     },
     emails: {
       getCampaigns: function ()     { return apiFetch("/api/email-campaign"); },

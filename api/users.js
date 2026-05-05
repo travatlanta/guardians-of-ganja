@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
   // ── GET: all user groups ────────────────────────────────────────────────────
   if (req.method === "GET") {
-    const [profiles, subscribers, quoteApps] = await Promise.all([
+    const [profiles, subscribers, quoteApps, pendingInvites] = await Promise.all([
       sql`
         SELECT id, email, full_name, company, phone, role, created_at
         FROM user_profiles
@@ -37,9 +37,15 @@ export default async function handler(req, res) {
         FROM quote_applications
         ORDER BY created_at DESC
       `,
+      sql`
+        SELECT id::text, email, role, expires_at, created_at
+        FROM user_invites
+        WHERE accepted_at IS NULL AND expires_at > now()
+        ORDER BY created_at DESC
+      `,
     ]);
 
-    return res.status(200).json({ profiles, subscribers, quoteApps });
+    return res.status(200).json({ profiles, subscribers, quoteApps, pendingInvites });
   }
 
   // ── PATCH: update role ──────────────────────────────────────────────────────
