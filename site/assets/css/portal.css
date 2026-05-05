@@ -1748,6 +1748,7 @@
 .quote-step-name {
   font-size: 0.78rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
   color: var(--accent);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;
 }
 .quote-step-count {
   font-size: 0.78rem; font-weight: 600;
@@ -2132,18 +2133,58 @@
   .qs-splash-inner { padding: 2rem 1.25rem; gap: 1.4rem; }
   .qs-splash-logo-full { width: min(300px, 80vw); }
   .qs-splash-sub { font-size: 0.95rem; }
-  .qs-pillars { grid-template-columns: 1fr; gap: 0.65rem; }
-  .qs-pillar { padding: 1.2rem 1rem; flex-direction: row; text-align: left; gap: 1rem; }
-  .qs-pillar-icon { width: 44px; height: 44px; flex-shrink: 0; }
-  .qs-pillar-stat { font-size: 1.3rem; }
   .qs-splash-btn { width: 100%; justify-content: center; }
-  /* stack animations to simple fade on mobile — avoids off-screen jank */
-  .qs-pillar:nth-child(1),
-  .qs-pillar:nth-child(2),
-  .qs-pillar:nth-child(3) { animation: qs-fade-up 0.7s calc(0.9s + var(--i, 0) * 0.15s) ease both; }
-  .qs-pillar:nth-child(1) { --i: 0; }
-  .qs-pillar:nth-child(2) { --i: 1; }
-  .qs-pillar:nth-child(3) { --i: 2; }
+
+  /* Pillars — full-width stacked, CSS grid interior layout */
+  .qs-pillars {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+  .qs-pillar {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    grid-template-rows: auto auto auto;
+    align-items: center;
+    text-align: left;
+    padding: 1.1rem 1rem;
+    gap: 0 0.9rem;
+  }
+  .qs-pillar-icon {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    align-self: center;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+  .qs-pillar-stat {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 1.5rem;
+    line-height: 1;
+    margin-bottom: 0.15rem;
+  }
+  .qs-pillar-title {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+  }
+  .qs-pillar-desc {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    font-size: 0.79rem;
+    padding-top: 0.7rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    color: var(--muted);
+  }
+
+  /* Simple fade-in — no fly-in on mobile */
+  .qs-pillar:nth-child(1) { animation: qs-fade-up 0.6s 0.9s  ease both; }
+  .qs-pillar:nth-child(2) { animation: qs-fade-up 0.6s 1.05s ease both; }
+  .qs-pillar:nth-child(3) { animation: qs-fade-up 0.6s 1.2s  ease both; }
 }
 
 /* Section dividers */
@@ -2371,6 +2412,148 @@
 .quote-nav-right { display: flex; gap: 0.7rem; align-items: center; }
 .quote-save-msg { font-size: 0.78rem; color: var(--brand); opacity: 0; transition: opacity 700ms; }
 .quote-save-msg.visible { opacity: 1; }
+
+/* ── Quote form — mobile ─────────────────────────────────────
+   Tablet: ≤768px   Phone: ≤480px   Small phone: ≤380px
+   ────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .quote-main {
+    padding: 1.5rem 1.1rem 5rem;
+  }
+  .quote-step {
+    gap: 1.3rem;
+  }
+  .quote-step-title {
+    font-size: 1.3rem;
+  }
+  .quote-progress {
+    margin-bottom: 1.6rem;
+  }
+  .qs-section {
+    padding: 1.1rem;
+    gap: 0.8rem;
+  }
+  .building-card-body {
+    padding: 1rem;
+  }
+  .quote-nav {
+    padding: 0.85rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Container */
+  .quote-main {
+    padding: 1.1rem 0.85rem 4.5rem;
+  }
+
+  /* Step header */
+  .quote-step-title {
+    font-size: 1.15rem;
+  }
+  .quote-step-desc {
+    font-size: 0.82rem;
+  }
+  .quote-step {
+    gap: 1rem;
+  }
+
+  /* Progress bar */
+  .quote-progress {
+    margin-bottom: 1.1rem;
+  }
+  .quote-progress-label span {
+    font-size: 0.75rem;
+  }
+
+  /* Section cards */
+  .qs-section {
+    padding: 0.9rem 0.85rem;
+    gap: 0.75rem;
+    border-radius: 10px;
+  }
+  .qs-section-title {
+    font-size: 0.67rem;
+  }
+
+  /* Yes/No rows — wrap label above buttons on small screens */
+  .yn-group {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.65rem 0.85rem;
+  }
+  .yn-label {
+    width: 100%;
+    font-size: 0.84rem;
+  }
+  .yn-btns {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .yn-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 0.45rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  /* Chips — bigger touch targets */
+  .chip-label {
+    padding: 0.5rem 0.95rem;
+    font-size: 0.82rem;
+  }
+
+  /* Repeater rows — stack on mobile */
+  .repeater-row {
+    flex-wrap: wrap;
+  }
+  .repeater-row .form-input {
+    min-width: 0;
+  }
+
+  /* Building card */
+  .building-card-body {
+    padding: 0.85rem 0.75rem;
+  }
+  .building-card-header {
+    padding: 0.7rem 0.9rem;
+  }
+
+  /* Sticky nav — keep Back left, Continue right, full width */
+  .quote-nav {
+    padding: 0.7rem 0.85rem;
+    gap: 0.5rem;
+  }
+  .quote-nav-right {
+    gap: 0.5rem;
+  }
+  .quote-save-msg {
+    display: none; /* hide "Saved" label, too cramped */
+  }
+
+  /* Buttons — ensure 44px minimum touch target */
+  .btn-sm {
+    padding: 0.6rem 1rem;
+    font-size: 0.82rem;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 380px) {
+  .quote-main {
+    padding: 0.9rem 0.7rem 4.5rem;
+  }
+  .quote-step-title {
+    font-size: 1.05rem;
+  }
+  .qs-section {
+    padding: 0.8rem 0.7rem;
+  }
+  /* Save Draft hidden — show only Back + Continue */
+  #save-draft-btn {
+    display: none !important;
+  }
+}
 
 /* ── Status badges ──────────────────────────────────────────── */
 .status-draft     { background: rgba(120,120,120,0.15); color: #aaa; border: 1px solid rgba(120,120,120,0.25); }

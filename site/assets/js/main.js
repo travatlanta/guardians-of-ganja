@@ -168,11 +168,13 @@
 
     var cards = Array.prototype.slice.call(pinWrap.querySelectorAll(".pin-card"));
     var note  = pinWrap.querySelector(".pin-note");
-    var CARD_COUNT  = cards.length;
-    var START_OFFSET = 220;  // px of translateY card starts from
-    var INITIAL_DELAY = 350; // scroll px before card 1 even begins moving
-    var TRAVEL_PX    = 500;  // scroll px for one card to fully travel in (~5 wheel notches)
-    var GAP_PX       = 420;  // scroll px between each card’s start point
+    var CARD_COUNT   = cards.length;
+    var START_OFFSET = 180;  // px of translateY card starts from
+    var X_OFFSETS    = [-70, 70, -70, 70]; // left col arcs in from left, right col from right
+    var ROTATES      = [-7, 7, -7, 7];     // slight inward rotation at start
+    var INITIAL_DELAY = 250; // scroll px before card 1 even begins moving
+    var TRAVEL_PX    = 400;  // scroll px for one card to fully travel in
+    var GAP_PX       = 300;  // scroll px between each card’s start point
     var NOTE_PX      = 150;  // scroll px for note to fade
 
     function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
@@ -195,9 +197,11 @@
 
       cards.forEach(function (card, i) {
         var start = INITIAL_DELAY + i * GAP_PX;
-        var end   = start + TRAVEL_PX;
         var p     = easeOutCubic(clamp((scrolled - start) / TRAVEL_PX, 0, 1));
-        card.style.transform = "translateY(" + Math.round(START_OFFSET * (1 - p)) + "px)";
+        var tx    = Math.round(X_OFFSETS[i] * (1 - p));
+        var ty    = Math.round(START_OFFSET * (1 - p));
+        var rot   = (ROTATES[i] * (1 - p)).toFixed(1);
+        card.style.transform = "translateX(" + tx + "px) translateY(" + ty + "px) rotate(" + rot + "deg)";
         card.style.opacity   = p.toFixed(3);
       });
 
@@ -212,6 +216,27 @@
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
   })();
+  } else {
+    // Mobile: IntersectionObserver-triggered arc-in animation
+    (function () {
+      var mobileCards = document.querySelectorAll(".pin-card");
+      if (!mobileCards.length || !window.IntersectionObserver) {
+        mobileCards.forEach(function (c) { c.classList.add("arc-in"); });
+        return;
+      }
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var card = entry.target;
+            var idx  = Array.prototype.indexOf.call(mobileCards, card);
+            card.style.animationDelay = (idx * 120) + "ms";
+            card.classList.add("arc-in");
+            observer.unobserve(card);
+          }
+        });
+      }, { threshold: 0.15 });
+      mobileCards.forEach(function (c) { observer.observe(c); });
+    })();
   } // end scroll-pin desktop-only guard
 
   var filterButtons = document.querySelectorAll("[data-filter]");

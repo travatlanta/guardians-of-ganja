@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Portal — Guardians of Ganja</title>
+    <title>My Portal � Guardians of Ganja</title>
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/png" href="/assets/img/logo-icon.png" />
     <link rel="apple-touch-icon" href="/assets/img/logo-icon.png" />
@@ -20,7 +20,7 @@
         <span>Guardians of Ganja</span>
       </a>
       <div class="portal-header-right">
-        <span class="portal-user-label" id="portal-user-label">Loading…</span>
+        <span class="portal-user-label" id="portal-user-label">Loading�</span>
         <button class="portal-signout-btn" id="signout-btn">Sign Out</button>
       </div>
     </header>
@@ -30,19 +30,19 @@
       <aside class="portal-sidebar" aria-label="Dashboard navigation">
         <span class="sidebar-label">My Portal</span>
         <button class="sidebar-btn active" data-tab="inbox" aria-current="page">
-          <span class="btn-icon">✉</span>
+          <span class="btn-icon">?</span>
           <span>Inbox</span>
         </button>
         <button class="sidebar-btn" data-tab="application">
-          <span class="btn-icon">📋</span>
+          <span class="btn-icon">??</span>
           <span>My Application</span>
         </button>
         <button class="sidebar-btn" data-tab="documents">
-          <span class="btn-icon">📄</span>
+          <span class="btn-icon">??</span>
           <span>Documents</span>
         </button>
         <button class="sidebar-btn" data-tab="account">
-          <span class="btn-icon">⚙️</span>
+          <span class="btn-icon">??</span>
           <span>Account</span>
         </button>
       </aside>
@@ -50,7 +50,7 @@
       <!-- Content -->
       <main class="portal-content" id="main">
 
-        <!-- ── Inbox Tab ─────────────────────────────────── -->
+        <!-- -- Inbox Tab ----------------------------------- -->
         <section class="portal-tab-panel active" id="tab-inbox" aria-label="Inbox">
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;">
             <h1 class="portal-tab-title">Inbox</h1>
@@ -65,7 +65,7 @@
               </div>
               <div id="thread-list-body">
                 <div class="portal-loading" style="padding:2rem;">
-                  <span class="spinner"></span> Loading…
+                  <span class="spinner"></span> Loading�
                 </div>
               </div>
             </div>
@@ -73,17 +73,17 @@
             <!-- Thread view -->
             <div class="inbox-view" id="inbox-view">
               <div class="inbox-empty" id="inbox-empty-state">
-                <span class="inbox-empty-icon">✉</span>
+                <span class="inbox-empty-icon">?</span>
                 <span>Select a conversation or start a new one.</span>
               </div>
 
               <div id="inbox-thread-view" style="display:none;flex-direction:column;flex:1;">
                 <div class="inbox-view-header">
-                  <span class="inbox-view-subject" id="view-subject">—</span>
+                  <span class="inbox-view-subject" id="view-subject">�</span>
                 </div>
                 <div class="inbox-messages" id="inbox-messages"></div>
                 <div class="inbox-reply">
-                  <textarea id="reply-text" placeholder="Write a reply…" rows="3"></textarea>
+                  <textarea id="reply-text" placeholder="Write a reply�" rows="3"></textarea>
                   <button class="btn-sm btn-sm-primary" id="send-reply-btn" style="flex-shrink:0;align-self:flex-end;">Send</button>
                 </div>
               </div>
@@ -91,26 +91,26 @@
           </div>
         </section>
 
-        <!-- ── My Application Tab ────────────────────────── -->
+        <!-- -- My Application Tab -------------------------- -->
         <section class="portal-tab-panel" id="tab-application" aria-label="My Application">
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;margin-bottom:1.2rem;">
             <h1 class="portal-tab-title" style="margin:0">My Application</h1>
-            <a class="btn-sm btn-sm-primary" href="/quote" id="start-app-btn" style="text-decoration:none">Start Application →</a>
+            <a class="btn-sm btn-sm-primary" href="/quote" id="start-app-btn" style="text-decoration:none">Start Application ?</a>
           </div>
           <div id="app-tab-body">
-            <div class="portal-loading"><span class="spinner"></span> Loading…</div>
+            <div class="portal-loading"><span class="spinner"></span> Loading�</div>
           </div>
         </section>
 
-        <!-- ── Documents Tab ─────────────────────────────── -->
+        <!-- -- Documents Tab ------------------------------- -->
         <section class="portal-tab-panel" id="tab-documents" aria-label="Documents">
           <h1 class="portal-tab-title">Documents</h1>
           <div id="doc-grid-body" class="doc-grid">
-            <div class="portal-loading"><span class="spinner"></span> Loading…</div>
+            <div class="portal-loading"><span class="spinner"></span> Loading�</div>
           </div>
         </section>
 
-        <!-- ── Account Tab ──────────────────────────── -->
+        <!-- -- Account Tab ---------------------------- -->
         <section class="portal-tab-panel" id="tab-account" aria-label="Account">
           <h1 class="portal-tab-title">Account Settings</h1>
           <div id="clerk-user-profile" class="clerk-profile-mount"></div>
@@ -149,7 +149,7 @@
       document.getElementById("portal-user-label").textContent = profile.full_name || profile.email;
       document.getElementById("signout-btn").addEventListener("click", Portal.signOut);
 
-      // ── Tab navigation ─────────────────────────────────
+      // -- Tab navigation ---------------------------------
       var tabs = document.querySelectorAll(".sidebar-btn[data-tab]");
       tabs.forEach(function (btn) {
         btn.addEventListener("click", function () {
@@ -167,7 +167,7 @@
         });
       });
 
-      // ── My Application ─────────────────────────────────
+      // -- My Application ---------------------------------
       var appLoaded = false;
       function loadApplication() {
         if (appLoaded) return;
@@ -182,12 +182,12 @@
               startBtn.style.display = "inline-flex";
               body.innerHTML =
                 '<div class="app-summary-card" style="align-items:center;text-align:center;gap:1.4rem;padding:2.5rem">' +
-                  '<div style="font-size:2.5rem">📋</div>' +
+                  '<div style="font-size:2.5rem">??</div>' +
                   '<div>' +
                     '<p style="font-weight:700;color:var(--text);font-size:1rem;margin:0 0 0.4rem">No Application Yet</p>' +
                     '<p style="color:var(--muted);font-size:0.88rem;margin:0">Complete your insurance application to receive a customized quote for your operation.</p>' +
                   '</div>' +
-                  '<a class="btn-sm btn-sm-primary" href="/quote" style="text-decoration:none">Start My Application →</a>' +
+                  '<a class="btn-sm btn-sm-primary" href="/quote" style="text-decoration:none">Start My Application ?</a>' +
                 '</div>';
               return;
             }
@@ -198,7 +198,7 @@
             var statusClass = "status-" + app.status;
 
             startBtn.style.display = app.status === "draft" ? "inline-flex" : "none";
-            if (app.status === "draft") startBtn.textContent = "Continue Application →";
+            if (app.status === "draft") startBtn.textContent = "Continue Application ?";
 
             body.innerHTML =
               '<div class="app-summary-card">' +
@@ -232,7 +232,7 @@
               '</div>';
           })
           .catch(function () {
-            body.innerHTML = '<div class="portal-loading" style="color:var(--muted)">Unable to load application. <a href="/quote" style="color:var(--brand)">Start or continue here →</a></div>';
+            body.innerHTML = '<div class="portal-loading" style="color:var(--muted)">Unable to load application. <a href="/quote" style="color:var(--brand)">Start or continue here ?</a></div>';
           });
       }
 
@@ -241,7 +241,7 @@
         return '<div class="app-detail-item"><label>' + label + '</label><span>' + Portal.escHtml(String(val)) + '</span></div>';
       }
 
-      // ── Inbox ──────────────────────────────────────────
+      // -- Inbox ------------------------------------------
       function loadThreads() {
         var threads = Portal.db.threads.getByCustomer(profile.id);
         var body    = document.getElementById("thread-list-body");
@@ -296,7 +296,7 @@
         loadThreads();
       });
 
-      // ── New Thread Modal ────────────────────────────────
+      // -- New Thread Modal --------------------------------
       document.getElementById("new-thread-btn").addEventListener("click", function () {
         document.getElementById("new-thread-modal").classList.add("open");
       });
@@ -321,16 +321,16 @@
         openThread(thread.id, subject);
       });
 
-      // ── Documents ──────────────────────────────────────
+      // -- Documents --------------------------------------
       function loadDocuments() {
         var grid = document.getElementById("doc-grid-body");
         var docs = Portal.db.documents.getByClient(profile.id);
         if (!docs.length) {
-          grid.innerHTML = '<div class="inbox-empty" style="padding:2rem;"><span class="inbox-empty-icon">📄</span><span>No documents yet. Your agent will upload quotes and policies here.</span></div>';
+          grid.innerHTML = '<div class="inbox-empty" style="padding:2rem;"><span class="inbox-empty-icon">??</span><span>No documents yet. Your agent will upload quotes and policies here.</span></div>';
           return;
         }
         grid.innerHTML = docs.map(function (doc) {
-          var icon       = doc.type === "policy" ? "📋" : doc.type === "quote" ? "💼" : "📄";
+          var icon       = doc.type === "policy" ? "??" : doc.type === "quote" ? "??" : "??";
           var badgeClass = doc.type === "policy" ? "badge-green" : doc.type === "quote" ? "badge-gold" : "badge-muted";
           return '<div class="doc-card">' +
             '<div class="doc-card-icon">' + icon + '</div>' +
@@ -342,15 +342,15 @@
         }).join("");
       }
 
-      // ── Init ───────────────────────────────────────────
+      // -- Init -------------------------------------------
       loadThreads();
     });
     </script>
     <footer class="site-footer" style="margin-top:0;padding:0.9rem 0 1.2rem;">
       <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;width:100%;border-top:1px solid rgba(58,84,98,0.2);margin-top:0.8rem;padding:0.5rem 0 0.8rem;">
-        <span class="footer-credit-text">© 2026 All rights reserved.</span>
+        <span class="footer-credit-text">� 2026 All rights reserved.</span>
         <span class="footer-credit-text" style="opacity:0.5;">|</span>
-        <span class="footer-credit-text">© 2026 All rights reserved.</span><span style="color:#2a4335;margin:0 0.3rem;">|</span><span class="footer-credit-text">Powered by</span>
+        <span class="footer-powered"><span class="footer-credit-text">Powered by</span>
         <a href="https://lucentengine.ai" target="_blank" rel="noopener noreferrer" aria-label="Lucent Engine">
           <img class="footer-credit-logo" src="/assets/img/lucent-engine.png" alt="Lucent Engine" loading="lazy" style="height:36px;width:auto;display:inline-block;vertical-align:middle;" />
         </a>

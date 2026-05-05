@@ -1,9 +1,9 @@
-ï»¿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Seed Test Data â€” GoG Dev</title>
+    <title>Seed Test Data — GoG Dev</title>
     <link rel="icon" type="image/png" href="/assets/img/logo-icon.png" />
     <link rel="apple-touch-icon" href="/assets/img/logo-icon.png" />
     <link rel="stylesheet" href="/assets/css/main.css" />
@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="seed-box">
-      <h2>ðŸŒ¿ Test Data Seeder</h2>
+      <h2>?? Test Data Seeder</h2>
       <p>Seeds a test client account with documents and messages into localStorage.</p>
 
       <div class="creds">
@@ -38,10 +38,10 @@
         <div><span class="label">Company</span><span class="val">Green Leaf Farms</span></div>
       </div>
 
-      <div class="status" id="status">Seedingâ€¦</div>
+      <div class="status" id="status">Seeding…</div>
 
       <a href="/login" class="btn-go" id="go-btn" style="pointer-events:none;opacity:0.4;">Go to Login</a>
-      <button class="btn-reset" id="reset-btn">âš  Wipe ALL portal data and re-seed</button>
+      <button class="btn-reset" id="reset-btn">? Wipe ALL portal data and re-seed</button>
     </div>
 
     <script>
@@ -56,7 +56,7 @@
       var goBtn    = document.getElementById("go-btn");
 
       function seed() {
-        statusEl.textContent = "Seedingâ€¦";
+        statusEl.textContent = "Seeding…";
         statusEl.className = "status";
 
         // 1. Create test customer via Portal.auth.signUp
@@ -68,7 +68,7 @@
 
         var userId;
         if (result.error) {
-          // Already exists â€” find their ID
+          // Already exists — find their ID
           var users = JSON.parse(localStorage.getItem("gog_users") || "[]");
           var existing = users.find(function (u) { return u.email.toLowerCase() === "jane@test.com"; });
           if (!existing) { statusEl.textContent = "Error: " + result.error.message; statusEl.className = "status err"; return; }
@@ -87,8 +87,8 @@
         var adminId    = adminUser ? adminUser.id : "admin";
 
         var testDocs = [
-          { id: uuid(), client_id: userId, type: "policy",  filename: "Policy_Cannabis_2026.pdf",        data_url: FAKE_PDF, notes: "Annual renewal â€” effective Jan 1 2026",  uploaded_by: adminId, created_at: ago(10) },
-          { id: uuid(), client_id: userId, type: "quote",   filename: "Quote_Product_Liability.pdf",     data_url: FAKE_PDF, notes: "Product liability â€” $2M limit",           uploaded_by: adminId, created_at: ago(5)  },
+          { id: uuid(), client_id: userId, type: "policy",  filename: "Policy_Cannabis_2026.pdf",        data_url: FAKE_PDF, notes: "Annual renewal — effective Jan 1 2026",  uploaded_by: adminId, created_at: ago(10) },
+          { id: uuid(), client_id: userId, type: "quote",   filename: "Quote_Product_Liability.pdf",     data_url: FAKE_PDF, notes: "Product liability — $2M limit",           uploaded_by: adminId, created_at: ago(5)  },
           { id: uuid(), client_id: userId, type: "other",   filename: "Welcome_Packet_GoG.pdf",          data_url: FAKE_PDF, notes: "Onboarding guide and portal overview",    uploaded_by: adminId, created_at: ago(15) }
         ];
         testDocs.forEach(function (d) {
@@ -106,14 +106,14 @@
         if (!existingThread) {
           var threadId = uuid();
           threads.push({ id: threadId, customer_id: userId, subject: "Welcome to Guardians of Ganja!", created_at: ago(12), last_message_at: ago(2) });
-          messages.push({ id: uuid(), thread_id: threadId, sender_id: adminId, content: "Hi Jane! Welcome to the Guardians of Ganja client portal. Your annual cannabis policy has been uploaded â€” you can view and download it from the Documents tab. Let us know if you have any questions!", read: true,  created_at: ago(12) });
-          messages.push({ id: uuid(), thread_id: threadId, sender_id: userId,  content: "Thank you! I see the policy document. Quick question â€” does this cover delivery operations too?", read: true,  created_at: ago(8)  });
+          messages.push({ id: uuid(), thread_id: threadId, sender_id: adminId, content: "Hi Jane! Welcome to the Guardians of Ganja client portal. Your annual cannabis policy has been uploaded — you can view and download it from the Documents tab. Let us know if you have any questions!", read: true,  created_at: ago(12) });
+          messages.push({ id: uuid(), thread_id: threadId, sender_id: userId,  content: "Thank you! I see the policy document. Quick question — does this cover delivery operations too?", read: true,  created_at: ago(8)  });
           messages.push({ id: uuid(), thread_id: threadId, sender_id: adminId, content: "Great question. Yes, delivery is covered under Section 4B of your policy up to $500K per incident. I've also uploaded a product liability quote for your review.", read: false, created_at: ago(2)  });
           localStorage.setItem("gog_threads",  JSON.stringify(threads));
           localStorage.setItem("gog_messages", JSON.stringify(messages));
         }
 
-        statusEl.textContent = "âœ“ Test data seeded successfully!";
+        statusEl.textContent = "? Test data seeded successfully!";
         statusEl.className   = "status ok";
         goBtn.style.pointerEvents = "";
         goBtn.style.opacity = "1";
@@ -122,7 +122,7 @@
       document.getElementById("reset-btn").addEventListener("click", function () {
         if (!confirm("This will delete ALL portal users, documents, threads and messages. Continue?")) return;
         ["gog_users","gog_session","gog_documents","gog_threads","gog_messages","gog_email_templates"].forEach(function (k) { localStorage.removeItem(k); });
-        statusEl.textContent = "Wiped. Re-seedingâ€¦";
+        statusEl.textContent = "Wiped. Re-seeding…";
         statusEl.className   = "status";
         goBtn.style.pointerEvents = "none";
         goBtn.style.opacity = "0.4";
@@ -134,9 +134,9 @@
     </script>
     <footer class="site-footer" style="margin-top:0;padding:0.9rem 0 1.2rem;">
       <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;width:100%;border-top:1px solid rgba(58,84,98,0.2);margin-top:0.8rem;padding:0.5rem 0 0.8rem;">
-        <span class="footer-credit-text">Â© 2026 All rights reserved.</span>
+        <span class="footer-credit-text">© 2026 All rights reserved.</span>
         <span class="footer-credit-text" style="opacity:0.5;">|</span>
-        <span class="footer-credit-text">Â© 2026 All rights reserved.</span><span style="color:#2a4335;margin:0 0.3rem;">|</span><span class="footer-credit-text">Powered by</span>
+        <span class="footer-powered"><span class="footer-credit-text">Powered by</span>
         <a href="https://lucentengine.ai" target="_blank" rel="noopener noreferrer" aria-label="Lucent Engine">
           <img class="footer-credit-logo" src="/assets/img/lucent-engine.png" alt="Lucent Engine" loading="lazy" style="height:36px;width:auto;display:inline-block;vertical-align:middle;" />
         </a>

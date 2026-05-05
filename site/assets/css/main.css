@@ -63,6 +63,18 @@ img {
   margin: 0 auto;
 }
 
+@media (max-width: 700px) {
+  .container {
+    width: min(1120px, 88vw);
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    width: min(1120px, 86vw);
+  }
+}
+
 .site-header {
   position: sticky;
   top: 0;
@@ -839,10 +851,10 @@ h2 {
   top: var(--header-offset, 72px);
 }
 
-/* Cards start invisible — JS drives position directly each frame */
+/* Cards start invisible — JS drives position directly each frame (desktop) */
 .pin-card {
   opacity: 0;
-  transform: translateY(220px);
+  transform: translateY(180px);
   will-change: transform, opacity;
 }
 .pin-card.pin-card--visible {
@@ -856,6 +868,15 @@ h2 {
 }
 .pin-note.pin-card--visible {
   opacity: 1;
+}
+
+@keyframes mobile-arc-in-left {
+  from { opacity: 0; transform: translateX(-55px) translateY(60px) rotate(-6deg); }
+  to   { opacity: 1; transform: translateX(0) translateY(0) rotate(0deg); }
+}
+@keyframes mobile-arc-in-right {
+  from { opacity: 0; transform: translateX(55px) translateY(60px) rotate(6deg); }
+  to   { opacity: 1; transform: translateX(0) translateY(0) rotate(0deg); }
 }
 
 .services-showcase {
@@ -1913,9 +1934,38 @@ textarea {
 }
 
 .footer-credit {
-  display: block;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1rem;
   width: 100%;
   text-align: center;
+}
+
+.footer-powered {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+/* Dot separator between the two items on desktop */
+.footer-powered::after {
+  content: '·';
+  margin-left: 0.5rem;
+  color: #2a4335;
+}
+
+@media (max-width: 700px) {
+  .footer-credit {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  /* Powered by first on mobile */
+  .footer-powered { order: 1; }
+  .footer-copyright { order: 2; }
+  .footer-powered::after { display: none; }
 }
 
 .footer-credit-text {
@@ -2010,13 +2060,6 @@ textarea {
   .section { padding: 1.8rem 0; }
   .quote-cta-section { padding: 1.8rem 0; }
 
-  /* Footer credit — stack vertically on tiny screens */
-  .footer-credit {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.4rem;
-    text-align: center;
-  }
   .footer-credit-text { font-size: 0.78rem; }
 
   /* Buttons full-width in hero */
@@ -2607,11 +2650,16 @@ body { animation: pageIn 0.4s ease both; }
     display: none;
   }
 
-  /* Pin cards — show statically on mobile, no scroll animation */
+  /* Pin cards — arc-in CSS animation on mobile */
   .pin-card {
-    opacity: 1 !important;
-    transform: none !important;
+    opacity: 0;
     transition: none !important;
+  }
+  .pin-card.arc-in {
+    animation: mobile-arc-in-left 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .pin-card:nth-child(2n).arc-in {
+    animation-name: mobile-arc-in-right;
   }
 
   /* Pin note always visible on mobile */
@@ -2660,6 +2708,343 @@ body { animation: pageIn 0.4s ease both; }
   0%   { transform: scale(1);   opacity: 0.5; }
   100% { transform: scale(1.2); opacity: 0; }
 }
+@media (max-width: 700px) {
+  /* Hero already has a prominent Get a Quote button — FAB just clutters mobile */
+  .quote-fab { display: none; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   HOME PAGE — MOBILE REDESIGN PASS
+   700px = phone  |  480px = small phone  |  380px = tiny
+   ══════════════════════════════════════════════════════════ */
+
+/* ── 1. Hero ─────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  /* Full viewport height — content block centered in the frame */
+  .hero {
+    min-height: 100dvh;
+    min-height: calc(var(--app-vh, 1vh) * 100);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: none;
+  }
+
+  /* Restore video — full-bleed cover on mobile */
+  .hero-media {
+    display: block;
+    width: 100%;
+    left: 0;
+    right: 0;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .hero-media::before {
+    background:
+      linear-gradient(180deg,
+        rgba(6,10,13,0.25) 0%,
+        rgba(6,10,13,0.45) 35%,
+        rgba(6,10,13,0.82) 62%,
+        rgba(6,10,13,0.97) 85%,
+        rgba(6,10,13,1)    100%
+      );
+  }
+  .hero-media::after { display: none; }
+  .hero-video { object-position: center center; }
+
+  .hero-shell {
+    position: relative;
+    z-index: 1;
+    min-height: 0;
+    width: 88vw;
+    padding: 0;
+  }
+
+  .hero-copy {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-copy .kicker {
+    margin-bottom: 2rem;
+    font-size: 0.68rem;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.2rem, 9.5vw, 2.9rem) !important;
+    line-height: 1.1;
+    margin-bottom: 1.1rem;
+    white-space: normal;
+  }
+
+  .hero-copy .lead {
+    font-size: 1.05rem;
+    line-height: 1.55;
+    margin-bottom: 0;
+    opacity: 0.88;
+  }
+
+  .hero-subcopy { display: none; }
+
+  .hero-actions {
+    margin-top: 2.25rem;
+    gap: 0.75rem;
+    flex-direction: column;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+    text-align: center;
+    padding: 1rem 1.4rem;
+    font-size: 1rem;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 @media (max-width: 480px) {
-  .quote-fab { bottom: 1.25rem; right: 1.25rem; font-size: 0.82rem; padding: 0.65rem 1.1rem; }
+  .hero-copy h1 { font-size: clamp(2rem, 9vw, 2.5rem) !important; }
+  .hero-video { object-position: center center; }
+}
+
+/* ── 2. Cover showcase ───────────────────────────────────── */
+@media (max-width: 700px) {
+  .cover-showcase { padding-top: 2.2rem; padding-bottom: 0.5rem; }
+  .cover-showcase-head { margin-bottom: 0.75rem; }
+}
+
+/* ── 3. Services section ─────────────────────────────────── */
+@media (max-width: 700px) {
+  /* Kill the JS scroll-pin height and sticky behaviour entirely on mobile */
+  #services-pin-wrap { height: auto !important; }
+  .services-showcase {
+    position: static !important;
+    padding-top: 2.8rem;
+    padding-bottom: 4rem;
+    position: relative !important;
+  }
+  #services-pin-wrap::after {
+    content: '';
+    display: block;
+    height: 4rem;
+    background: linear-gradient(to bottom, transparent, #070f0b);
+    margin-top: -4rem;
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .services-title { font-size: clamp(1.7rem, 8vw, 2.2rem) !important; }
+  .services-intro { font-size: 0.9rem; }
+  .services-head { margin-bottom: 1.2rem; }
+
+  /* 2×2 card grid — much better than 4 stacked cards */
+
+  .service-panel {
+    padding: 0.75rem 0;
+    border-radius: 18px;
+    background: none;
+    border: none;
+    box-shadow: none;
+    /* Equal negative margins on both sides — symmetric bleed past container */
+    width: auto;
+    margin-left: -4vw;
+    margin-right: -4vw;
+  }
+  .service-panel-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.6rem;
+  }
+  .service-group {
+    padding: 1.1rem 1rem;
+    border-radius: 14px;
+  }
+  .service-group-index {
+    font-size: 0.65rem;
+    margin-bottom: 0.35rem;
+  }
+  .service-group h4 {
+    font-size: 0.95rem;
+    margin: 0.2rem 0 0.65rem;
+    line-height: 1.25;
+    color: var(--accent);
+  }
+  .service-checklist li {
+    font-size: 0.8rem;
+    line-height: 1.55;
+    padding-left: 1.25rem;
+  }
+  .service-panel-note {
+    font-size: 0.75rem;
+    padding: 0.75rem 0.25rem;
+  }
+  /* Button centered, gold accent color */
+  .service-link {
+    width: auto;
+    padding: 0.75rem 1.75rem;
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+  }
+}
+
+/* Collapse to 1-col only on very small phones */
+@media (max-width: 360px) {
+  .service-panel-grid { grid-template-columns: 1fr; }
+}
+
+/* ── 4. Stats — keep 3-across always ────────────────────── */
+@media (max-width: 700px) {
+  .stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.55rem;
+  }
+  .stat {
+    padding: 0.6rem 0.4rem;
+    text-align: center;
+    border-radius: 10px;
+  }
+  .stat strong { font-size: 1rem; }
+  .stat span   { font-size: 0.68rem; display: block; line-height: 1.3; }
+}
+
+/* ── 5. About section ────────────────────────────────────── */
+@media (max-width: 700px) {
+  /* Hide the photo — replaced with ambient orbs */
+  .about-showcase-media { display: none; }
+
+  .about-showcase {
+    min-height: 0;
+    padding-block: 4rem;
+    overflow: hidden;
+    position: relative;
+    background:
+      linear-gradient(to bottom, #070f0b 0%, rgba(7,15,11,0.6) 6%, transparent 14%, transparent 62%, rgba(7,15,11,0.6) 80%, #070f0b 100%),
+      radial-gradient(ellipse 80% 60% at 15% 30%, rgba(47,176,115,0.13) 0%, transparent 60%),
+      radial-gradient(ellipse 65% 50% at 88% 75%, rgba(214,162,75,0.09) 0%, transparent 55%),
+      #070f0b;
+  }
+
+
+  .about-showcase-layout {
+    min-height: 0;
+    width: min(1120px, 88vw);
+    position: relative;
+    z-index: 1;
+  }
+
+  .about-flow {
+    padding-block: 0;
+    width: 100%;
+    text-align: center;
+  }
+
+  .about-flow h2 {
+    font-size: clamp(1.8rem, 8vw, 2.2rem);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .about-flow p {
+    font-size: 0.93rem;
+    line-height: 1.7;
+    text-align: left;
+  }
+
+  .about-flow p + p { margin-top: 1rem; }
+}
+
+@keyframes about-orb-a {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(20px, 15px) scale(1.1); }
+}
+@keyframes about-orb-b {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(-15px, -20px) scale(1.08); }
+}
+
+/* ── 6. Testimonials — horizontal scroll on mobile ──────── */
+@media (max-width: 700px) {
+  .testimonials-section {
+    padding: 2.8rem 0;
+    position: relative;
+  }
+  .testimonials-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5rem;
+    background: linear-gradient(to bottom, #070f0b, transparent);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .testimonials-section h2 { font-size: clamp(1.4rem, 6.5vw, 1.8rem); }
+  .testimonials-section .kicker { justify-content: center; }
+
+  /* Horizontal scroll strip */
+  .testimonials-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    grid-template-columns: unset;
+    gap: 0.85rem;
+    margin-top: 1.5rem;
+    /* Bleed slightly past container so the scroll feels natural */
+    width: calc(100vw - 0px);
+    margin-left: calc(-4vw);
+    padding: 0.25rem 4vw 1.1rem;
+  }
+  .testimonials-grid::-webkit-scrollbar { display: none; }
+
+  .testimonial-card {
+    flex: 0 0 84vw;
+    max-width: 360px;
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+  .testimonial-card:last-child { margin-right: 4vw; }
+  .testimonial-text { font-size: 0.9rem; line-height: 1.7; }
+}
+
+/* ── 7. Quote CTA section ────────────────────────────────── */
+@media (max-width: 700px) {
+  .quote-cta-section { padding: 2.8rem 0; }
+  .quote-cta-wrap { text-align: center; }
+  .quote-cta-wrap h2  { font-size: clamp(1.4rem, 6.5vw, 1.8rem); margin-bottom: 0.5rem; }
+  .quote-cta-sub { font-size: 0.9rem; }
+}
+@media (max-width: 480px) {
+  /* Force inline button row to stack vertically */
+  .quote-cta-wrap > div[style] {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.65rem !important;
+  }
+  .quote-cta-wrap .btn {
+    width: 100%;
+    text-align: center;
+    padding: 0.9rem 1.4rem;
+  }
+}
+
+/* ── 8. Footer ───────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .site-footer { padding-top: 1.4rem; margin-top: 2rem; }
+  .footer-grid { gap: 1.4rem; padding-bottom: 0.5rem; }
+}
+
+/* ── 9. Disable reveal entrance animations on mobile ──────
+   Scroll-triggered reveals can make content feel broken when
+   users scroll too fast. Show everything immediately on phones. */
+@media (max-width: 700px) {
+  .reveal, .reveal-up {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }
