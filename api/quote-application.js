@@ -9,6 +9,7 @@
 
 import { neon }  from "@neondatabase/serverless";
 import { verifyJWT, getTokenFromRequest } from "./_jwt.js";
+import { brandedHtml, emailBtn, emailDivider, emailMuted } from "./_email.js";
 
 function requireAdmin(req) {
   const payload = verifyJWT(getTokenFromRequest(req));
@@ -54,33 +55,96 @@ export default async function handler(req, res) {
       RETURNING id, status, submitted_at, created_at
     `;
 
-    // Notify broker via Resend
+    // Send emails (broker notification + customer confirmation)
     const resendKey = process.env.RESEND_API_KEY;
+    const fromAddr  = process.env.FROM_EMAIL || "noreply@guardiansofganja.com";
+    const brokerTo  = process.env.BROKER_EMAIL || "Dalton@aschemanagency.com";
+    const submitted = new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+
     if (resendKey) {
+      // ── Broker notification ───────────────────────────────────────────────────
       const summaryRows = Object.entries(form_data)
-        .map(([k, v]) => `<tr><td style="padding:4px 8px;font-weight:600;white-space:nowrap">${k}</td><td style="padding:4px 8px">${Array.isArray(v) ? v.join(", ") : v}</td></tr>`)
+        .map(([k, v]) => `
+          <tr>
+            <td style="padding:8px 12px;color:#4a7a5a;font-size:13px;font-weight:600;white-space:nowrap;border-bottom:1px solid rgba(47,176,115,0.08);">${k}</td>
+            <td style="padding:8px 12px;color:#c4ddd0;font-size:13px;border-bottom:1px solid rgba(47,176,115,0.08);">${Array.isArray(v) ? v.join(", ") : v}</td>
+          </tr>`)
         .join("");
 
-      await fetch("https://api.resend.com/emails", {
+      const brokerHtml = brandedHtml({
+        preheader: `New quote application from ${contact_name || contact_email}`,
+        body: `
+          <p style="margin:0 0 6px;color:#2fb073;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">New Submission</p>
+          <h1 style="margin:0 0 20px;color:#e8f5ee;font-size:24px;font-weight:800;line-height:1.2;">Quote Application Received</h1>
+          <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:20px;background:rgba(47,176,115,0.06);border-radius:10px;border:1px solid rgba(47,176,115,0.15);">
+            <tr>
+              <td style="padding:8px 12px;color:#4a7a5a;font-size:13px;font-weight:600;border-bottom:1px solid rgba(47,176,115,0.08);">Applicant</td>
+              <td style="padding:8px 12px;color:#e8f5ee;font-size:13px;font-weight:700;border-bottom:1px solid rgba(47,176,115,0.08);">${contact_name || "(no name)"}</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;color:#4a7a5a;font-size:13px;font-weight:600;border-bottom:1px solid rgba(47,176,115,0.08);">Email</td>
+              <td style="padding:8px 12px;color:#c4ddd0;font-size:13px;border-bottom:1px solid rgba(47,176,115,0.08);">${contact_email}</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;color:#4a7a5a;font-size:13px;font-weight:600;">Submitted</td>
+              <td style="padding:8px 12px;color:#c4ddd0;font-size:13px;">${submitted}</td>
+            </tr>
+          </table>
+          <p style="margin:0 0 10px;color:#4a7a5a;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Application Details</p>
+          <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:rgba(47,176,115,0.04);border-radius:10px;border:1px solid rgba(47,176,115,0.1);">
+            ${summaryRows}
+          </table>
+          ${emailBtn("https://guardiansofganja.com/admin", "View in Admin Panel")}
+          ${emailMuted("This is an automated notification. Log in to the admin panel to update the application status.")}
+        `,
+      });
+
+      fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          from:    `Guardians of Ganja <${process.env.FROM_EMAIL || "noreply@guardiansofganja.com"}>`,
-          to:      ["Dalton@aschemanagency.com"],
+          from:    `Guardians of Ganja <${fromAddr}>`,
+          to:      [brokerTo],
           subject: `New Quote Application — ${contact_name || contact_email}`,
-          html: `
-            <h2 style="color:#2fb073">New Quote Application</h2>
-            <p><strong>From:</strong> ${contact_name || "(no name)"} &lt;${contact_email}&gt;</p>
-            <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
-            <table style="border-collapse:collapse;width:100%;margin-top:1rem;font-size:14px">
-              ${summaryRows}
-            </table>
-            <p style="margin-top:1.5rem">
-              <a href="https://guardiansofganja.com/admin" style="color:#2fb073">View in Admin Panel →</a>
-            </p>
-          `,
+          html:    brokerHtml,
         }),
-      }).catch(e => console.error("[quote-application] Email failed:", e.message));
+      }).catch(e => console.error("[quote-application] Broker email failed:", e.message));
+
+      // ── Customer confirmation ─────────────────────────────────────────────────
+      const customerName = contact_name ? contact_name.split(" ")[0] : "there";
+      const customerHtml = brandedHtml({
+        preheader: "We've received your quote application and will be in touch shortly.",
+        body: `
+          <p style="margin:0 0 6px;color:#2fb073;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Application Received</p>
+          <h1 style="margin:0 0 20px;color:#e8f5ee;font-size:26px;font-weight:800;line-height:1.2;">Thanks, ${customerName}!<br>We've got your application.</h1>
+          <p style="margin:0 0 16px;color:#c4ddd0;">Your cannabis insurance quote application has been successfully submitted. Our team will review your information and reach out with a customized quote tailored to your operation.</p>
+          <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:rgba(47,176,115,0.06);border-radius:10px;border:1px solid rgba(47,176,115,0.15);margin-bottom:8px;">
+            <tr><td style="padding:14px 16px;">
+              <p style="margin:0 0 10px;color:#2fb073;font-size:13px;font-weight:700;">What happens next?</p>
+              <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr><td style="padding:5px 0;color:#c4ddd0;font-size:14px;">&#10003;&nbsp; Our team reviews your application</td></tr>
+                <tr><td style="padding:5px 0;color:#c4ddd0;font-size:14px;">&#10003;&nbsp; We prepare a customized quote for your operation</td></tr>
+                <tr><td style="padding:5px 0;color:#c4ddd0;font-size:14px;">&#10003;&nbsp; You'll hear from us within 1&ndash;2 business days</td></tr>
+              </table>
+            </td></tr>
+          </table>
+          ${emailDivider}
+          <p style="margin:0 0 14px;color:#c4ddd0;font-size:14px;">Have questions in the meantime? You can reach us at <a href="mailto:info@guardiansofganja.com" style="color:#2fb073;text-decoration:none;">info@guardiansofganja.com</a> or log in to your portal to send a message directly.</p>
+          ${emailBtn("https://guardiansofganja.com/dashboard", "Go to My Portal")}
+          ${emailMuted("You're receiving this because you submitted a quote application on guardiansofganja.com.")}
+        `,
+      });
+
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from:    `Guardians of Ganja <${fromAddr}>`,
+          to:      [contact_email],
+          subject: "We received your quote application — Guardians of Ganja",
+          html:    customerHtml,
+        }),
+      }).catch(e => console.error("[quote-application] Customer email failed:", e.message));
     }
 
     return res.status(200).json({ success: true, id: app.id });

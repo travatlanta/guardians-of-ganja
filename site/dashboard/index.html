@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Portal � Guardians of Ganja</title>
+    <title>My Portal &mdash; Guardians of Ganja</title>
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/png" href="/assets/img/logo-icon.png" />
     <link rel="apple-touch-icon" href="/assets/img/logo-icon.png" />
@@ -20,7 +20,7 @@
         <span>Guardians of Ganja</span>
       </a>
       <div class="portal-header-right">
-        <span class="portal-user-label" id="portal-user-label">Loading�</span>
+        <span class="portal-user-label" id="portal-user-label">Loading...</span>
         <button class="portal-signout-btn" id="signout-btn">Sign Out</button>
       </div>
     </header>
@@ -30,19 +30,27 @@
       <aside class="portal-sidebar" aria-label="Dashboard navigation">
         <span class="sidebar-label">My Portal</span>
         <button class="sidebar-btn active" data-tab="inbox" aria-current="page">
-          <span class="btn-icon">?</span>
+          <span class="btn-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+          </span>
           <span>Inbox</span>
         </button>
         <button class="sidebar-btn" data-tab="application">
-          <span class="btn-icon">??</span>
+          <span class="btn-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </span>
           <span>My Application</span>
         </button>
         <button class="sidebar-btn" data-tab="documents">
-          <span class="btn-icon">??</span>
+          <span class="btn-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          </span>
           <span>Documents</span>
         </button>
         <button class="sidebar-btn" data-tab="account">
-          <span class="btn-icon">??</span>
+          <span class="btn-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>
           <span>Account</span>
         </button>
       </aside>
@@ -50,7 +58,7 @@
       <!-- Content -->
       <main class="portal-content" id="main">
 
-        <!-- -- Inbox Tab ----------------------------------- -->
+        <!-- Inbox Tab -->
         <section class="portal-tab-panel active" id="tab-inbox" aria-label="Inbox">
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;">
             <h1 class="portal-tab-title">Inbox</h1>
@@ -58,32 +66,32 @@
           </div>
 
           <div class="inbox-layout" style="flex:1;min-height:420px;">
-            <!-- Thread list -->
             <div class="inbox-thread-list">
               <div class="inbox-thread-list-header">
                 <span class="inbox-thread-list-title">Conversations</span>
               </div>
               <div id="thread-list-body">
                 <div class="portal-loading" style="padding:2rem;">
-                  <span class="spinner"></span> Loading�
+                  <span class="spinner"></span> Loading...
                 </div>
               </div>
             </div>
 
-            <!-- Thread view -->
             <div class="inbox-view" id="inbox-view">
               <div class="inbox-empty" id="inbox-empty-state">
-                <span class="inbox-empty-icon">?</span>
+                <span class="inbox-empty-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.35"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                </span>
                 <span>Select a conversation or start a new one.</span>
               </div>
 
               <div id="inbox-thread-view" style="display:none;flex-direction:column;flex:1;">
                 <div class="inbox-view-header">
-                  <span class="inbox-view-subject" id="view-subject">�</span>
+                  <span class="inbox-view-subject" id="view-subject"></span>
                 </div>
                 <div class="inbox-messages" id="inbox-messages"></div>
                 <div class="inbox-reply">
-                  <textarea id="reply-text" placeholder="Write a reply�" rows="3"></textarea>
+                  <textarea id="reply-text" placeholder="Write a reply..." rows="3"></textarea>
                   <button class="btn-sm btn-sm-primary" id="send-reply-btn" style="flex-shrink:0;align-self:flex-end;">Send</button>
                 </div>
               </div>
@@ -91,26 +99,26 @@
           </div>
         </section>
 
-        <!-- -- My Application Tab -------------------------- -->
+        <!-- My Application Tab -->
         <section class="portal-tab-panel" id="tab-application" aria-label="My Application">
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;margin-bottom:1.2rem;">
             <h1 class="portal-tab-title" style="margin:0">My Application</h1>
-            <a class="btn-sm btn-sm-primary" href="/quote" id="start-app-btn" style="text-decoration:none">Start Application ?</a>
+            <a class="btn-sm btn-sm-primary" href="/quote" id="start-app-btn" style="text-decoration:none">Start Application</a>
           </div>
           <div id="app-tab-body">
-            <div class="portal-loading"><span class="spinner"></span> Loading�</div>
+            <div class="portal-loading"><span class="spinner"></span> Loading...</div>
           </div>
         </section>
 
-        <!-- -- Documents Tab ------------------------------- -->
+        <!-- Documents Tab -->
         <section class="portal-tab-panel" id="tab-documents" aria-label="Documents">
           <h1 class="portal-tab-title">Documents</h1>
           <div id="doc-grid-body" class="doc-grid">
-            <div class="portal-loading"><span class="spinner"></span> Loading�</div>
+            <div class="portal-loading"><span class="spinner"></span> Loading...</div>
           </div>
         </section>
 
-        <!-- -- Account Tab ---------------------------- -->
+        <!-- Account Tab -->
         <section class="portal-tab-panel" id="tab-account" aria-label="Account">
           <h1 class="portal-tab-title">Account Settings</h1>
           <div class="app-summary-card" id="account-info" style="max-width:480px;"></div>
@@ -141,13 +149,13 @@
 
     <script>
     Portal.requireAuth(null, function (auth) {
-      var profile      = auth.profile;
+      var profile        = auth.profile;
       var activeThreadId = null;
 
       document.getElementById("portal-user-label").textContent = profile.full_name || profile.email;
       document.getElementById("signout-btn").addEventListener("click", Portal.signOut);
 
-      // -- Tab navigation ---------------------------------
+      // Tab navigation
       var tabs = document.querySelectorAll(".sidebar-btn[data-tab]");
       tabs.forEach(function (btn) {
         btn.addEventListener("click", function () {
@@ -156,48 +164,45 @@
           document.querySelectorAll(".portal-tab-panel").forEach(function (p) {
             p.classList.toggle("active", p.id === "tab-" + btn.dataset.tab);
           });
-          if (btn.dataset.tab === "documents") loadDocuments();
+          if (btn.dataset.tab === "documents")   loadDocuments();
           if (btn.dataset.tab === "application") loadApplication();
-          if (btn.dataset.tab === "account") loadAccount();
+          if (btn.dataset.tab === "account")     loadAccount();
         });
       });
 
-      // -- My Application ---------------------------------
+      // My Application
       var appLoaded = false;
       function loadApplication() {
         if (appLoaded) return;
         appLoaded = true;
-        var body    = document.getElementById("app-tab-body");
-        var startBtn = document.getElementById("start-app-btn");
-        startBtn.style.display = "inline-flex";
-        body.innerHTML =
+        document.getElementById("start-app-btn").style.display = "inline-flex";
+        document.getElementById("app-tab-body").innerHTML =
           '<div class="app-summary-card" style="align-items:center;text-align:center;gap:1.4rem;padding:2.5rem">' +
             '<div style="font-size:2.5rem">&#128203;</div>' +
             '<div>' +
               '<p style="font-weight:700;color:var(--text);font-size:1rem;margin:0 0 0.4rem">Start Your Application</p>' +
               '<p style="color:var(--muted);font-size:0.88rem;margin:0">Complete the quote form and our team will be in touch with a customized quote for your operation.</p>' +
             '</div>' +
-            '<a class="btn-sm btn-sm-primary" href="/quote" style="text-decoration:none">Start My Application &#8594;</a>' +
+            '<a class="btn-sm btn-sm-primary" href="/quote" style="text-decoration:none">Start My Application &rarr;</a>' +
           '</div>';
       }
 
-      // -- Account ----------------------------------------
+      // Account
       var accountLoaded = false;
       function loadAccount() {
         if (accountLoaded) return;
         accountLoaded = true;
-        var el = document.getElementById("account-info");
-        el.innerHTML =
+        document.getElementById("account-info").innerHTML =
           '<div class="app-summary-header"><h2 class="app-summary-title">Profile</h2></div>' +
           '<div class="app-detail-grid" style="margin-top:0.8rem;">' +
-            '<div class="app-detail-item"><label>Name</label><span>' + Portal.escHtml(profile.full_name || "—") + '</span></div>' +
-            '<div class="app-detail-item"><label>Email</label><span>' + Portal.escHtml(profile.email) + '</span></div>' +
-            '<div class="app-detail-item"><label>Role</label><span>' + Portal.escHtml(profile.role) + '</span></div>' +
+            '<div class="app-detail-item"><label>Name</label><span>'  + Portal.escHtml(profile.full_name || "—") + '</span></div>' +
+            '<div class="app-detail-item"><label>Email</label><span>' + Portal.escHtml(profile.email)                + '</span></div>' +
+            '<div class="app-detail-item"><label>Role</label><span>'  + Portal.escHtml(profile.role)                 + '</span></div>' +
           '</div>' +
           '<p style="font-size:0.82rem;color:var(--muted);margin-top:1.2rem;">To update your name or password, contact your agent.</p>';
       }
 
-      // -- Inbox ------------------------------------------
+      // Inbox
       function loadThreads() {
         var threads = Portal.db.threads.getByCustomer(profile.id);
         var body    = document.getElementById("thread-list-body");
@@ -252,7 +257,7 @@
         loadThreads();
       });
 
-      // -- New Thread Modal --------------------------------
+      // New Thread Modal
       document.getElementById("new-thread-btn").addEventListener("click", function () {
         document.getElementById("new-thread-modal").classList.add("open");
       });
@@ -277,16 +282,16 @@
         openThread(thread.id, subject);
       });
 
-      // -- Documents --------------------------------------
+      // Documents
       function loadDocuments() {
         var grid = document.getElementById("doc-grid-body");
         var docs = Portal.db.documents.getByClient(profile.id);
         if (!docs.length) {
-          grid.innerHTML = '<div class="inbox-empty" style="padding:2rem;"><span class="inbox-empty-icon">??</span><span>No documents yet. Your agent will upload quotes and policies here.</span></div>';
+          grid.innerHTML = '<div class="inbox-empty" style="padding:2rem;"><span class="inbox-empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.35"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span><span>No documents yet. Your agent will upload quotes and policies here.</span></div>';
           return;
         }
         grid.innerHTML = docs.map(function (doc) {
-          var icon       = doc.type === "policy" ? "??" : doc.type === "quote" ? "??" : "??";
+          var icon       = doc.type === "policy" ? "&#128196;" : doc.type === "quote" ? "&#128203;" : "&#128196;";
           var badgeClass = doc.type === "policy" ? "badge-green" : doc.type === "quote" ? "badge-gold" : "badge-muted";
           return '<div class="doc-card">' +
             '<div class="doc-card-icon">' + icon + '</div>' +
@@ -298,18 +303,19 @@
         }).join("");
       }
 
-      // -- Init -------------------------------------------
+      // Init
       loadThreads();
     });
     </script>
     <footer class="site-footer" style="margin-top:0;padding:0.9rem 0 1.2rem;">
       <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;width:100%;border-top:1px solid rgba(58,84,98,0.2);margin-top:0.8rem;padding:0.5rem 0 0.8rem;">
-        <span class="footer-credit-text">� 2026 All rights reserved.</span>
+        <span class="footer-credit-text">&copy; 2026 All rights reserved.</span>
         <span class="footer-credit-text" style="opacity:0.5;">|</span>
         <span class="footer-powered"><span class="footer-credit-text">Powered by</span>
         <a href="https://lucentengine.ai" target="_blank" rel="noopener noreferrer" aria-label="Lucent Engine">
           <img class="footer-credit-logo" src="/assets/img/lucent-engine.png" alt="Lucent Engine" loading="lazy" style="height:36px;width:auto;display:inline-block;vertical-align:middle;" />
-        </a>
+        </a></span>
       </div>
-    </footer>  </body>
+    </footer>
+  </body>
 </html>

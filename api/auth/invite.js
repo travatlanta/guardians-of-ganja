@@ -5,6 +5,7 @@
 import { neon }  from "@neondatabase/serverless";
 import crypto    from "crypto";
 import { verifyJWT, getTokenFromRequest } from "../_jwt.js";
+import { brandedHtml, emailBtn, emailDivider, emailMuted } from "../_email.js";
 
 function requireAdmin(req) {
   const payload = verifyJWT(getTokenFromRequest(req));
@@ -57,19 +58,39 @@ export default async function handler(req, res) {
     if (!resendKey) return res.status(500).json({ error: "RESEND_API_KEY not configured" });
 
     const roleLabel = role === "admin" ? "Admin" : "Client";
+    const html = brandedHtml({
+      preheader: `You've been invited to access the Guardians of Ganja ${roleLabel} Portal.`,
+      body: `
+        <p style="margin:0 0 6px;color:#2fb073;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">You're Invited</p>
+        <h1 style="margin:0 0 20px;color:#e8f5ee;font-size:26px;font-weight:800;line-height:1.2;">Welcome to the<br>Guardians of Ganja Portal</h1>
+        <p style="margin:0 0 8px;color:#c4ddd0;">You've been invited to access the <strong style="color:#e8f5ee;">${roleLabel} Portal</strong> for Guardians of Ganja — your cannabis insurance hub.</p>
+        <p style="margin:0 0 4px;color:#c4ddd0;">Click the button below to accept your invite and set your password. The link is valid for <strong style="color:#e8f5ee;">7 days</strong>.</p>
+        ${emailBtn(inviteUrl, "Accept Invite &amp; Set Password")}
+        ${emailDivider}
+        <p style="margin:0 0 8px;color:#c4ddd0;font-size:14px;">Once inside, you'll have access to:</p>
+        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:8px;">
+          ${role === "admin" ? `
+          <tr><td style="padding:5px 0;color:#c4ddd0;font-size:14px;">&#10003;&nbsp; <span style="color:#2fb073;font-weight:600;">Admin Panel</span> — manage clients, applications &amp; campaigns</td></tr>
+          <tr><td style="padding:5px 0;color:#c4ddd0;font-size:14px;">&#10003;&nbsp; <span style="color:#2fb073;font-weight:600;">Client Inbox</span> — communicate directly with policyholders</td></tr>
+          <tr><td style="padding:5px 0;color:#c4ddd0;font-size:14px;">&#10003;&nbsp; <span style="color:#2fb073;font-weight:600;">Analytics</span> — track submissions and engagement</td></tr>
+          ` : `
+          <tr><td style="padding:5px 0;color:#c4ddd0;font-size:14px;">&#10003;&nbsp; <span style="color:#2fb073;font-weight:600;">My Application</span> — start or track your insurance application</td></tr>
+          <tr><td style="padding:5px 0;color:#c4ddd0;font-size:14px;">&#10003;&nbsp; <span style="color:#2fb073;font-weight:600;">Documents</span> — access your quotes and policies</td></tr>
+          <tr><td style="padding:5px 0;color:#c4ddd0;font-size:14px;">&#10003;&nbsp; <span style="color:#2fb073;font-weight:600;">Inbox</span> — message your agent directly</td></tr>
+          `}
+        </table>
+        ${emailMuted("If you didn't expect this invitation, you can safely ignore this email. The link will expire automatically.")}
+      `,
+    });
+
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         from:    `Guardians of Ganja <${process.env.FROM_EMAIL || "noreply@guardiansofganja.com"}>`,
         to:      [email],
-        subject: `You've been invited to Guardians of Ganja Portal`,
-        html: `
-          <h2>You're invited!</h2>
-          <p>You've been invited to access the Guardians of Ganja ${roleLabel} Portal.</p>
-          <p><a href="${inviteUrl}" style="display:inline-block;padding:12px 24px;background:#2fb073;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;">Accept Invite &amp; Set Password</a></p>
-          <p style="color:#888;font-size:0.85rem;">This link expires in 7 days. If you didn't expect this, ignore it.</p>
-        `,
+        subject: `You've been invited to the Guardians of Ganja ${roleLabel} Portal`,
+        html,
       }),
     });
 
