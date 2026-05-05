@@ -9,7 +9,7 @@
 
 import { neon }  from "@neondatabase/serverless";
 import { verifyJWT, getTokenFromRequest } from "./_jwt.js";
-import { brandedHtml, emailBtn, emailDivider, emailMuted } from "./_email.js";
+import { brandedHtml, emailBtn, emailDivider, emailMuted, sendMail } from "./_email.js";
 
 function requireAdmin(req) {
   const payload = verifyJWT(getTokenFromRequest(req));
@@ -56,12 +56,10 @@ export default async function handler(req, res) {
     `;
 
     // Send emails (broker notification + customer confirmation)
-    const resendKey = process.env.RESEND_API_KEY;
-    const fromAddr  = process.env.FROM_EMAIL || "noreply@guardiansofganja.com";
-    const brokerTo  = process.env.BROKER_EMAIL || "Dalton@aschemanagency.com";
+    const brokerTo  = (process.env.ADMIN_EMAIL || "Dalton@aschemanagency.com").replace(/^﻿/, "").trim();
     const submitted = new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
 
-    if (resendKey) {
+    try {
       // ── Broker notification ───────────────────────────────────────────────────
       const summaryRows = Object.entries(form_data)
         .map(([k, v]) => `
@@ -99,16 +97,8 @@ export default async function handler(req, res) {
         `,
       });
 
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          from:    `Guardians of Ganja <${fromAddr}>`,
-          to:      [brokerTo],
-          subject: `New Quote Application — ${contact_name || contact_email}`,
-          html:    brokerHtml,
-        }),
-      }).catch(e => console.error("[quote-application] Broker email failed:", e.message));
+      sendMail({ to: brokerTo, subject: `New Quote Application — ${contact_name || contact_email}`, html: brokerHtml })
+        .catch(e => console.error("[quote-application] Broker email failed:", e.message));
 
       // ── Customer confirmation ─────────────────────────────────────────────────
       const customerName = contact_name ? contact_name.split(" ")[0] : "there";
@@ -129,23 +119,15 @@ export default async function handler(req, res) {
             </td></tr>
           </table>
           ${emailDivider}
-          <p style="margin:0 0 14px;color:#c4ddd0;font-size:14px;">Have questions in the meantime? You can reach us at <a href="mailto:info@guardiansofganja.com" style="color:#2fb073;text-decoration:none;">info@guardiansofganja.com</a> or log in to your portal to send a message directly.</p>
+          <p style="margin:0 0 14px;color:#c4ddd0;font-size:14px;">Have questions in the meantime? You can reach us at <a href="mailto:Dalton@aschemanagency.com" style="color:#2fb073;text-decoration:none;">Dalton@aschemanagency.com</a> or log in to your portal to send a message directly.</p>
           ${emailBtn("https://guardiansofganja.com/dashboard", "Go to My Portal")}
           ${emailMuted("You're receiving this because you submitted a quote application on guardiansofganja.com.")}
         `,
       });
 
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          from:    `Guardians of Ganja <${fromAddr}>`,
-          to:      [contact_email],
-          subject: "We received your quote application — Guardians of Ganja",
-          html:    customerHtml,
-        }),
-      }).catch(e => console.error("[quote-application] Customer email failed:", e.message));
-    }
+      sendMail({ to: contact_email, subject: "We received your quote application — Guardians of Ganja", html: customerHtml })
+        .catch(e => console.error("[quote-application] Customer email failed:", e.message));
+    } catch(e) { console.error("[quote-application] email error:", e.message); }
 
     return res.status(200).json({ success: true, id: app.id });
   }

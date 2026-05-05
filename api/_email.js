@@ -6,6 +6,23 @@ const SITE_URL  = "https://guardiansofganja.com";
 const FROM_NAME = "Guardians of Ganja";
 const YEAR      = new Date().getFullYear();
 
+// Strip BOM (﻿) that Vercel sometimes prepends to copied env var values.
+export function resendKey() {
+  return (process.env.RESEND_API_KEY || "").replace(/^﻿/, "").trim();
+}
+
+// Send a single branded email via Resend. Returns the fetch Response.
+export async function sendMail({ to, subject, html }) {
+  const key     = resendKey();
+  const fromEnv = (process.env.FROM_EMAIL || "noreply@guardiansofganja.com").replace(/^﻿/, "").trim();
+  if (!key) throw new Error("RESEND_API_KEY not configured");
+  return fetch("https://api.resend.com/emails", {
+    method:  "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body:    JSON.stringify({ from: `Guardians of Ganja <${fromEnv}>`, to: [to], subject, html }),
+  });
+}
+
 export function brandedHtml({ preheader = "", body = "" }) {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -60,7 +77,7 @@ export function brandedHtml({ preheader = "", body = "" }) {
               <p style="margin:0 0 14px;">
                 <a href="${SITE_URL}" style="color:#2fb073;text-decoration:none;font-size:12px;">${SITE_URL.replace("https://","")}</a>
                 <span style="color:#2a4a35;font-size:12px;">&nbsp;&middot;&nbsp;</span>
-                <a href="mailto:info@guardiansofganja.com" style="color:#3a6a4a;text-decoration:none;font-size:12px;">info@guardiansofganja.com</a>
+                <a href="mailto:Dalton@aschemanagency.com" style="color:#3a6a4a;text-decoration:none;font-size:12px;">Dalton@aschemanagency.com</a>
               </p>
               <p style="margin:0;color:#2a4030;font-size:11px;">&copy; ${YEAR} ${FROM_NAME}. All rights reserved.</p>
             </td>

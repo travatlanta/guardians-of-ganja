@@ -5,7 +5,7 @@
 import { neon }  from "@neondatabase/serverless";
 import crypto    from "crypto";
 import { verifyJWT, getTokenFromRequest } from "../_jwt.js";
-import { brandedHtml, emailBtn, emailDivider, emailMuted } from "../_email.js";
+import { brandedHtml, emailBtn, emailDivider, emailMuted, sendMail } from "../_email.js";
 
 function requireAdmin(req) {
   const payload = verifyJWT(getTokenFromRequest(req));
@@ -54,9 +54,6 @@ export default async function handler(req, res) {
     `;
 
     const inviteUrl = `${process.env.SITE_URL || "https://guardiansofganja.com"}/invite?token=${token}`;
-    const resendKey = process.env.RESEND_API_KEY;
-    if (!resendKey) return res.status(500).json({ error: "RESEND_API_KEY not configured" });
-
     const roleLabel = role === "admin" ? "Admin" : "Client";
     const html = brandedHtml({
       preheader: `You've been invited to access the Guardians of Ganja ${roleLabel} Portal.`,
@@ -83,17 +80,12 @@ export default async function handler(req, res) {
       `,
     });
 
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from:    `Guardians of Ganja <${process.env.FROM_EMAIL || "noreply@guardiansofganja.com"}>`,
-        to:      [email],
-        subject: `You've been invited to the Guardians of Ganja ${roleLabel} Portal`,
-        html,
-      }),
-    });
-
+    let r;
+    try {
+      r = await sendMail({ to: email, subject: `You've been invited to the Guardians of Ganja ${roleLabel} Portal`, html });
+    } catch (e) {
+      return res.status(500).json({ error: e.message });
+    }
     if (!r.ok) {
       const err = await r.json().catch(() => ({}));
       return res.status(500).json({ error: `Email failed: ${err.message || r.status}` });

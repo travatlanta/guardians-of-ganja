@@ -5,18 +5,9 @@
 import { neon }   from "@neondatabase/serverless";
 import bcrypt     from "bcryptjs";
 import { signJWT, setSessionCookie } from "../_jwt.js";
-import { brandedHtml, emailBtn, emailDivider, emailMuted } from "../_email.js";
+import { brandedHtml, emailBtn, emailDivider, emailMuted, sendMail } from "../_email.js";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "Dalton@aschemanagency.com";
-const FROM_ADDR   = () => process.env.FROM_EMAIL || "noreply@guardiansofganja.com";
-
-async function sendEmail(resendKey, to, subject, html) {
-  return fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: `Guardians of Ganja <${FROM_ADDR()}>`, to: [to], subject, html }),
-  }).catch(e => console.error("[accept-invite] Email failed:", e.message));
-}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
@@ -54,16 +45,14 @@ export default async function handler(req, res) {
   setSessionCookie(res, jwtToken);
 
   // Fire-and-forget emails
-  const resendKey = process.env.RESEND_API_KEY;
-  if (resendKey) {
-    const firstName  = name.split(" ")[0];
-    const isAdmin    = user.role === "admin";
-    const roleLabel  = isAdmin ? "Admin" : "Client";
-    const portalUrl  = isAdmin ? "https://guardiansofganja.com/admin" : "https://guardiansofganja.com/dashboard";
-    const portalName = isAdmin ? "Admin Panel" : "My Portal";
-
+  const firstName  = name.split(" ")[0];
+  const isAdmin    = user.role === "admin";
+  const roleLabel  = isAdmin ? "Admin" : "Client";
+  const portalUrl  = isAdmin ? "https://guardiansofganja.com/admin" : "https://guardiansofganja.com/dashboard";
+  const portalName = isAdmin ? "Admin Panel" : "My Portal";
+  try {
     // Welcome email → new user
-    sendEmail(resendKey, user.email, `Welcome to Guardians of Ganja — ${roleLabel} Portal`, brandedHtml({
+    sendMail({ to: user.email, subject: `Welcome to Guardians of Ganja — ${roleLabel} Portal`, html: brandedHtml({
       preheader: `Your ${roleLabel} portal account is active and ready to use.`,
       body: `
         <p style="margin:0 0 6px;color:#2fb073;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Invite Accepted</p>
@@ -89,13 +78,13 @@ export default async function handler(req, res) {
         </table>
         ${emailBtn(portalUrl, `Go to ${portalName}`)}
         ${emailDivider}
-        <p style="margin:0;color:#c4ddd0;font-size:14px;">Questions? Reach us at <a href="mailto:info@guardiansofganja.com" style="color:#2fb073;text-decoration:none;">info@guardiansofganja.com</a></p>
+        <p style="margin:0;color:#c4ddd0;font-size:14px;">Questions? Reach us at <a href="mailto:Dalton@aschemanagency.com" style="color:#2fb073;text-decoration:none;">Dalton@aschemanagency.com</a></p>
         ${emailMuted("You're receiving this because you accepted an invitation to guardiansofganja.com.")}
       `,
-    }));
+    }) }).catch(e => console.error("[accept-invite] welcome email:", e.message));
 
     // Admin notification → broker
-    sendEmail(resendKey, ADMIN_EMAIL, `Invite Accepted — ${name} (${roleLabel})`, brandedHtml({
+    sendMail({ to: ADMIN_EMAIL, subject: `Invite Accepted — ${name} (${roleLabel})`, html: brandedHtml({
       preheader: `${name} accepted their ${roleLabel} invitation`,
       body: `
         <p style="margin:0 0 6px;color:#2fb073;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Invite Accepted</p>
@@ -117,8 +106,8 @@ export default async function handler(req, res) {
         ${emailBtn("https://guardiansofganja.com/admin", "View in Admin Panel")}
         ${emailMuted("This is an automated admin notification.")}
       `,
-    }));
-  }
+    }) }).catch(e => console.error("[accept-invite] admin email:", e.message));
+  } catch(e) { console.error("[accept-invite] email error:", e.message); }
 
   return res.status(200).json({ user: { id: user.id, email: user.email, full_name: user.full_name, role: user.role } });
 }

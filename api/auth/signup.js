@@ -5,18 +5,9 @@
 import { neon }  from "@neondatabase/serverless";
 import bcrypt    from "bcryptjs";
 import { signJWT, setSessionCookie } from "../_jwt.js";
-import { brandedHtml, emailBtn, emailDivider, emailMuted } from "../_email.js";
+import { brandedHtml, emailBtn, emailDivider, emailMuted, sendMail } from "../_email.js";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "Dalton@aschemanagency.com";
-const FROM_ADDR   = () => process.env.FROM_EMAIL || "noreply@guardiansofganja.com";
-
-async function sendEmail(resendKey, to, subject, html) {
-  return fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: `Guardians of Ganja <${FROM_ADDR()}>`, to: [to], subject, html }),
-  }).catch(e => console.error("[signup] Email failed:", e.message));
-}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
@@ -44,12 +35,10 @@ export default async function handler(req, res) {
   setSessionCookie(res, jwtToken);
 
   // Fire-and-forget emails
-  const resendKey = process.env.RESEND_API_KEY;
-  if (resendKey) {
-    const firstName = name.split(" ")[0];
-
+  const firstName = name.split(" ")[0];
+  try {
     // Welcome email → new user
-    sendEmail(resendKey, user.email, "Welcome to Guardians of Ganja", brandedHtml({
+    sendMail({ to: user.email, subject: "Welcome to Guardians of Ganja", html: brandedHtml({
       preheader: "Your account is ready — let's get your cannabis business covered.",
       body: `
         <p style="margin:0 0 6px;color:#2fb073;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Account Created</p>
@@ -68,13 +57,13 @@ export default async function handler(req, res) {
         </table>
         ${emailBtn("https://guardiansofganja.com/quote", "Start My Quote Application")}
         ${emailDivider}
-        <p style="margin:0;color:#c4ddd0;font-size:14px;">Questions? Reply to this email or reach us at <a href="mailto:info@guardiansofganja.com" style="color:#2fb073;text-decoration:none;">info@guardiansofganja.com</a> — we typically respond within one business day.</p>
+        <p style="margin:0;color:#c4ddd0;font-size:14px;">Questions? Reply to this email or reach us at <a href="mailto:Dalton@aschemanagency.com" style="color:#2fb073;text-decoration:none;">Dalton@aschemanagency.com</a> — we typically respond within one business day.</p>
         ${emailMuted("You're receiving this because you created an account at guardiansofganja.com.")}
       `,
-    }));
+    })).catch(e => console.error("[signup] welcome email:", e.message));
 
     // Admin notification → broker
-    sendEmail(resendKey, ADMIN_EMAIL, `New Account — ${name} (${user.email})`, brandedHtml({
+    sendMail({ to: ADMIN_EMAIL, subject: `New Account — ${name} (${user.email})`, html: brandedHtml({
       preheader: `${name} just created a client account on guardiansofganja.com`,
       body: `
         <p style="margin:0 0 6px;color:#2fb073;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">New Account</p>
@@ -96,8 +85,8 @@ export default async function handler(req, res) {
         ${emailBtn("https://guardiansofganja.com/admin", "View in Admin Panel")}
         ${emailMuted("This is an automated admin notification.")}
       `,
-    }));
-  }
+    }) }).catch(e => console.error("[signup] admin email:", e.message));
+  } catch(e) { console.error("[signup] email error:", e.message); }
 
   return res.status(200).json({ user: { id: user.id, email: user.email, full_name: user.full_name, role: user.role } });
 }
