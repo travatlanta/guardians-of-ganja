@@ -1,9 +1,0 @@
-{
-  "name": "guardians-of-ganja-site",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "@neondatabase/serverless": "^0.10.4",
-    "bcryptjs": "^3.0.3"
-  }
-}
