@@ -664,13 +664,11 @@
   display: none;
   padding: 1rem 1.2rem;
   border-top: 1px solid var(--line);
-  flex-direction: column;
-  gap: 0.8rem;
   background: var(--surface-2);
 }
 
 .email-template-edit-form.open {
-  display: flex;
+  display: block;
 }
 
 .template-vars-hint {
@@ -688,6 +686,115 @@
   border-radius: 3px;
   padding: 0.05rem 0.25rem;
   font-size: 0.8em;
+}
+
+/* ── Rich Text Editor ────────────────────────────────────── */
+.rich-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0.35rem 0.5rem;
+  background: rgba(11, 31, 18, 0.8);
+  border: 1px solid var(--line);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+}
+
+.rich-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 0.2rem 0.45rem;
+  line-height: 1;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.rich-btn:hover {
+  background: rgba(47, 176, 115, 0.12);
+  border-color: rgba(47, 176, 115, 0.25);
+  color: var(--text);
+}
+
+.rich-sep {
+  display: inline-block;
+  width: 1px;
+  height: 16px;
+  background: var(--line);
+  margin: 0 4px;
+}
+
+.rich-editor {
+  min-height: 140px;
+  padding: 0.75rem 1rem;
+  background: rgba(4, 12, 8, 0.6);
+  border: 1px solid var(--line);
+  border-radius: 0 0 6px 6px;
+  color: var(--text);
+  font-size: 0.875rem;
+  line-height: 1.65;
+  outline: none;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.rich-editor:focus {
+  border-color: rgba(47, 176, 115, 0.45);
+}
+
+.rich-editor ul {
+  margin: 0.25rem 0;
+  padding-left: 1.4rem;
+}
+
+/* ── Variable Chips ──────────────────────────────────────── */
+.var-insert-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.var-insert-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.var-insert-btn {
+  background: rgba(47, 176, 115, 0.1);
+  border: 1px solid rgba(47, 176, 115, 0.25);
+  border-radius: 4px;
+  color: #2fb073;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.var-insert-btn:hover {
+  background: rgba(47, 176, 115, 0.2);
+  border-color: rgba(47, 176, 115, 0.45);
+}
+
+.var-chip {
+  display: inline-block;
+  background: rgba(47, 176, 115, 0.15);
+  border: 1px solid rgba(47, 176, 115, 0.35);
+  border-radius: 4px;
+  color: #2fb073;
+  font-size: 0.8em;
+  padding: 0.05em 0.4em;
+  margin: 0 1px;
+  user-select: none;
+  white-space: nowrap;
+  cursor: default;
 }
 
 /* ── Toggle Switch ───────────────────────────────────────── */
