@@ -179,50 +179,8 @@
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;margin-bottom:1rem;">
             <h1 class="portal-tab-title" style="margin-bottom:0;">Email</h1>
           </div>
-          <!-- Sub-nav -->
-          <nav class="email-subnav" aria-label="Email sections">
-            <button class="email-subnav-btn active" data-esec="campaigns">Campaigns</button>
-            <button class="email-subnav-btn" data-esec="automations">Automations</button>
-          </nav>
-
-          <!-- Campaigns section -->
-          <div class="email-section" id="email-sec-campaigns">
-            <div class="campaign-compose-card">
-              <h2 style="font-size:1rem;font-weight:600;margin:0 0 0.8rem;">New Campaign</h2>
-              <div class="form-group">
-                <label class="form-label" for="camp-subject">Subject</label>
-                <input class="form-input" id="camp-subject" type="text" placeholder="e.g. Q3 cannabis insurance update" />
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="camp-group">Send To</label>
-                <select class="form-select" id="camp-group">
-                  <option value="all">All users + subscribers</option>
-                  <option value="subscribers">Subscribers only</option>
-                  <option value="customers">Customers only</option>
-                  <option value="admins">Admins only</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Body</label>
-                <div id="campaign-editor" style="height:240px;"></div>
-              </div>
-              <p class="portal-error-msg" id="camp-err" style="display:none;"></p>
-              <button class="btn-sm btn-sm-primary" id="camp-send-btn" style="margin-top:0.6rem;">Send Campaign</button>
-            </div>
-
-            <div style="margin-top:1.5rem;">
-              <h2 style="font-size:0.9rem;font-weight:600;margin:0 0 0.6rem;color:var(--muted);">Campaign History</h2>
-              <div class="users-table-wrap">
-                <table class="users-table" id="campaign-history-table">
-                  <thead><tr><th>Subject</th><th>Group</th><th>Recipients</th><th>Sent</th><th>Date</th></tr></thead>
-                  <tbody id="campaign-history-body"><tr><td colspan="5" style="text-align:center;padding:1rem;color:var(--muted);"><span class="spinner" style="display:inline-block;"></span></td></tr></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
           <!-- Automations section -->
-          <div class="email-section" id="email-sec-automations" style="display:none;">
+          <div class="email-section" id="email-sec-automations">
             <p style="font-size:0.875rem;color:var(--muted);margin:0 0 0.6rem;">
               Customize automated emails. Toggle to enable/disable. Use <code style="color:var(--accent);background:rgba(214,162,75,0.1);border-radius:3px;padding:0 3px;">{{variable}}</code> placeholders.
             </p>
@@ -490,7 +448,7 @@
           if (btn.dataset.tab === "users")        loadUsers();
           if (btn.dataset.tab === "applications") loadApplications();
           if (btn.dataset.tab === "clients")      loadClients();
-          if (btn.dataset.tab === "email")        { loadEmailTemplates(); loadCampaignHistory(); }
+          if (btn.dataset.tab === "email")        { loadEmailTemplates(); }
           if (btn.dataset.tab === "analytics")    loadAnalytics();
         });
       });
@@ -965,87 +923,10 @@
       };
 
       // ==================================================
-      // EMAIL CAMPAIGNS + AUTOMATIONS
+      // EMAIL AUTOMATIONS
       // ==================================================
 
-      // Sub-nav switching
-      document.querySelectorAll(".email-subnav-btn").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          document.querySelectorAll(".email-subnav-btn").forEach(function (b) { b.classList.remove("active"); });
-          btn.classList.add("active");
-          var sec = btn.dataset.esec;
-          document.querySelectorAll(".email-section").forEach(function (s) {
-            s.style.display = s.id === "email-sec-" + sec ? "" : "none";
-          });
-          if (sec === "automations") loadEmailTemplates();
-          if (sec === "campaigns")   loadCampaignHistory();
-        });
-      });
-
-      // Quill editor (lazy init)
-      var _quill = null;
-      function getQuill() {
-        if (_quill) return _quill;
-        var el = document.getElementById("campaign-editor");
-        if (!el || typeof Quill === "undefined") return null;
-        _quill = new Quill(el, { theme: "snow", placeholder: "Write your campaign email body&hellip;",
-          modules: { toolbar: [["bold","italic","underline"],[{"list":"ordered"},{"list":"bullet"}],["link"],["clean"]] } });
-        return _quill;
-      }
-
-      function loadCampaignHistory() {
-        var tbody = document.getElementById("campaign-history-body");
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1rem;color:var(--muted);"><span class="spinner" style="display:inline-block;"></span></td></tr>';
-        Portal.api.emails.getCampaigns()
-          .then(function (data) {
-            var campaigns = data.campaigns || [];
-            if (!campaigns.length) {
-              tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--muted);">No campaigns sent yet.</td></tr>';
-              return;
-            }
-            tbody.innerHTML = campaigns.map(function (c) {
-              return '<tr>' +
-                '<td>' + Portal.escHtml(c.subject) + '</td>' +
-                '<td>' + Portal.escHtml(c.target_group) + '</td>' +
-                '<td>' + (c.recipient_count || 0) + '</td>' +
-                '<td><span class="badge ' + (c.status === "sent" ? "badge-green" : "badge-muted") + '">' + Portal.escHtml(c.status) + '</span></td>' +
-                '<td>' + Portal.formatDate(c.sent_at || c.created_at) + '</td>' +
-                '</tr>';
-            }).join("");
-          })
-          .catch(function (err) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1rem;color:var(--muted);">' + Portal.escHtml(err.message) + '</td></tr>';
-          });
-        setTimeout(getQuill, 100);
-      }
-
-      document.getElementById("camp-send-btn").addEventListener("click", function () {
-        var btn     = this;
-        var subject = document.getElementById("camp-subject").value.trim();
-        var group   = document.getElementById("camp-group").value;
-        var errEl   = document.getElementById("camp-err");
-        var q       = getQuill();
-        var body    = q ? q.root.innerHTML : "";
-        errEl.style.display = "none";
-        if (!subject) { errEl.textContent = "Subject is required."; errEl.style.display = "block"; return; }
-        if (!body || body === "<p><br></p>") { errEl.textContent = "Email body is required."; errEl.style.display = "block"; return; }
-        btn.disabled = true; btn.textContent = "Sending&hellip;";
-        Portal.api.emails.sendCampaign({ subject: subject, target_group: group, body_html: body })
-          .then(function () {
-            btn.textContent = "Sent ✓";
-            document.getElementById("camp-subject").value = "";
-            if (q) q.root.innerHTML = "";
-            loadCampaignHistory();
-            setTimeout(function () { btn.disabled = false; btn.textContent = "Send Campaign"; }, 2500);
-          })
-          .catch(function (err) {
-            errEl.textContent = err.message || "Send failed.";
-            errEl.style.display = "block";
-            btn.disabled = false; btn.textContent = "Send Campaign";
-          });
-      });
-
-
+      loadEmailTemplates();
 
       // -- Email Automations (template editor) ------------
       var TEMPLATE_META = {
