@@ -1712,31 +1712,7 @@
 }
 
 /* ── Email Campaigns Sub-nav ─────────────────────────────── */
-.email-subnav {
-  display: flex;
-  gap: 0;
-  border-bottom: 1px solid rgba(39, 64, 79, 0.5);
-  margin-bottom: 1.25rem;
-}
-.email-subnav-btn {
-  padding: 0.45rem 1.1rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: #6b8a78;
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-  margin-bottom: -1px;
-}
-.email-subnav-btn:hover { color: #e8f1ea; }
-.email-subnav-btn.active {
-  color: #2fb073;
-  border-bottom-color: #2fb073;
-}
-.email-section { display: none; }
-.email-section.active { display: block; }
+.email-section { display: block; }
 .email-section-title {
   font-size: 0.9rem;
   font-weight: 700;
