@@ -797,6 +797,63 @@
   cursor: default;
 }
 
+/* ── Compact portal footer ───────────────────────────────── */
+.site-footer--compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.2rem;
+  padding: 0.9rem 1.6rem;
+  border-top: 1px solid rgba(58, 84, 98, 0.25);
+  background: var(--bg);
+}
+
+.site-footer--compact .footer-compact-brand img {
+  height: 28px;
+  width: auto;
+  display: block;
+  opacity: 0.85;
+}
+
+.site-footer--compact .footer-compact-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.5rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.site-footer--compact .footer-compact-links a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.site-footer--compact .footer-compact-links a:hover { color: var(--text); }
+
+.site-footer--compact .footer-compact-links span {
+  opacity: 0.35;
+}
+
+.site-footer--compact .footer-compact-right {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.site-footer--compact .footer-compact-right img {
+  height: 22px;
+  width: auto;
+  display: inline-block;
+  vertical-align: middle;
+  opacity: 0.7;
+}
+
 /* ── Toggle Switch ───────────────────────────────────────── */
 .toggle-switch {
   position: relative;
